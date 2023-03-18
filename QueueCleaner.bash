@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.0.0"
+scriptVersion="1.0.1"
 
 ######## Settings
 scriptInterval="15m"
@@ -37,6 +37,8 @@ QueueCleanerProcess () {
   touch "/config/logs/QueueCleaner.txt"
   chmod 666 "/config/logs/QueueCleaner.txt"
   exec &> >(tee -a "/config/logs/QueueCleaner.txt")
+
+  verifyApiAccess
 
   if [ "$arrName" == "Sonarr" ]; then
     arrQueueData="$(curl -s "$arrUrl/api/v3/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownSeriesItems=true&apikey=${arrApiKey}" | jq -r .records[])"
@@ -80,6 +82,26 @@ QueueCleanerProcess () {
   fi
 }
 
+verifyApiAccess () {
+	until false
+	do
+        arrApiTest=""
+        if [ "$arrName" == "Sonarr" ] || [ "$arrName" == "Radarr" ]; then
+          arrApiTest=$(curl -s "$arrUrl/api/v3/system/status?apikey=$arrApiKey" | jq -r .instanceName)
+        elif [ "$arrName" == "Lidarr" ]; then
+          arrApiTest=$(curl -s "$arrUrl/api/v1/system/status?apikey=$arrApiKey" | jq -r .instanceName)
+        fi
+		if [ "$arrApiTest" == "$arrName" ]; then
+			arrVersion=$(curl -s "$arrUrl/api/v3/system/status?apikey=$arrApiKey" | jq -r .version)
+			log "$arrName Version: $arrVersion"
+			break
+		else
+			log "$arrName is not ready, sleeping until valid response..."
+			sleep 1
+		fi
+	done
+}
+
 if [ "$enableQueueCleaner" == "false" ]; then
   log "ERROR :: Script disabled, exiting..."
   exit
@@ -87,9 +109,6 @@ fi
 
 arrName="$(cat /config/config.xml | xq | jq -r .Config.InstanceName)"
 if [ "$arrName" == "Sonarr" ] || [ "$arrName" == "Radarr" ] || [ "$arrName" == "Lidarr" ]; then
-    log "Waiting for $arrName to startup, sleeping for 2 minutes..."
-    sleep 2m
-    log "Starting Script...."
     for (( ; ; )); do
         let i++
         QueueCleanerProcess
