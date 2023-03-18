@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-scriptVersion="1.0.2"
+#!/usr/bin/with-contenv bash
+scriptVersion="1.0.3"
 
 ######## Settings
 scriptInterval="15m"
