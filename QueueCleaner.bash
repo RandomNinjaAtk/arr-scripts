@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.0.6"
+scriptVersion="1.0.7"
 
 ######## Settings
 scriptInterval="15m"
@@ -111,6 +111,7 @@ arrName="$(cat /config/config.xml | xq | jq -r .Config.InstanceName)"
 if [ "$arrName" == "Sonarr" ] || [ "$arrName" == "Radarr" ] || [ "$arrName" == "Lidarr" ]; then
     for (( ; ; )); do
         let i++
+	log "Starting..."
         QueueCleanerProcess
         log "Sleeping $scriptInterval..."
         sleep $scriptInterval
