@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.0.1"
+scriptVersion="1.0.2"
 
 ######## Settings
 scriptInterval="15m"
@@ -85,14 +85,16 @@ QueueCleanerProcess () {
 verifyApiAccess () {
 	until false
 	do
-        arrApiTest=""
-        if [ "$arrName" == "Sonarr" ] || [ "$arrName" == "Radarr" ]; then
-          arrApiTest=$(curl -s "$arrUrl/api/v3/system/status?apikey=$arrApiKey" | jq -r .instanceName)
-        elif [ "$arrName" == "Lidarr" ]; then
-          arrApiTest=$(curl -s "$arrUrl/api/v1/system/status?apikey=$arrApiKey" | jq -r .instanceName)
-        fi
+		arrApiTest=""
+		arrApiVersion=""
+		if [ "$arrName" == "Sonarr" ] || [ "$arrName" == "Radarr" ]; then
+		  arrApiVersion="v3"
+		elif [ "$arrName" == "Lidarr" ]; then
+		  arrApiVersion="v1"
+		fi
+		arrApiTest=$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)
 		if [ "$arrApiTest" == "$arrName" ]; then
-			arrVersion=$(curl -s "$arrUrl/api/v3/system/status?apikey=$arrApiKey" | jq -r .version)
+			arrVersion=$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .version)
 			log "$arrName Version: $arrVersion"
 			break
 		else
