@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 scriptVersion="1.0.0"
 
+######## Settings
+scriptInterval="15m"
+
 ######## Package dependencies installation
 pip install --upgrade --no-cache-dir -U yq &>/dev/null
 
@@ -76,16 +79,21 @@ QueueCleanerProcess () {
   fi
 }
 
+if [ "$arrName" == "enableQueueCleaner" ]; then
+  log "ERROR :: Script disabled, exiting..."
+  exit
+fi
+
 arrName="$(cat /config/config.xml | xq | jq -r .Config.InstanceName)"
 if [ "$arrName" == "Sonarr" ] || [ "$arrName" == "Radarr" ] || [ "$arrName" == "Lidarr" ]; then
     log "Waiting for $arrName to startup, sleeping for 2 minutes..."
-    #sleep 2m
+    sleep 2m
     log "Starting Script...."
     for (( ; ; )); do
         let i++
         QueueCleanerProcess
-        log "Processing complete, sleeping for 15 minutes..."
-        sleep 15m
+        log "Processing complete, sleeping for $scriptInterval..."
+        sleep $scriptInterval
     done
 else
     log "ERROR :: Arr app not detected, exiting..."
