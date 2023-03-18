@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.0.5"
+scriptVersion="1.0.6"
 
 ######## Settings
 scriptInterval="15m"
@@ -60,8 +60,7 @@ QueueCleanerProcess () {
   arrQueueIdsCount=$(( $arrQueueIdsCompletedCount + $arrQueueIdsFailedCount ))
 
   if [ $arrQueueIdsCount -eq 0 ]; then
-    log "No items in queue to clean up (sleeping $scriptInterval)..."
-    sleep $scriptInterval
+    log "No items in queue to clean up"
   else
     for queueId in $(echo $arrQueuedIds); do
       arrQueueItemData="$(echo "$arrQueueData" | jq -r "select(.id==$queueId)")"
@@ -113,6 +112,8 @@ if [ "$arrName" == "Sonarr" ] || [ "$arrName" == "Radarr" ] || [ "$arrName" == "
     for (( ; ; )); do
         let i++
         QueueCleanerProcess
+        log "Sleeping $scriptInterval..."
+        sleep $scriptInterval
     done
 else
     log "ERROR :: Arr app not detected, exiting..."
