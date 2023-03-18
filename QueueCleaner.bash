@@ -79,7 +79,7 @@ QueueCleanerProcess () {
   fi
 }
 
-if [ "$arrName" == "enableQueueCleaner" ]; then
+if [ "$enableQueueCleaner" == "false" ]; then
   log "ERROR :: Script disabled, exiting..."
   exit
 fi
