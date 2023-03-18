@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 scriptVersion="1.0.0"
 
+######## Dependancy Installation
+pip install --upgrade --no-cache-dir -U yq
+
 log () {
   m_time=`date "+%F %T"`
   echo $m_time" :: QueueCleaner :: $scriptVersion :: "$1
@@ -34,7 +37,7 @@ QueueCleanerProcess () {
   fi
 
   if [ "$arrName" == "Radarr" ]; then
-     arrQueueData="$(curl -s "$arrUrl/api/v3/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownMovieItems=true&apikey=${arrApiKey}"
+     arrQueueData="$(curl -s "$arrUrl/api/v3/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownMovieItems=true&apikey=${arrApiKey}" | jq -r .records[])"
   fi
 
   if [ "$arrName" == "Lidarr" ]; then
@@ -61,7 +64,7 @@ QueueCleanerProcess () {
   fi
 }
 
-log "Waiting for Sonarr to startup..."
+log "Waiting for $arrName to startup, sleeping for 2 minutes..."
 sleep 2m
 log "Starting Script...."
 for (( ; ; )); do
