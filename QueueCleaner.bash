@@ -5,7 +5,7 @@ scriptVersion="1.0.0"
 scriptInterval="15m"
 
 ######## Package dependencies installation
-apk add -U --update --no-cache jq python3-dev py3-pip &>/dev/null
+apk add -U --update --no-cache curl jq python3-dev py3-pip &>/dev/null
 pip install --upgrade --no-cache-dir -U yq &>/dev/null
 
 # Logging output function
