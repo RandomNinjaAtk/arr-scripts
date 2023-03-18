@@ -61,16 +61,16 @@ QueueCleanerProcess () {
       arrQueueItemTitle="$(echo "$arrQueueItemData" | jq -r .title)"
       if [ "$arrName" == "Sonarr" ]; then
         arrEpisodeId="$(echo "$arrQueueItemData" | jq -r .episodeId)"
-	    arrEpisodeData="$(curl -s "$arrUrl/api/v3/episode/$arrEpisodeId?apikey=${arrApiKey}")"
-	    arrEpisodeTitle="$(echo "$arrEpisodeData" | jq -r .title)"
-	    arrEpisodeSeriesId="$(echo "$arrEpisodeData" | jq -r .seriesId)"
-	    if [ "$arrEpisodeTitle" == "TBA" ]; then
-	      log "ERROR :: Episode title is \"$arrEpisodeTitle\" and prevents auto-import, refreshing series..."
+        arrEpisodeData="$(curl -s "$arrUrl/api/v3/episode/$arrEpisodeId?apikey=${arrApiKey}")"
+        arrEpisodeTitle="$(echo "$arrEpisodeData" | jq -r .title)"
+        arrEpisodeSeriesId="$(echo "$arrEpisodeData" | jq -r .seriesId)"
+        if [ "$arrEpisodeTitle" == "TBA" ]; then
+          log "$queueId ($arrQueueItemTitle) :: ERROR :: Episode title is \"$arrEpisodeTitle\" and prevents auto-import, refreshing series..."
           refreshSeries=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw "{\"name\":\"RefreshSeries\",\"seriesId\":$arrEpisodeSeriesId}")
           continue
         fi
       fi
-      log "Removing Failed Queue Item ID: $queueId ($arrQueueItemTitle) from $arrName..."
+      log "$queueId ($arrQueueItemTitle) :: Removing Failed Queue Item from $arrName..."
       deleteItem=$(curl -sX DELETE "$arrUrl/api/v3/queue/$queueId?removeFromClient=true&blocklist=true&apikey=${arrApiKey}")
     done
   fi
