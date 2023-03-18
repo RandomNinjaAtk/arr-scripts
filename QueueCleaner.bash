@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.0.3"
+scriptVersion="1.0.4"
 
 ######## Settings
 scriptInterval="15m"
@@ -94,8 +94,6 @@ verifyApiAccess () {
 		fi
 		arrApiTest=$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)
 		if [ "$arrApiTest" == "$arrName" ]; then
-			arrVersion=$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .version)
-			log "$arrName Version: $arrVersion"
 			break
 		else
 			log "$arrName is not ready, sleeping until valid response..."
