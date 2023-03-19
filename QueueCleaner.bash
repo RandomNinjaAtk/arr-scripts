@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.0.7"
+scriptVersion="1.0.8"
 
 ######## Settings
 scriptInterval="15m"
@@ -13,6 +13,15 @@ log () {
   m_time=`date "+%F %T"`
   echo $m_time" :: QueueCleaner :: $scriptVersion :: "$1
 }
+
+# auto-clean up log file to reduce space usage
+if [ -f "/config/logs/QueueCleaner.txt" ]; then
+  find /config/logs -type f -name "QueueCleaner.txt" -size +1024k -delete
+fi
+
+touch "/config/logs/QueueCleaner.txt"
+chmod 666 "/config/logs/QueueCleaner.txt"
+exec &> >(tee -a "/config/logs/QueueCleaner.txt")
 
 QueueCleanerProcess () {
   # Get Arr App information
@@ -28,15 +37,6 @@ QueueCleanerProcess () {
     arrPort="$(cat /config/config.xml | xq | jq -r .Config.Port)"
     arrUrl="http://127.0.0.1:${arrPort}${arrUrlBase}"
   fi
-
-  # auto-clean up log file to reduce space usage
-  if [ -f "/config/logs/QueueCleaner.txt" ]; then
-    find /config/logs -type f -name "QueueCleaner.txt" -size +1024k -delete
-  fi
-
-  touch "/config/logs/QueueCleaner.txt"
-  chmod 666 "/config/logs/QueueCleaner.txt"
-  exec &> >(tee -a "/config/logs/QueueCleaner.txt")
 
   verifyApiAccess
 
