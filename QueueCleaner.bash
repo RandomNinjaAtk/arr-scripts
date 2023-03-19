@@ -1,12 +1,14 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.0.8"
+scriptVersion="1.0.9"
 
 ######## Settings
 scriptInterval="15m"
 
 ######## Package dependencies installation
-apk add -U --update --no-cache curl jq python3-dev py3-pip &>/dev/null
-pip install --upgrade --no-cache-dir -U yq &>/dev/null
+PackageInstallation () {
+  apk add -U --update --no-cache curl jq python3-dev py3-pip &>/dev/null
+  pip install --upgrade --no-cache-dir -U yq &>/dev/null
+}
 
 # Logging output function
 log () {
@@ -102,16 +104,14 @@ verifyApiAccess () {
 	done
 }
 
-if [ "$enableQueueCleaner" == "false" ]; then
-  log "ERROR :: Script disabled, exiting..."
-  exit
-fi
+# Install packages
+PackageInstallation
 
 arrName="$(cat /config/config.xml | xq | jq -r .Config.InstanceName)"
 if [ "$arrName" == "Sonarr" ] || [ "$arrName" == "Radarr" ] || [ "$arrName" == "Lidarr" ]; then
     for (( ; ; )); do
         let i++
-	log "Starting..."
+	      log "Starting..."
         QueueCleanerProcess
         log "Sleeping $scriptInterval..."
         sleep $scriptInterval
