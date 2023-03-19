@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.0.9"
+scriptVersion="1.0.10"
 
 ######## Settings
 scriptInterval="15m"
@@ -53,7 +53,11 @@ QueueCleanerProcess () {
   if [ "$arrName" == "Lidarr" ]; then
     arrQueueData="$(curl -s "$arrUrl/api/v1/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownArtistItems=true&apikey=${arrApiKey}" | jq -r .records[])"
   fi
-
+  
+  if [ "$arrName" == "Readarr" ]; then
+    arrQueueData="$(curl -s "$arrUrl/api/v1/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownAuthorItems=true&apikey=${arrApiKey}" | jq -r .records[])"
+  fi
+  
   arrQueueCompletedIds=$(echo "$arrQueueData" | jq -r 'select(.status=="completed") | select(.trackedDownloadStatus=="warning") | .id')
   arrQueueIdsCompletedCount=$(echo "$arrQueueData" | jq -r 'select(.status=="completed") | select(.trackedDownloadStatus=="warning") | .id' | wc -l)
   arrQueueFailedIds=$(echo "$arrQueueData" | jq -r 'select(.status=="failed") | .id')
@@ -74,12 +78,12 @@ QueueCleanerProcess () {
         arrEpisodeSeriesId="$(echo "$arrEpisodeData" | jq -r .seriesId)"
         if [ "$arrEpisodeTitle" == "TBA" ]; then
           log "$queueId ($arrQueueItemTitle) :: ERROR :: Episode title is \"$arrEpisodeTitle\" and prevents auto-import, refreshing series..."
-          refreshSeries=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw "{\"name\":\"RefreshSeries\",\"seriesId\":$arrEpisodeSeriesId}")
+          refreshSeries=$(curl -s "$arrUrl/api/$arrApiVersion/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw "{\"name\":\"RefreshSeries\",\"seriesId\":$arrEpisodeSeriesId}")
           continue
         fi
       fi
       log "$queueId ($arrQueueItemTitle) :: Removing Failed Queue Item from $arrName..."
-      deleteItem=$(curl -sX DELETE "$arrUrl/api/v3/queue/$queueId?removeFromClient=true&blocklist=true&apikey=${arrApiKey}")
+      deleteItem=$(curl -sX DELETE "$arrUrl/api/$arrApiVersion/queue/$queueId?removeFromClient=true&blocklist=true&apikey=${arrApiKey}")
     done
   fi
 }
@@ -91,7 +95,7 @@ verifyApiAccess () {
 		arrApiVersion=""
 		if [ "$arrName" == "Sonarr" ] || [ "$arrName" == "Radarr" ]; then
 		  arrApiVersion="v3"
-		elif [ "$arrName" == "Lidarr" ]; then
+		elif [ "$arrName" == "Lidarr" ] || [ "$arrName" == "Readarr" ]; then
 		  arrApiVersion="v1"
 		fi
 		arrApiTest=$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)
@@ -108,7 +112,7 @@ verifyApiAccess () {
 PackageInstallation
 
 arrName="$(cat /config/config.xml | xq | jq -r .Config.InstanceName)"
-if [ "$arrName" == "Sonarr" ] || [ "$arrName" == "Radarr" ] || [ "$arrName" == "Lidarr" ]; then
+if [ "$arrName" == "Sonarr" ] || [ "$arrName" == "Radarr" ] || [ "$arrName" == "Lidarr" ] || [ "$arrName" == "Readarr" ]; then
     for (( ; ; )); do
         let i++
 	      log "Starting..."
