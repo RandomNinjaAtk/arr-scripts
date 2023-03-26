@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.0.10"
+scriptVersion="1.0.2"
 
 ######## Settings
 scriptInterval="15m"
@@ -21,8 +21,10 @@ if [ -f "/config/logs/QueueCleaner.txt" ]; then
   find /config/logs -type f -name "QueueCleaner.txt" -size +1024k -delete
 fi
 
-touch "/config/logs/QueueCleaner.txt"
-chmod 666 "/config/logs/QueueCleaner.txt"
+if [ ! -f "/config/logs/QueueCleaner.txt" ]; then
+    touch "/config/logs/QueueCleaner.txt"
+    chmod 777 "/config/logs/QueueCleaner.txt"
+fi
 exec &> >(tee -a "/config/logs/QueueCleaner.txt")
 
 QueueCleanerProcess () {
