@@ -23,7 +23,7 @@ fi
 
 if [ ! -f "/config/logs/QueueCleaner.txt" ]; then
     touch "/config/logs/QueueCleaner.txt"
-    chmod 777 "/config/logs/QueueCleaner.txt"
+    chmod 666 "/config/logs/QueueCleaner.txt"
 fi
 exec &> >(tee -a "/config/logs/QueueCleaner.txt")
 
