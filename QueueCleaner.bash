@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.0.2"
+scriptVersion="1.0.3"
 
 ######## Settings
 scriptInterval="15m"
@@ -44,19 +44,23 @@ QueueCleanerProcess () {
 
   verifyApiAccess
 
-  if [ "$arrName" == "Sonarr" ]; then
+  # Sonarr
+  if [ "$arrPort" == "8989" ]; then
     arrQueueData="$(curl -s "$arrUrl/api/v3/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownSeriesItems=true&apikey=${arrApiKey}" | jq -r .records[])"
   fi
 
-  if [ "$arrName" == "Radarr" ]; then
+  # Radarr
+  if [ "$arrPort" == "7878" ]; then
      arrQueueData="$(curl -s "$arrUrl/api/v3/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownMovieItems=true&apikey=${arrApiKey}" | jq -r .records[])"
   fi
 
-  if [ "$arrName" == "Lidarr" ]; then
+  # Lidarr
+  if [ "$arrPort" == "8686" ]; then
     arrQueueData="$(curl -s "$arrUrl/api/v1/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownArtistItems=true&apikey=${arrApiKey}" | jq -r .records[])"
   fi
   
-  if [ "$arrName" == "Readarr" ]; then
+  # Readarr
+  if [ "$arrPort" == "8787" ]; then
     arrQueueData="$(curl -s "$arrUrl/api/v1/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownAuthorItems=true&apikey=${arrApiKey}" | jq -r .records[])"
   fi
   
@@ -73,7 +77,7 @@ QueueCleanerProcess () {
     for queueId in $(echo $arrQueuedIds); do
       arrQueueItemData="$(echo "$arrQueueData" | jq -r "select(.id==$queueId)")"
       arrQueueItemTitle="$(echo "$arrQueueItemData" | jq -r .title)"
-      if [ "$arrName" == "Sonarr" ]; then
+      if [ "$arrPort" == "8989" ]; then
         arrEpisodeId="$(echo "$arrQueueItemData" | jq -r .episodeId)"
         arrEpisodeData="$(curl -s "$arrUrl/api/v3/episode/$arrEpisodeId?apikey=${arrApiKey}")"
         arrEpisodeTitle="$(echo "$arrEpisodeData" | jq -r .title)"
