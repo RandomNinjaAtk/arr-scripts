@@ -1,13 +1,17 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.0.3"
+scriptVersion="1.0.4"
 
 ######## Settings
 scriptInterval="15m"
 
 ######## Package dependencies installation
 PackageInstallation () {
-  apk add -U --update --no-cache curl jq python3-dev py3-pip &>/dev/null
-  pip install --upgrade --no-cache-dir -U yq &>/dev/null
+  if [ ! -f "/config/logs/QueueCleaner.txt" ]; then
+    echo "Installing Required Packages..."
+    apk add -U --update --no-cache curl jq python3-dev py3-pip &>/dev/null
+    pip install --upgrade --no-cache-dir -U yq &>/dev/null
+    echo "Done"
+  fi
 }
 
 # Logging output function
@@ -121,7 +125,7 @@ arrName="$(cat /config/config.xml | xq | jq -r .Config.InstanceName)"
 if [ "$arrName" == "Sonarr" ] || [ "$arrName" == "Radarr" ] || [ "$arrName" == "Lidarr" ] || [ "$arrName" == "Readarr" ]; then
     for (( ; ; )); do
         let i++
-	      log "Starting..."
+	log "Starting..."
         QueueCleanerProcess
         log "Sleeping $scriptInterval..."
         sleep $scriptInterval
