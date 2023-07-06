@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.0.4"
+scriptVersion="1.0.5"
 
 ######## Settings
 scriptInterval="15m"
@@ -99,23 +99,23 @@ QueueCleanerProcess () {
 }
 
 verifyApiAccess () {
-	until false
-	do
-		arrApiTest=""
-		arrApiVersion=""
-		if [ "$arrName" == "Sonarr" ] || [ "$arrName" == "Radarr" ]; then
-		  arrApiVersion="v3"
-		elif [ "$arrName" == "Lidarr" ] || [ "$arrName" == "Readarr" ]; then
-		  arrApiVersion="v1"
-		fi
-		arrApiTest=$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)
-		if [ "$arrApiTest" == "$arrName" ]; then
-			break
-		else
-			log "$arrName is not ready, sleeping until valid response..."
-			sleep 1
-		fi
-	done
+  until false
+  do
+    arrApiTest=""
+    arrApiVersion=""
+    if [ "$arrName" == "Sonarr" ] || [ "$arrName" == "Radarr" ]; then
+      arrApiVersion="v3"
+    elif [ "$arrName" == "Lidarr" ] || [ "$arrName" == "Readarr" ]; then
+      arrApiVersion="v1"
+    fi
+    arrApiTest=$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)
+    if [ "$arrApiTest" == "$arrName" ]; then
+      break
+    else
+      log "$arrName is not ready, sleeping until valid response..."
+      sleep 1
+    fi
+  done
 }
 
 # Install packages
@@ -123,15 +123,15 @@ PackageInstallation
 
 arrName="$(cat /config/config.xml | xq | jq -r .Config.InstanceName)"
 if [ "$arrName" == "Sonarr" ] || [ "$arrName" == "Radarr" ] || [ "$arrName" == "Lidarr" ] || [ "$arrName" == "Readarr" ]; then
-    for (( ; ; )); do
-        let i++
-	log "Starting..."
-        QueueCleanerProcess
-        log "Sleeping $scriptInterval..."
-        sleep $scriptInterval
-    done
+  for (( ; ; )); do
+    let i++
+    log "Starting..."
+    QueueCleanerProcess
+    log "Sleeping $scriptInterval..."
+    sleep $scriptInterval
+  done
 else
-    log "ERROR :: Arr app not detected, exiting..."
+  log "ERROR :: Arr app not detected, exiting..."
 fi
 
 exit
