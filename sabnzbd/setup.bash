@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.1"
+scriptVersion="1.2"
 
 ######## Package dependencies installation
 InstallRequirements () {
@@ -31,8 +31,30 @@ InstallRequirements
 mkdir -p /config/scripts
 chmod 777 /config/scripts
 echo "Downloading SMA config: /config/scripts/sma.ini"
-curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/sma.ini" -O /config/scripts/sma.ini
+curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/sma.ini" -O /config/sma.ini
+if [ -f /config/sma.ini ]; then
+  if [ -f /config/scripts/sma.ini ]; then
+    echo "Removing /config/scripts/sma.ini"
+    rm /config/scripts/sma.ini 
+  fi
+  echo "Importing /config/sma.ini to /config/scripts/sma.ini"
+  mv /config/video.bash /config/scripts/sma.ini 
+  chmod 777 /config/scripts/sma.ini 
+fi
+
 echo "Downloading Video script config: /config/scripts/video.bash"
-curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/video.bash" -O /config/scripts/video.bash
+curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/video.bash" -O /config/video.bash
+
+if [ -f /config/video.bash ]; then
+  if [ -f /config/scripts/video.bash ]; then
+    echo "Removing /config/scripts/video.bash"
+    rm /config/scripts/video.bash 
+  fi
+  echo "Importing /config/sma.ini to /config/scripts/video.bash"
+  mv /config/video.bash /config/scripts/video.bash 
+  chmod 777 /config/scripts/video.bash 
+fi
+  
+
 chmod 777 -R /config/scripts
 exit
