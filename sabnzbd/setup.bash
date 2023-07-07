@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.6"
+scriptVersion="1.7"
 
 ######## Package dependencies installation
 InstallRequirements () {
@@ -60,7 +60,6 @@ fi
 
 echo "Downloading Video script: /config/scripts/video.bash"
 curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/video.bash" -o /config/video.bash
-
 if [ -f /config/video.bash ]; then
   if [ -f /config/scripts/video.bash ]; then
     echo "Removing /config/scripts/video.bash"
@@ -73,7 +72,6 @@ fi
 
 echo "Downloading Audio script: /config/scripts/audio.bash"
 curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/audio.bash" -o /config/audio.bash
-
 if [ -f /config/audio.bash ]; then
   if [ -f /config/scripts/audio.bash ]; then
     echo "Removing /config/scripts/audio.bash"
@@ -82,6 +80,19 @@ if [ -f /config/audio.bash ]; then
   echo "Importing /config/audio.bash to /config/scripts/audio.bash"
   mv /config/audio.bash /config/scripts/audio.bash 
   chmod 777 /config/scripts/audio.bash 
+fi
+
+
+echo "Downloading Audio script: /config/scripts/beets-config.yaml"
+curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/beets-config.yaml" -o /config/beets-config.yaml
+if [ -f /config/beets-config.yaml ]; then
+  if [ -f /config/scripts/beets-config.yaml ]; then
+    echo "Removing /config/scripts/beets-config.yaml"
+    rm /config/scripts/beets-config.yaml 
+  fi
+  echo "Importing /config/beets-config.yaml to /config/scripts/beets-config.yaml"
+  mv /config/beets-config.yaml /config/scripts/beets-config.yaml 
+  chmod 777 /config/scripts/beets-config.yaml 
 fi  
 
 chmod 777 -R /config/scripts
