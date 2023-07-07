@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.0.3"
+scriptVersion="1.0.4"
 
 ######## Settings
 videoLanguages="eng"
