@@ -1,13 +1,16 @@
 #!/usr/bin/with-contenv bash
-export LC_ALL=C.UTF-8
-export LANG=C.UTF-8
-TITLESHORT="VPP"
-scriptVersion=1.0.0
+scriptVersion="1.0.0"
 
 set -e
 set -o pipefail
 
+######## Settings
+videoLanguages="eng"
+requireLanguageMatch="true"
+enableSma="true"
+enableSmaTagging="true"
 
+######## Package dependencies installation
 InstallRequirements () {
   if [ ! -f "/config/logs/video.txt" ]; then
     echo "Installing Required Packages..."
@@ -33,30 +36,32 @@ InstallRequirements () {
   fi
 }
 
+# auto-clean up log file to reduce space usage
+if [ -f "/config/scripts/video.txt" ]; then
+  find /config/scripts -type f -name "video.txt" -size +1024k -delete
+fi
 
-touch "/config/logs/video.txt"
-chmod 666 "/config/logs/video.txt"
-exec &> >(tee -a "/config/logs/video.txt")
+
+touch "/config/scripts/video.txt"
+chmod 666 "/config/scripts/video.txt"
+exec &> >(tee -a "/config/scripts/video.txt")
 
 function Configuration {
 	log "SABnzbd Job: $jobname"
 	log "SABnzbd Category: $category"
-	log "DOCKER: $TITLE"
-	log "SCRIPT VERSION: $scriptVersion"
-	log "SCRIPT: Video Post Processor ($TITLESHORT)"
+	log "Script Versiion: $scriptVersion"
 	log "CONFIGURATION VERIFICATION"
 	log "##########################"
-	
-	log "Preferred Audio/Subtitle Languages: ${VIDEO_LANG}"
-	if [ "${RequireLanguage}" = "true" ]; then
+	log "Preferred Audio/Subtitle Languages: ${videoLanguages}"
+	if [ "${requireLanguageMatch}" = "true" ]; then
 		log "Require Matching Language :: Enabled"
 	else
 		log "Require Matching Language :: Disabled"
 	fi
 	
-	if [ ${VIDEO_SMA} = TRUE ]; then
-		log "$TITLESHORT: Sickbeard MP4 Automator (SMA): ENABLED"
-		if [ ${VIDEO_SMA_TAGGING} = TRUE ]; then
+	if [ ${enableSma} = true ]; then
+		log "Sickbeard MP4 Automator (SMA): ENABLED"
+		if [ ${enableSmaTagging} = true ]; then
 			tagging="-a"
 			log "Sickbeard MP4 Automator (SMA): Tagging: ENABLED"
 		else
@@ -67,8 +72,8 @@ function Configuration {
 		log "Sickbeard MP4 Automator (SMA): DISABLED"
 	fi
 	
-	if [ -z "VIDEO_SMA_TAGGING" ]; then
-		VIDEO_SMA_TAGGING=FALSE
+	if [ -z "enableSmaTagging" ]; then
+		enableSmaTagging=FALSE
 	fi
 }
 
@@ -98,9 +103,9 @@ VideoLanguageCheck () {
 		videoSubtitleLanguages=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"subtitle\") | .tags.language")
 
 		# Language Check
-		log "$count of $fileCount :: Checking for preferred languages \"$VIDEO_LANG\""
+		log "$count of $fileCount :: Checking for preferred languages \"$videoLanguages\""
 		preferredLanguage=false
-		IFS=',' read -r -a filters <<< "$VIDEO_LANG"
+		IFS=',' read -r -a filters <<< "$videoLanguages"
 		for filter in "${filters[@]}"
 		do
 			videoAudioTracksLanguageCount=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"audio\") | select(.tags.language==\"${filter}\") | .index" | wc -l)
@@ -117,12 +122,12 @@ VideoLanguageCheck () {
 		done
 
 		if [ "$preferredLanguage" == "false" ]; then
-			if [ ${VIDEO_SMA} = TRUE ]; then
+			if [ ${enableSma} = true ]; then
 				if [ "$smaProcessComplete" == "false" ]; then
 					return
 				fi
 			fi
-			if [ "$RequireLanguage" == "true" ]; then
+			if [ "$requireLanguageMatch" == "true" ]; then
 				log "$count of $fileCount :: ERROR :: No matching languages found in $(($videoAudioTracksCount + $videoSubtitleTracksCount)) Audio/Subtitle tracks"
 				log "$count of $fileCount :: ERROR :: Disable "
 				rm "$file" && log "INFO: deleted: $fileName"
@@ -162,10 +167,10 @@ VideoSmaProcess (){
 				rm /usr/local/sma/config/sma.log
 			fi
 			log "$count of $fileCount :: Processing with SMA..."
-			if [ -f "/config/$2-sma.ini" ]; then
+			if [ -f "/config/scripts/sma.ini" ]; then
 			
 			# Manual run of Sickbeard MP4 Automator
-				if python3 /usr/local/sma/manual.py --config "/config/$2-sma.ini" -i "$file" $tagging; then
+				if python3 /usr/local/sma/manual.py --config "/config/scripts/sma.ini" -i "$file" $tagging; then
 					log "$count of $fileCount :: Complete!"
 				else
 					log "$count of $fileCount :: ERROR :: SMA Processing Error"
@@ -173,7 +178,7 @@ VideoSmaProcess (){
 				fi
 			else
 				log "$count of $fileCount :: ERROR :: SMA Processing Error"
-				log "$count of $fileCount :: ERROR :: \"/config/$2-sma.ini\" configuration file is missing..."
+				log "$count of $fileCount :: ERROR :: \"/config/scripts/sma.ini\" configuration file is missing..."
 				rm "$file" && log "INFO: deleted: $fileName"
 			fi
 		fi
@@ -193,7 +198,7 @@ function Main {
 	VideoFileCheck "$folderpath"
 	VideoLanguageCheck "$folderpath"
 	VideoFileCheck "$folderpath"
-	if [ ${VIDEO_SMA} = TRUE ]; then
+	if [ ${enableSma} = true ]; then
 		VideoSmaProcess "$folderpath" "$category"
 	fi
 	VideoFileCheck "$folderpath"
