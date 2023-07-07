@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.2"
+scriptVersion="1.3"
 
 ######## Package dependencies installation
 InstallRequirements () {
@@ -31,7 +31,7 @@ InstallRequirements
 mkdir -p /config/scripts
 chmod 777 /config/scripts
 echo "Downloading SMA config: /config/scripts/sma.ini"
-curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/sma.ini" -O /config/sma.ini
+curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/sma.ini" -o /config/sma.ini
 if [ -f /config/sma.ini ]; then
   if [ -f /config/scripts/sma.ini ]; then
     echo "Removing /config/scripts/sma.ini"
@@ -43,7 +43,7 @@ if [ -f /config/sma.ini ]; then
 fi
 
 echo "Downloading Video script config: /config/scripts/video.bash"
-curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/video.bash" -O /config/video.bash
+curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/video.bash" -o /config/video.bash
 
 if [ -f /config/video.bash ]; then
   if [ -f /config/scripts/video.bash ]; then
