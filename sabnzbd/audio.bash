@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bash
 TITLESHORT="APP"
-ScriptVersion="1.2"
+ScriptVersion="1.3"
 
 set -e
 set -o pipefail
@@ -217,7 +217,7 @@ Main () {
 		sleep 0.1
 
 		if [ $(find "$1" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | wc -l) -gt 0 ]; then
-			beet -c /config/scripts/configs/beets-config.yaml -l /scripts/library.blb -d "$1" import -q "$1"
+			beet -c /config/scripts/beets-config.yaml -l /scripts/library.blb -d "$1" import -q "$1"
 			if [ $(find "$1" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -newer "/scripts/beets-match" | wc -l) -gt 0 ]; then
 				echo "SUCCESS: Matched with beets!"
 			else
