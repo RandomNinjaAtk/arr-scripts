@@ -1,9 +1,6 @@
 #!/usr/bin/with-contenv bash
 scriptVersion="1.0.0"
 
-set -e
-set -o pipefail
-
 ######## Settings
 videoLanguages="eng"
 requireLanguageMatch="true"
@@ -36,11 +33,15 @@ InstallRequirements () {
   fi
 }
 
+InstallRequirements
+
+set -e
+set -o pipefail
+
 # auto-clean up log file to reduce space usage
 if [ -f "/config/scripts/video.txt" ]; then
   find /config/scripts -type f -name "video.txt" -size +1024k -delete
 fi
-
 
 touch "/config/scripts/video.txt"
 chmod 666 "/config/scripts/video.txt"
@@ -209,7 +210,7 @@ function Main {
 	echo "Post Processing Completed in $(($duration / 60 )) minutes and $(($duration % 60 )) seconds!"
 }
 
-InstallRequirements
+
 Main "$@" 
 
 exit $?
