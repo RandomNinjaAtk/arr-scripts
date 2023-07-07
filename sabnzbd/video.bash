@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.0.0"
+scriptVersion="1.0.1"
 
 ######## Settings
 videoLanguages="eng"
@@ -11,25 +11,25 @@ enableSmaTagging="true"
 InstallRequirements () {
   if [ ! -f "/config/scripts/video.txt" ]; then
     echo "Installing Required Packages..."
-    apk add -U --update --no-cache curl jq python3-dev py3-pip &>/dev/null
+    apk add -U --update --no-cache curl jq python3-dev py3-pip git &>/dev/null
     pip install --upgrade --no-cache-dir -U yq &>/dev/null
     echo "Done"
   fi
-  if [ ! -f /usr/local/sma/manual.py ]; then
+  if [ ! -f /config/scripts/sma/manual.py ]; then
     echo "************ setup SMA ************"
   	echo "************ setup directory ************"
-  	mkdir -p /usr/local/sma
+  	mkdir -p /config/scripts/sma
   	echo "************ download repo ************"
   	git clone https://github.com/mdhiggins/sickbeard_mp4_automator.git /usr/local/sma
-  	mkdir -p /usr/local/sma/config && \
+  	mkdir -p /config/scripts/sma/config && \
   	echo "************ create logging file ************"
-  	mkdir -p /usr/local/sma/config && \
-  	touch /usr/local/sma/config/sma.log && \
-  	chgrp users /usr/local/sma/config/sma.log && \
-  	chmod g+w /usr/local/sma/config/sma.log && \
+  	mkdir -p /config/scripts/sma/config && \
+  	touch /config/scripts/sma/config/sma.log && \
+  	chgrp users /config/scripts/sma/config/sma.log && \
+  	chmod g+w /config/scripts/sma/config/sma.log && \
   	echo "************ install pip dependencies ************" && \
   	python3 -m pip install --upgrade pip && \	
-   	pip3 install -r /usr/local/sma/setup/requirements.txt
+   	pip3 install -r /config/scripts/sma/setup/requirements.txt
   fi
 }
 
