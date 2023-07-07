@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.4"
+scriptVersion="1.5"
 
 ######## Package dependencies installation
 InstallRequirements () {
@@ -58,7 +58,7 @@ if [ -f /config/sma.ini ]; then
   chmod 777 /config/scripts/sma.ini 
 fi
 
-echo "Downloading Video script config: /config/scripts/video.bash"
+echo "Downloading Video script: /config/scripts/video.bash"
 curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/video.bash" -o /config/video.bash
 
 if [ -f /config/video.bash ]; then
@@ -66,9 +66,22 @@ if [ -f /config/video.bash ]; then
     echo "Removing /config/scripts/video.bash"
     rm /config/scripts/video.bash 
   fi
-  echo "Importing /config/sma.ini to /config/scripts/video.bash"
+  echo "Importing /config/video.bash to /config/scripts/video.bash"
   mv /config/video.bash /config/scripts/video.bash 
   chmod 777 /config/scripts/video.bash 
+fi 
+
+echo "Downloading Audio script: /config/scripts/audio.bash"
+curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/audio.bash" -o /config/audio.bash
+
+if [ -f /config/audio.bash ]; then
+  if [ -f /config/scripts/audio.bash ]; then
+    echo "Removing /config/scripts/audio.bash"
+    rm /config/scripts/video.bash 
+  fi
+  echo "Importing /config/audio.bash to /config/scripts/audio.bash"
+  mv /config/audio.bash /config/scripts/audio.bash 
+  chmod 777 /config/scripts/audio.bash 
 fi  
 
 chmod 777 -R /config/scripts
