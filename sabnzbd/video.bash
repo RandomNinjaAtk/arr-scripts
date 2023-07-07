@@ -12,7 +12,7 @@ enableSmaTagging="true"
 
 ######## Package dependencies installation
 InstallRequirements () {
-  if [ ! -f "/config/video.txt" ]; then
+  if [ ! -f "/config/scripts/video.txt" ]; then
     echo "Installing Required Packages..."
     apk add -U --update --no-cache curl jq python3-dev py3-pip &>/dev/null
     pip install --upgrade --no-cache-dir -U yq &>/dev/null
