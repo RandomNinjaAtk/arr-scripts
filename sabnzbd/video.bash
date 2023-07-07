@@ -181,9 +181,6 @@ VideoSmaProcess (){
 	smaProcessComplete="true"
 }
 
-InstallRequirements
-
-
 function Main {
 	SECONDS=0
 	error=0
@@ -207,6 +204,7 @@ function Main {
 	echo "Post Processing Completed in $(($duration / 60 )) minutes and $(($duration % 60 )) seconds!"
 }
 
+InstallRequirements
 Main "$@" 
 
 exit $?
