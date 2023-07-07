@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.0.2"
+scriptVersion="1.0.3"
 
 ######## Settings
 videoLanguages="eng"
@@ -45,7 +45,6 @@ if [ -f "/config/scripts/video.txt" ]; then
 fi
 
 touch "/config/scripts/video.txt"
-chmod 666 "/config/scripts/video.txt"
 exec &> >(tee -a "/config/scripts/video.txt")
 
 function Configuration {
