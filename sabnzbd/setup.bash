@@ -4,8 +4,24 @@ scriptVersion="1.4"
 ######## Package dependencies installation
 InstallRequirements () {
   echo "Installing Required Packages..."
-  apk add -U --update --no-cache curl jq python3-dev py3-pip git ffmpeg
-  pip install --upgrade --no-cache-dir -U yq
+  echo "************ install and update packages ************"
+	apk add  -U --update --no-cache \
+		flac \
+		opus-tools \
+		jq \
+		git \
+		ffmpeg
+	apk add mp3val --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing
+	echo "*** install beets ***"
+	apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/community beets
+	echo "************ install python packages ************"
+	pip install --upgrade --no-cache-dir -U \
+		m4b-merge \
+		pyacoustid \
+		requests \
+		pylast \
+		mutagen \
+    r128gain
   echo "Done"
   if [ -d /config/scripts/sma ]; then
     rm -rf /config/scripts/sma
@@ -53,8 +69,7 @@ if [ -f /config/video.bash ]; then
   echo "Importing /config/sma.ini to /config/scripts/video.bash"
   mv /config/video.bash /config/scripts/video.bash 
   chmod 777 /config/scripts/video.bash 
-fi
-  
+fi  
 
 chmod 777 -R /config/scripts
 exit
