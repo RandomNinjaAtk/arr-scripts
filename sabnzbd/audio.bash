@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bash
 TITLESHORT="APP"
-ScriptVersion="1.3"
+ScriptVersion="1.4"
 
 set -e
 set -o pipefail
@@ -204,21 +204,21 @@ Main () {
 		echo ""
 		trackcount=$(find "$1" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | wc -l)
 		echo "Matching $trackcount tracks with Beets"
-		if [ -f /scripts/library.blb ]; then
-			rm /scripts/library.blb
+		if [ -f /config/scripts/library.blb ]; then
+			rm /config/scripts/library.blb
 			sleep 0.1
 		fi
-		if [ -f /scripts/beets/beets.log ]; then 
-			rm /scripts/beets.log
+		if [ -f /config/scripts/beets/beets.log ]; then 
+			rm /config/scripts/beets.log
 			sleep 0.1
 		fi
 
-		touch "/scripts/beets-match"
+		touch "/config/scripts/beets-match"
 		sleep 0.1
 
 		if [ $(find "$1" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | wc -l) -gt 0 ]; then
-			beet -c /config/scripts/beets-config.yaml -l /scripts/library.blb -d "$1" import -q "$1"
-			if [ $(find "$1" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -newer "/scripts/beets-match" | wc -l) -gt 0 ]; then
+			beet -c /config/scripts/beets-config.yaml -l /config/scripts/library.blb -d "$1" import -q "$1"
+			if [ $(find "$1" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -newer "/config/scripts/beets-match" | wc -l) -gt 0 ]; then
 				echo "SUCCESS: Matched with beets!"
 			else
 				rm -rf "$1"/* 
@@ -227,8 +227,8 @@ Main () {
 			fi	
 		fi
 
-		if [ -f "/scripts/beets-match" ]; then 
-			rm "/scripts/beets-match"
+		if [ -f "/config/scripts/beets-match" ]; then 
+			rm "/config/scripts/beets-match"
 			sleep 0.1
 		fi
 	}
