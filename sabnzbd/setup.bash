@@ -28,4 +28,7 @@ InstallRequirements () {
 
 InstallRequirements
 
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/sma.ini -O /config/scripts/sma.ini
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/video.bash -O /config/scripts/video.bash
+
 exit
