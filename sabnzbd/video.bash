@@ -11,7 +11,7 @@ enableSmaTagging="true"
 InstallRequirements () {
   if [ ! -f "/config/scripts/video.txt" ]; then
     echo "Installing Required Packages..."
-    apk add -U --update --no-cache curl jq python3-dev py3-pip git &>/dev/null
+    apk add -U --update --no-cache curl jq python3-dev py3-pip git ffmpeg &>/dev/null
     pip install --upgrade --no-cache-dir -U yq &>/dev/null
     echo "Done"
   fi
