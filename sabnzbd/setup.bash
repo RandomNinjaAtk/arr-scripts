@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.5"
+scriptVersion="1.6"
 
 ######## Package dependencies installation
 InstallRequirements () {
@@ -77,7 +77,7 @@ curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/
 if [ -f /config/audio.bash ]; then
   if [ -f /config/scripts/audio.bash ]; then
     echo "Removing /config/scripts/audio.bash"
-    rm /config/scripts/video.bash 
+    rm /config/scripts/audio.bash 
   fi
   echo "Importing /config/audio.bash to /config/scripts/audio.bash"
   mv /config/audio.bash /config/scripts/audio.bash 
