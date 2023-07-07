@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.3"
+scriptVersion="1.4"
 
 ######## Package dependencies installation
 InstallRequirements () {
@@ -38,7 +38,7 @@ if [ -f /config/sma.ini ]; then
     rm /config/scripts/sma.ini 
   fi
   echo "Importing /config/sma.ini to /config/scripts/sma.ini"
-  mv /config/video.bash /config/scripts/sma.ini 
+  mv /config/sma.ini /config/scripts/sma.ini 
   chmod 777 /config/scripts/sma.ini 
 fi
 
