@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.0.1"
+scriptVersion="1.0.2"
 
 ######## Settings
 videoLanguages="eng"
@@ -20,16 +20,17 @@ InstallRequirements () {
   	echo "************ setup directory ************"
   	mkdir -p /config/scripts/sma
   	echo "************ download repo ************"
-  	git clone https://github.com/mdhiggins/sickbeard_mp4_automator.git /usr/local/sma
-  	mkdir -p /config/scripts/sma/config && \
+  	git clone https://github.com/mdhiggins/sickbeard_mp4_automator.git /config/scripts/sma
+  	mkdir -p /config/scripts/sma/config
   	echo "************ create logging file ************"
-  	mkdir -p /config/scripts/sma/config && \
-  	touch /config/scripts/sma/config/sma.log && \
-  	chgrp users /config/scripts/sma/config/sma.log && \
-  	chmod g+w /config/scripts/sma/config/sma.log && \
-  	echo "************ install pip dependencies ************" && \
-  	python3 -m pip install --upgrade pip && \	
-   	pip3 install -r /config/scripts/sma/setup/requirements.txt
+  	mkdir -p /config/scripts/sma/config
+  	touch /config/scripts/sma/config/sma.log
+  	chgrp users /config/scripts/sma/config/sma.log
+  	chmod g+w /config/scripts/sma/config/sma.log
+  	echo "************ install pip dependencies ************"
+  	pip install --upgrade pip --no-cache-dir 
+   	pip install -r /config/scripts/sma/setup/requirements.txt --no-cache-dir 
+	chmod 777 -R /config/scripts/sma
   fi
 }
 
@@ -164,14 +165,14 @@ VideoSmaProcess (){
 		extension="${fileName##*.}"
 		log "$count of $fileCount :: Processing $fileName"
 		if [ -f "$file" ]; then	
-			if [ -f /usr/local/sma/config/sma.log ]; then
-				rm /usr/local/sma/config/sma.log
+			if [ -f /config/scripts/sma/config/sma.log ]; then
+				rm /config/scripts/sma/config/sma.log
 			fi
 			log "$count of $fileCount :: Processing with SMA..."
 			if [ -f "/config/scripts/sma.ini" ]; then
 			
 			# Manual run of Sickbeard MP4 Automator
-				if python3 /usr/local/sma/manual.py --config "/config/scripts/sma.ini" -i "$file" $tagging; then
+				if python3 /config/scripts/sma/manual.py --config "/config/scripts/sma.ini" -i "$file" $tagging; then
 					log "$count of $fileCount :: Complete!"
 				else
 					log "$count of $fileCount :: ERROR :: SMA Processing Error"
