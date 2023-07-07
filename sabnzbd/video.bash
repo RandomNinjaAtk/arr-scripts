@@ -9,7 +9,7 @@ set -o pipefail
 
 
 InstallRequirements () {
-  if [ ! -f "/config/logs/video-pp.txt" ]; then
+  if [ ! -f "/config/logs/video.txt" ]; then
     echo "Installing Required Packages..."
     apk add -U --update --no-cache curl jq python3-dev py3-pip &>/dev/null
     pip install --upgrade --no-cache-dir -U yq &>/dev/null
@@ -34,9 +34,9 @@ InstallRequirements () {
 }
 
 
-touch "/config/logs/video-pp.txt"
-chmod 666 "/config/logs/video-pp.txt"
-exec &> >(tee -a "/config/logs/video-pp.txt")
+touch "/config/logs/video.txt"
+chmod 666 "/config/logs/video.txt"
+exec &> >(tee -a "/config/logs/video.txt")
 
 function Configuration {
 	log "SABnzbd Job: $jobname"
@@ -162,10 +162,10 @@ VideoSmaProcess (){
 				rm /usr/local/sma/config/sma.log
 			fi
 			log "$count of $fileCount :: Processing with SMA..."
-			if [ -f "/config/scripts/configs/$2-sma.ini" ]; then
+			if [ -f "/config/$2-sma.ini" ]; then
 			
 			# Manual run of Sickbeard MP4 Automator
-				if python3 /usr/local/sma/manual.py --config "/config/scripts/configs/$2-sma.ini" -i "$file" $tagging; then
+				if python3 /usr/local/sma/manual.py --config "/config/$2-sma.ini" -i "$file" $tagging; then
 					log "$count of $fileCount :: Complete!"
 				else
 					log "$count of $fileCount :: ERROR :: SMA Processing Error"
@@ -173,7 +173,7 @@ VideoSmaProcess (){
 				fi
 			else
 				log "$count of $fileCount :: ERROR :: SMA Processing Error"
-				log "$count of $fileCount :: ERROR :: \"/config/scripts/configs/$2-sma.ini\" configuration file is missing..."
+				log "$count of $fileCount :: ERROR :: \"/config/$2-sma.ini\" configuration file is missing..."
 				rm "$file" && log "INFO: deleted: $fileName"
 			fi
 		fi
