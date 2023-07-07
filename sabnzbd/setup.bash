@@ -1,4 +1,5 @@
 #!/usr/bin/with-contenv bash
+scriptVersion="1.0"
 
 ######## Package dependencies installation
 InstallRequirements () {
@@ -28,7 +29,9 @@ InstallRequirements () {
 
 InstallRequirements
 
+mkdir -p /config/scripts
+chmod 777 /config/scripts
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/sma.ini -O /config/scripts/sma.ini
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/video.bash -O /config/scripts/video.bash
-
+chmod 777 -R /config/scripts
 exit
