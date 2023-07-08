@@ -1,4 +1,4 @@
-plugins: 
+plugins: embedart
 art_filename: folder
 threaded: no
 per_disc_numbering: yes
@@ -61,6 +61,9 @@ import:
     quiet_fallback: skip
     timid: no
     duplicate_action: skip
-    log: /scripts/beets.log
+    log: /config/scripts/beets.log
     languages: ['en']
     group_albums: no
+
+embedart:
+    auto: no
