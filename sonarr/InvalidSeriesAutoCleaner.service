@@ -79,7 +79,7 @@ InvalidSeriesAutoCleanerProcess () {
       # trigger a plex scan to rmeove the deleted series
       folderToScan="$(dirname "$seriesPath")"
       log "Using PlexNotify.bash to update Plex.... ($folderToScan)"
-      bash /config/extended/scripts/PlexNotify.bash "$folderToScan" "true"
+      bash /config/extended/PlexNotify.bash "$folderToScan" "true"
   done
 }
 
