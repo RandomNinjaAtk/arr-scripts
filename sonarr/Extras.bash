@@ -204,7 +204,7 @@ NotifyPlex () {
         # Always update plex if extra is downloaded
         if [ "$updatePlex" == "true" ]; then
             log "$itemTitle :: Using PlexNotify.bash to update Plex...."
-            bash /config/extended/scripts/PlexNotify.bash "$itemPath"
+            bash /config/extended/PlexNotify.bash "$itemPath"
             exit
         fi
         
@@ -214,7 +214,7 @@ NotifyPlex () {
             exit
         else
             log "$itemTitle :: Using PlexNotify.bash to update Plex...."
-            bash /config/extended/scripts/PlexNotify.bash "$itemPath"
+            bash /config/extended/PlexNotify.bash "$itemPath"
             exit
         fi
     fi
