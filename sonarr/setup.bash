@@ -46,7 +46,7 @@ echo "Done"
 
 mkdir -p /config/extended
 echo "Download PlexNotify script..."
-https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/PlexNotify.bash  -o /config/extended/PlexNotify.bash 
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/PlexNotify.bash  -o /config/extended/PlexNotify.bash 
 echo "Done"
 chmod 777 -R /config/extended
 
