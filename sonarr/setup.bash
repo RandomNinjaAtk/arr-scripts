@@ -43,3 +43,9 @@ mkdir -p /custom-services.d
 echo "Download QueueCleaner service..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/services/QueueCleaner -o /custom-services.d/QueueCleaner
 echo "Done"
+
+mkdir -p /config/extended
+echo "Download PlexNotify script..."
+https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/PlexNotify.bash  -o /config/extended/PlexNotify.bash 
+echo "Done"
+chmod 777 -R /config/extended
