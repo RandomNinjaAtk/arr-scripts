@@ -56,6 +56,10 @@ echo "Download InvalidSeriesAutoCleaner service..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/InvalidSeriesAutoCleaner.service -o /custom-services.d/InvalidSeriesAutoCleaner
 echo "Done"
 
+echo "Download Recyclarr service..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/Recyclarr.service -o /custom-services.d/Recyclarr
+echo "Done"
+
 mkdir -p /config/extended
 echo "Download Naming script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/naming.json -o /config/extended/naming.json 
@@ -76,6 +80,10 @@ echo "Done"
 
 echo "Download SMA config..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/sma.ini -o /config/extended/sma.ini 
+echo "Done"
+
+echo "Download Recyclarr config..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/recyclarr.yaml -o /config/extended/recyclarr.yaml
 echo "Done"
 
 chmod 777 -R /config/extended
