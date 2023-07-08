@@ -44,6 +44,10 @@ echo "Download QueueCleaner service..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/services/QueueCleaner -o /custom-services.d/QueueCleaner
 echo "Done"
 
+echo "Download AutoConfig service..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/AutoConfig.service -o /custom-services.d/AutoConfig
+echo "Done"
+
 mkdir -p /config/extended
 echo "Download PlexNotify script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/PlexNotify.bash  -o /config/extended/PlexNotify.bash 
