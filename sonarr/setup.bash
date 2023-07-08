@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-SMA_PATH="usr/local/sma"
+SMA_PATH="/usr/local/sma"
 
 echo "************ install packages ************" && \
 apk add -U --update --no-cache \
