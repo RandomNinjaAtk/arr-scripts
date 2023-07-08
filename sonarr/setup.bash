@@ -74,6 +74,10 @@ echo "Download Extras script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/Extras.bash  -o /config/extended/Extras.bash 
 echo "Done"
 
+echo "Download SMA config..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/sma.ini  -o /sma.ini 
+echo "Done"
+
 chmod 777 -R /config/extended
 
 exit
