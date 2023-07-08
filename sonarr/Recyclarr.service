@@ -67,9 +67,9 @@ RecyclarrProcess () {
 echo "Starting Script...."
 for (( ; ; )); do
 	let i++
-  getArrAppInfo
-  verifyApiAccess
-	AutoExtrasProcess
+	getArrAppInfo
+	verifyApiAccess
+	RecyclarrProcess
 	echo "Script sleeping for 4 hours..."
 	sleep 4h
 done
