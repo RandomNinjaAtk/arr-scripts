@@ -58,24 +58,24 @@ echo "Done"
 
 mkdir -p /config/extended
 echo "Download Naming script..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/naming.json  -o /config/extended/naming.json 
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/naming.json -o /config/extended/naming.json 
 echo "Done"
 
 mkdir -p /config/extended
 echo "Download PlexNotify script..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/PlexNotify.bash  -o /config/extended/PlexNotify.bash 
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/PlexNotify.bash -o /config/extended/PlexNotify.bash 
 echo "Done"
 
 echo "Download DailySeriesEpisodeTrimmer script..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/DailySeriesEpisodeTrimmer.bash  -o /config/extended/DailySeriesEpisodeTrimmer.bash 
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/DailySeriesEpisodeTrimmer.bash -o /config/extended/DailySeriesEpisodeTrimmer.bash 
 echo "Done"
 
 echo "Download Extras script..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/Extras.bash  -o /config/extended/Extras.bash 
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/Extras.bash -o /config/extended/Extras.bash 
 echo "Done"
 
 echo "Download SMA config..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/sma.ini  -o /sma.ini 
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/sma.ini -o /config/extended/sma.ini 
 echo "Done"
 
 chmod 777 -R /config/extended
