@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.0"
+scriptVersion="1.1"
 
 getArrAppInfo () {
   # Get Arr App information
@@ -60,7 +60,7 @@ InvalidSeriesAutoCleanerProcess () {
   
   if [ -z "$seriesTvdbId" ]; then
     log "No invalid series (tvdbid) reported by Sonarr health check, skipping..."
-    exit
+    return
   fi
   
   # Process each invalid series tvdb id
