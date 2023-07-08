@@ -57,6 +57,11 @@ mkdir -p /config/extended
 echo "Download PlexNotify script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/PlexNotify.bash  -o /config/extended/PlexNotify.bash 
 echo "Done"
+
+echo "Download DailySeriesEpisodeTrimmer script..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/DailySeriesEpisodeTrimmer.bash  -o /config/extended/DailySeriesEpisodeTrimmer.bash 
+echo "Done"
+
 chmod 777 -R /config/extended
 
 exit
