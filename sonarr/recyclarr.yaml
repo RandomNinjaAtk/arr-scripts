@@ -1,0 +1,195 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/recyclarr/recyclarr/master/schemas/config-schema.json
+
+# A starter config to use with Recyclarr. Most values are set to "reasonable defaults". Update the
+# values below as needed for your instance. You will be required to update the API Key and URL for
+# each instance you want to use.
+#
+# Many optional settings have been omitted to keep this template simple.
+#
+# For more details on the configuration, see the Configuration Reference on the wiki here:
+# https://github.com/recyclarr/recyclarr/wiki/Configuration-Reference
+
+# Configuration specific to Sonarr
+sonarr:
+  instance1:
+    base_url: http://127.0.0.1:8989
+    api_key: arrApi
+
+    # Quality definitions from the guide to sync to Sonarr. Choice: anime, series, hybrid
+    quality_definition:
+      type: series
+      preferred_ratio: 1.0
+
+    delete_old_custom_formats: true
+
+    custom_formats:
+      # Custom scoring
+      
+      - trash_ids:
+          - c9eafd50846d299b862ca9bb6ea91950 # x265
+        quality_profiles:
+          - name: Any
+            score: 2000
+      - trash_ids:
+          - cddfb4e32db826151d97352b8e37c648 # x264
+        quality_profiles:
+          - name: Any
+            score: 1000
+      - trash_ids:
+          # Streaming Services
+          - d660701077794679fd59e8bdf4ce3a29 # AMZN
+          - f67c9ca88f463a48346062e8ad07713f # ATVP
+          - f27d46a831e6b16fa3fee2c4e5d10984 # CANAL+
+          - 77a7b25585c18af08f60b1547bb9b4fb # CC
+          - 36b72f59f4ea20aad9316f475f2d9fbb # DCU
+          - 89358767a60cc28783cdc3d0be9388a4 # DSNP
+          - 7a235133c87f7da4c8cccceca7e3c7a6 # HBO
+          - a880d6abc21e7c16884f3ae393f84179 # HMAX
+          - f6cce30f1733d5c8194222a7507909bb # HULU
+          - 0ac24a2a68a9700bcb7eeca8e5cd644c # iT
+          - 81d1fbf600e2540cee87f3a23f9d3c1c # MAX
+          - d34870697c9db575f17700212167be23 # NF
+          - b2b980877494b560443631eb1f473867 # NLZ
+          - 1656adc6d7bb2c8cca6acfb6592db421 # PCOK
+          - c67a75ae4a1715f2bb4d492755ba4195 # PMTP
+          - 3ac5d84fce98bab1b531393e9c82f467 # QIBI
+          - c30d2958827d1867c73318a5a2957eb1 # RED
+          - b0d6195c23ae254932da00512db7e8a8 # RTBF
+          - 0455d6519a550dbf648c97b56e7231d2 # SALTO
+          - ae58039e1319178e6be73caab5c42166 # SHO
+          - 1efe8da11bfd74fbbcd4d8117ddb9213 # STAN
+          - 43b3cf48cb385cd3eac608ee6bca7f09 # UHD Streaming Boost
+          - d2d299244a92b8a52d4921ce3897a256 # UHD Streaming Cut
+          - 5d2317d99af813b6529c7ebf01c83533 # VDL
+        quality_profiles:
+          - name: Any
+            score: 300
+      - trash_ids:
+          - 290078c8b266272a5cc8e251b5e2eb0b # 1080p
+        quality_profiles:
+          - name: Any
+            score: 100
+      - trash_ids:
+          # Audio Channels
+          - 3fbafa924f361e66fbc6187af82dfa85 # 5.1 Surround
+          - 9fb6d778592c293467437593ef394bf1 # 6.1 Surround
+          - 204c8c3e7315bb0ea81332774fa888d6 # 7.1 Surround
+          - a377864de6228b252d6e28962673cedd # 9.1 Surround
+          # Audio Advanced #1
+          - 4232a509ce60c4e208d13825b7c06264 # DD+ ATMOS
+          # Anime Optional
+          - 418f50b10f1907201b6cfdf881f467b7 # Anime Dual Audio
+          - 026d5aadd1a6b4e550b134cb6c72b3ca # Uncensored
+        quality_profiles:
+          - name: Any
+            score: 75
+      - trash_ids:
+          # Audio Channels
+          - 834e534f103938853ffced4203b53e72 # 2.0 Stereo
+          - 42cba7e38c7947a6d1d0a62580ee6d62 # 3.0 Sound
+          - 1895195e84767de180653914ce207245 # 4.0 Sound
+          # Audio Advanced #1
+          - 63487786a8b01b7f20dd2bc90dd4a477 # DD+
+        quality_profiles:
+          - name: Any
+            score: 35
+      - trash_ids:
+          # Audio Advanced #2
+          - dbe00161b08a25ac6154c55f95e6318d # DD
+        quality_profiles:
+          - name: Any
+            score: 30
+      - trash_ids:
+          # Audio Channels
+          - bd6dd5e043aa27ff4696a08d011c7d96 # 1.0 Mono
+        quality_profiles:
+          - name: Any
+            score: 25
+      - trash_ids:
+          - 44e7c4de10ae50265753082e5dc76047 # Repack v3
+        quality_profiles:
+          - name: Any
+            score: 20
+      - trash_ids:
+          - eb3d5cc0a2be0db205fb823640db6a3c # Repack v2
+        quality_profiles:
+          - name: Any
+            score: 15
+      - trash_ids:
+          - ec8fa7296b64e8cd390a1600981f3923 # Repack/Proper
+        quality_profiles:
+          - name: Any
+            score: 10
+      - trash_ids:
+          - 851bd64e04c9374c51102be3dd9ae4cc # FLAC
+          - 3e8b714263b26f486972ee1e0fe7606c # MP3
+          - 30f70576671ca933adbdcfc736a69718 # PCM
+          - b2550eb333d27b75833e25b8c2557b38 # 10bit
+          - 9c14d194486c4014d422adc64092d794 # Dubs Only
+          - 2016d1676f5ee13a5b7257ff86ac9a93 # SDR
+          # Optional
+          - 82d40da2bc6923f41e14394075dd4b03 # No-RlsGroup
+          - e1a997ddb54e3ecbfe06341ad323c458 # Obfuscated
+          - 2016d1676f5ee13a5b7257ff86ac9a93 # SDR
+          - 9b64dff695c2115facf1b6ea59c9bd07 # x265 (no HDR/DV)
+          - 1b3994c551cbb92a2c781af061f4ab44 # Scene
+          # Audio Advanced #1
+          - b6fbafa7942952a13e17e2b1152b539a # ATMOS (undefined)
+          - 5964f2a8b3be407d083498e4459d05d0 # DTS
+          - 9d00418ba386a083fbf4d58235fc37ef # DTS X
+          - c1a25cd67b5d2e08287c957b1eb903ec # DTS-ES
+          - c429417a57ea8c41d57e6990a8b0033f # DTS-HD MA
+          - 1808e4b9cee74e064dfae3f1db99dbfe # TrueHD
+          - 0d7824bb924701997f874e7ff7d4844a # TrueHD ATMOS
+           # Audio Advanced #2
+          - a50b8a0c62274a7c38b09a9619ba9d86 # AAC
+          - cfa5fbd8f02a86fc55d8d223d06a5e1f # DTS-HD HRA
+          - 851bd64e04c9374c51102be3dd9ae4cc # FLAC
+          - 3e8b714263b26f486972ee1e0fe7606c # MP3
+          - 28f6ef16d61e2d1adfce3156ed8257e3 # Opus
+          - 30f70576671ca933adbdcfc736a69718 # PCM
+          # Unwanted
+          - 47435ece6b99a0b477caf360e79ba0bb # x265 (HD)
+        quality_profiles:
+          - name: Any
+            score: 5
+      - trash_ids:
+          # Misc
+          - 4aee45b0868229c4fbd8bad3e315f1d0 # MPEG2
+          - 7ba05c6e0e14e793538174c679126996 # Multi
+          # Optional
+          - 90501962793d580d011511155c97e4e5 # VP9
+        quality_profiles:
+          - name: Any
+            score: -10
+      - trash_ids:
+          # Optional
+          - 15a05bc7c1a36e2b57fd628f8977e2fc # AV1
+          - 32b367365729d530ca1c124a0b180c64 # Bad Dual Groups
+          - ef4963043b0987f8485bc9106f16db38 # DV (FEL)
+          - 9b27ab6498ec0f31a3353992e19434ca # DV (WEBDL)
+          - 0dad0a507451acddd754fe6dc3a7f5e7 # HDR10+ Boost
+          - 1bd69272e23c5e6c5b1d6c8a36fce95e # HFR
+          - 06d66ab109d4d2eddb2794d21526d140 # Retags
+          - 3bc5f395426614e155e585a2f056cdf1 # Season Pack
+          # Series Versions
+          - 3a4127d8aa781b44120d907f2cd62627 # Hybrid
+          - b735f09d3c025cbb7d75a5d38325b73b # Remaster
+          # HDR Formats
+          - 6d0d8de7b57e35518ac0308b0ddf404e # DV
+          - 7878c33f1963fefb3d6c8657d46c2f0a # DV HDR10
+          - 1f733af03141f068a540eec352589a89 # DV HLG
+          - 27954b0a80aab882522a88a4d9eae1cd # DV SDR
+          - 3e2c4e748b64a1a1118e0ea3f4cf6875 # HDR
+          - bb019e1cd00f304f80971c965de064dc # HDR (undefined)
+          - 3497799d29a085e2ac2df9d468413c94 # HDR10
+          - a3d82cbef5039f8d295478d28a887159 # HDR10+
+          - 17e889ce13117940092308f48b48b45b # HLG
+          - 2a7e3be05d3861d6df7171ec74cad727 # PQ
+          # Unwanted
+          - 85c61753df5da1fb2aab6f2a47426b09 # BR-DISK
+          - fbcb31d8dabd2a319072b84fc0b7249c # Extras
+          - 9c11cd3f07101cdba90a2d81cf0e56b4 # LQ
+        quality_profiles:
+          - name: Any
+            score: -100000
