@@ -62,6 +62,10 @@ echo "Download DailySeriesEpisodeTrimmer script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/DailySeriesEpisodeTrimmer.bash  -o /config/extended/DailySeriesEpisodeTrimmer.bash 
 echo "Done"
 
+echo "Download Extras script..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/Extras.bash  -o /config/extended/Extras.bash 
+echo "Done"
+
 chmod 777 -R /config/extended
 
 exit
