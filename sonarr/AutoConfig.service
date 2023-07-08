@@ -56,17 +56,10 @@ log () {
   echo $m_time" :: AutoConfig :: $scriptVersion :: "$1
 }
 
-if [ -f /config/extended/autoconfig ]; then
-	log "Sonarr previously configured with optimal settings, skipping..."
-	log "To re-configure Sonarr, delete the following file:"
-	log "/config/extended/autoconfig" 
-	exit
-fi
 
-
-if [ -f /config/extended/configs/naming.json ]; then
-	log "Using custom Sonarr Naming (/config/extended/configs/naming.json)..."
-	namingJson=$(cat /config/extended/configs/naming.json)
+if [ -f /config/extended/naming.json ]; then
+	log "Using custom Sonarr Naming (/config/extended/naming.json)..."
+	namingJson=$(cat /config/extended/naming.json)
 else
 	log "Getting Trash Guide Recommended Naming..."
 	namingJson=$(curl -s "https://raw.githubusercontent.com/TRaSH-/Guides/master/docs/json/sonarr/naming/sonarr-naming.json")
@@ -160,9 +153,6 @@ else
 	updateArr=$(curl -s "$arrUrl/api/v3/notification?" -X POST -H "Content-Type: application/json" -H "X-Api-Key: ${arrApiKey}" --data-raw '{"onGrab":false,"onDownload":true,"onUpgrade":true,"onRename":true,"onSeriesDelete":false,"onEpisodeFileDelete":false,"onEpisodeFileDeleteForUpgrade":false,"onHealthIssue":false,"onApplicationUpdate":false,"supportsOnGrab":true,"supportsOnDownload":true,"supportsOnUpgrade":true,"supportsOnRename":true,"supportsOnSeriesDelete":false,"supportsOnEpisodeFileDelete":true,"supportsOnEpisodeFileDeleteForUpgrade":true,"supportsOnHealthIssue":true,"supportsOnApplicationUpdate":true,"includeHealthWarnings":false,"name":"Extras.bash","fields":[{"name":"path","value":"/config/extended/Extras.bash"},{"name":"arguments"}],"implementationName":"Custom Script","implementation":"CustomScript","configContract":"CustomScriptSettings","infoLink":"https://wiki.servarr.com/sonarr/supported#customscript","message":{"message":"Testing will execute the script with the EventType set to Test, ensure your script handles this correctly","type":"warning"},"tags":[]}')
 	log "Complete"
 fi
-
-touch /config/extended/autoconfig
-chmod 666 /config/extended/autoconfig
 
 sleep infinity
 exit $?
