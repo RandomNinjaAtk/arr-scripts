@@ -52,6 +52,10 @@ echo "Download AutoExtras service..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/AutoExtras.service -o /custom-services.d/AutoExtras
 echo "Done"
 
+echo "Download InvalidSeriesAutoCleaner service..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/InvalidSeriesAutoCleaner.service -o /custom-services.d/InvalidSeriesAutoCleaner
+echo "Done"
+
 mkdir -p /config/extended
 echo "Download Naming script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/naming.json  -o /config/extended/naming.json 
