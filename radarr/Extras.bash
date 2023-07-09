@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.0"
+scriptVersion="1.1"
 arrEventType="$radarr_eventtype"
 arrItemId=$radarr_movie_id
 tmdbApiKey="3b7751e3179f796565d88fdb2fcdf426"
@@ -37,19 +37,19 @@ if [ -z "$arrUrl" ] || [ -z "$arrApiKey" ]; then
 fi
 
 # auto-clean up log file to reduce space usage
-if [ -f "/config/logs/MovieExtras.txt" ]; then
-	find /config/logs -type f -name "MovieExtras.txt" -size +1024k -delete
+if [ -f "/config/logs/Extras.txt" ]; then
+	find /config/logs -type f -name "Extras.txt" -size +1024k -delete
 fi
 
-if [ ! -f "/config/logs/MovieExtras.txt" ]; then
-    touch "/config/logs/MovieExtras.txt"
-    chmod 777 "/config/logs/MovieExtras.txt"
+if [ ! -f "/config/logs/Extras.txt" ]; then
+    touch "/config/logs/Extras.txt"
+    chmod 777 "/config/logs/Extras.txt"
 fi
-exec &> >(tee -a "/config/logs/MovieExtras.txt")
+exec &> >(tee -a "/config/logs/Extras.txt")
 
 log () {
   m_time=`date "+%F %T"`
-  echo $m_time" :: MovieExtras :: $scriptVersion :: "$1
+  echo $m_time" :: Extras :: $scriptVersion :: "$1
 }
 
 if [ "$arrEventType" == "Test" ]; then
