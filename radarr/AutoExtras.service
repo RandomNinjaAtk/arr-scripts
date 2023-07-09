@@ -50,8 +50,8 @@ AutoExtrasProcess () {
   fi
   
   if [ ! -f "/config/logs/AutoExtras.txt" ]; then
-      touch "/config/logs/AutoExtras.txt"
-      chmod 777 "/config/logs/AutoExtras.txt"
+    touch "/config/logs/AutoExtras.txt"
+    chmod 777 "/config/logs/AutoExtras.txt"
   fi
   exec &> >(tee -a "/config/logs/AutoExtras.txt")
   
@@ -70,9 +70,9 @@ AutoExtrasProcess () {
   
   loopCount=0
   for id in $(echo $radarrMovieIds); do
-      loopCount=$(( $loopCount + 1 ))
-      log "$loopCount of $radarrMovieTotal :: $id :: Processing with MovieExtras.bash"
-      bash /config/extended/scripts/MovieExtras.bash "$id" "$cookiesFile"
+    loopCount=$(( $loopCount + 1 ))
+    log "$loopCount of $radarrMovieTotal :: $id :: Processing with MovieExtras.bash"
+    bash /config/extended/scripts/MovieExtras.bash "$id" "$cookiesFile"
   done
 
 }
