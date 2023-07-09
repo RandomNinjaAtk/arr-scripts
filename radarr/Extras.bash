@@ -63,21 +63,14 @@ if [ "$enableExtras" != "true" ]; then
     exit
 fi
 
-if [ "$autoScan" == "true" ]; then
-    if [ ! -z "$2" ]; then
-    	cookiesFile="$2"
-    else
-       cookiesFile=""
-    fi    
-else
-    if find /config -type f -iname "cookies.txt" | read; then
-        cookiesFile="$(find /config -type f -iname "cookies.txt" | head -n1)"
-        log "Cookies File Found!"
-    else
-        log "Cookies File Not Found!"
-        cookiesFile=""
-    fi
-fi
+# Check for cookies file
+if [ -f /config/cookies.txt ]; then
+  cookiesFile="/config/cookies.txt"
+  log "Cookies File Found!"
+  else
+  log "Cookies File Not Found!"
+  cookiesFile=""
+ fi
 
 arrItemData=$(curl -s "$arrUrl/api/v3/movie/$arrItemId?apikey=$arrApiKey")
 itemTitle=$(echo "$arrItemData" | jq -r .title)
