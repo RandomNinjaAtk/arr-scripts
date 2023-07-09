@@ -155,7 +155,7 @@ YoutubeSeriesDownloaderProcess () {
 	            yt-dlp -f "$videoFormat" --no-video-multistreams -o "$downloadLocation/$fileName" --write-sub --sub-lang $videoLanguages --embed-subs --merge-output-format mkv --no-mtime --geo-bypass $ytdlpExtraOpts "$downloadUrl"
 	        fi
 	
-	        if python3 /usr/local/sma/manual.py --config "/sma.ini" -i "$downloadLocation/$fileName.mkv" -nt; then
+	        if python3 /usr/local/sma/manual.py --config "/config/extended/sma.ini" -i "$downloadLocation/$fileName.mkv" -nt; then
 	            sleep 0.01
 	            log "$loopCount/$sonarrSeriesTotal :: $currentLoopIteration/$seriesEpisodeTvdbIdsCount :: $seriesTitle :: S${episodeSeasonNumber}E${episodeNumber} :: Processed with SMA..."
 	            rm  /usr/local/sma/config/*log*
