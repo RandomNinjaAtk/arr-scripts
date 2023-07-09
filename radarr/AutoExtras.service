@@ -54,16 +54,7 @@ AutoExtrasProcess () {
     chmod 777 "/config/logs/AutoExtras.txt"
   fi
   exec &> >(tee -a "/config/logs/AutoExtras.txt")
-  
-  # Check for cookies file
-  if [ -f /config/cookies.txt ]; then
-    cookiesFile="/config/cookies.txt"
-    log "Cookies File Found!"
-  else
-    log "Cookies File Not Found!"
-    cookiesFile=""
-  fi
-  
+    
   radarrMovieList=$(curl -s --header "X-Api-Key:"${arrApiKey} --request GET  "$arrUrl/api/v3/movie")
   radarrMovieTotal=$(echo "${radarrMovieList}"  | jq -r '.[] | select(.hasFile==true) | .id' | wc -l)
   radarrMovieIds=$(echo "${radarrMovieList}" | jq -r '.[] | select(.hasFile==true) | .id')
@@ -72,7 +63,7 @@ AutoExtrasProcess () {
   for id in $(echo $radarrMovieIds); do
     loopCount=$(( $loopCount + 1 ))
     log "$loopCount of $radarrMovieTotal :: $id :: Processing with Extras.bash"
-    bash /config/extended/Extras.bash "$id" "$cookiesFile"
+    bash /config/extended/Extras.bash "$id"
   done
 
 }
