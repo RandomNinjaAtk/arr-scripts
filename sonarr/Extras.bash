@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.1"
+scriptVersion="1.2"
 arrEventType="$sonarr_eventtype"
 arrItemId=$sonarr_series_id
 tmdbApiKey="3b7751e3179f796565d88fdb2fcdf426"
@@ -78,8 +78,8 @@ fi
 DownloadExtras () {
 
     # Check for cookies file
-    if find /config -type f -iname "cookies.txt" | read; then
-        cookiesFile="$(find /config -type f -iname "cookies.txt" | head -n1)"
+    if [ -f /config/cookies.txt ]; then
+        cookiesFile="/config/cookies.txt"
         log "$itemTitle :: Cookies File Found!"
     else
         log "$itemTitle :: Cookies File Not Found!"
