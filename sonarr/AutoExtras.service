@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.0"
+scriptVersion="1.1"
 
 
 getArrAppInfo () {
@@ -68,7 +68,7 @@ AutoExtrasProcess () {
       arrSeriesTitle="$(echo "$arrSeriesData" | jq -r ".title")"
       if [ -d "$arrSeriesPath" ]; then
         log "$loopCount of $sonarrSeriesTotal :: $id :: $arrSeriesTitle :: Processing with Extras.bash"
-        bash /config/extended/scripts/Extras.bash "$id"
+        bash /config/extended/Extras.bash "$id"
       else
         log "$loopCount of $sonarrSeriesTotal :: $id :: $arrSeriesTitle :: Series folder does not exist, skipping..."
         continue
