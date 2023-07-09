@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.0"
+scriptVersion="1.1"
 ytdlpExtraOpts="--user-agent facebookexternalhit/1.1"
 
 #### Settings
@@ -65,8 +65,8 @@ fi
 
 CookiesCheck () {
     # Check for cookies file
-    if find /config -type f -iname "cookies.txt" | read; then
-        cookiesFile="$(find /config -type f -iname "cookies.txt" | head -n1)"
+    if [ -f /config/cookies.txt ]; then
+        cookiesFile="/config/cookies.txt"
         log "Cookies File Found!"
     else
         log "Cookies File Not Found!"
