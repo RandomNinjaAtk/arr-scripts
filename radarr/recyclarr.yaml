@@ -53,7 +53,7 @@ radarr:
           - e36a0ba1bc902b26ee40818a1d59b8bd # PMTP
         quality_profiles:
           - name: Any
-            score: 80A
+            score: 80
       - trash_ids:
           - 1af239278386be2919e1bcee0bde047e # DD+ ATMOS
           - e77382bcfeba57cb83744c9c5449b401 # 7.1 Surround
