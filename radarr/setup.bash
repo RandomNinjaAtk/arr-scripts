@@ -52,7 +52,7 @@ curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/Au
 echo "Done"
 
 echo "Download Recyclarr service..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/Recyclarr.service -o /custom-services.d/Recyclarr
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/services/Recycalarr -o /custom-services.d/Recyclarr
 echo "Done"
 
 mkdir -p /config/extended
