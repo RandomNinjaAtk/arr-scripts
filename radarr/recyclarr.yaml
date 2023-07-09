@@ -14,8 +14,8 @@ radarr:
   # Set the URL/API Key to your actual instance
   instance1:
     base_url: http://127.0.0.1:7878
-    api_key: arrApirecyclarr.yaml
-
+    api_key: arrApi
+    
     quality_definition:
       type: movie
 
