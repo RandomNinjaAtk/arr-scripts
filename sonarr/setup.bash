@@ -61,6 +61,10 @@ echo "Download Recyclarr service..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/Recyclarr.service -o /custom-services.d/Recyclarr
 echo "Done"
 
+echo "Download YoutubeSeriesDownloader service..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/YoutubeSeriesDownloader.service -o /custom-services.d/YoutubeSeriesDownloader
+echo "Done"
+
 mkdir -p /config/extended
 echo "Download Naming script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/naming.json -o /config/extended/naming.json 
