@@ -79,12 +79,12 @@ AutoExtrasProcess () {
 
 echo "Starting Script...."
 for (( ; ; )); do
-	let i++
+  let i++
   getArrAppInfo
   verifyApiAccess
-	AutoExtrasProcess
-	echo "Script sleeping for 24 hours..."
-	sleep 24h
+  AutoExtrasProcess
+  echo "Script sleeping for 24 hours..."
+  sleep 24h
 done
 
 exit
