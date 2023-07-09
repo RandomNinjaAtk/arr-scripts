@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+scriptVersion="1.0"
+
+getArrAppInfo () {
+  # Get Arr App information
+  if [ -z "$arrUrl" ] || [ -z "$arrApiKey" ]; then
+    arrUrlBase="$(cat /config/config.xml | xq | jq -r .Config.UrlBase)"
+    if [ "$arrUrlBase" == "null" ]; then
+      arrUrlBase=""
+    else
+      arrUrlBase="/$(echo "$arrUrlBase" | sed "s/\///g")"
+    fi
+    arrName="$(cat /config/config.xml | xq | jq -r .Config.InstanceName)"
+    arrApiKey="$(cat /config/config.xml | xq | jq -r .Config.ApiKey)"
+    arrPort="$(cat /config/config.xml | xq | jq -r .Config.Port)"
+    arrUrl="http://127.0.0.1:${arrPort}${arrUrlBase}"
+  fi
+}
+
+verifyApiAccess () {
+  until false
+  do
+    arrApiTest=""
+    arrApiVersion=""
+    if [ "$arrName" == "Sonarr" ] || [ "$arrName" == "Radarr" ]; then
+      arrApiVersion="v3"
+    elif [ "$arrName" == "Lidarr" ] || [ "$arrName" == "Readarr" ]; then
+      arrApiVersion="v1"
+    fi
+    arrApiTest=$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)
+    if [ "$arrApiTest" == "$arrName" ]; then
+      break
+    else
+      log "$arrName is not ready, sleeping until valid response..."
+      sleep 1
+    fi
+  done
+}
+
+log () {
+  m_time=`date "+%F %T"`
+  echo $m_time" :: AutoExtras :: $scriptVersion :: "$1
+}
+
+AutoExtrasProcess () {
+
+  # auto-clean up log file to reduce space usage
+  if [ -f "/config/logs/AutoExtras.txt" ]; then
+  	find /config/logs -type f -name "AutoExtras.txt" -size +1024k -delete
+  fi
+  
+  if [ ! -f "/config/logs/AutoExtras.txt" ]; then
+      touch "/config/logs/AutoExtras.txt"
+      chmod 777 "/config/logs/AutoExtras.txt"
+  fi
+  exec &> >(tee -a "/config/logs/AutoExtras.txt")
+  
+  if find /config -type f -iname "cookies.txt" | read; then
+    cookiesFile="$(find /config -type f -iname "cookies.txt" | head -n1)"
+    log "Cookies File Found!"
+  else
+    log "Cookies File Not Found!"
+    cookiesFile=""
+  fi
+  
+  radarrMovieList=$(curl -s --header "X-Api-Key:"${arrApiKey} --request GET  "$arrUrl/api/v3/movie")
+  radarrMovieTotal=$(echo "${radarrMovieList}"  | jq -r '.[] | select(.hasFile==true) | .id' | wc -l)
+  radarrMovieIds=$(echo "${radarrMovieList}" | jq -r '.[] | select(.hasFile==true) | .id')
+  
+  loopCount=0
+  for id in $(echo $radarrMovieIds); do
+      loopCount=$(( $loopCount + 1 ))
+      log "$loopCount of $radarrMovieTotal :: $id :: Processing with MovieExtras.bash"
+      bash /config/extended/scripts/MovieExtras.bash "$id" "$cookiesFile"
+  done
+
+}
+
+echo "Starting Script...."
+for (( ; ; )); do
+	let i++
+  getArrAppInfo
+  verifyApiAccess
+	AutoExtrasProcess
+	echo "Script sleeping for 24 hours..."
+	sleep 24h
+done
+
+exit
