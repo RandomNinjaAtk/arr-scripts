@@ -55,8 +55,9 @@ AutoExtrasProcess () {
   fi
   exec &> >(tee -a "/config/logs/AutoExtras.txt")
   
-  if find /config -type f -iname "cookies.txt" | read; then
-    cookiesFile="$(find /config -type f -iname "cookies.txt" | head -n1)"
+  # Check for cookies file
+  if [ -f /config/cookies.txt ]; then
+    cookiesFile="/config/cookies.txt"
     log "Cookies File Found!"
   else
     log "Cookies File Not Found!"
