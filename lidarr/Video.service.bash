@@ -51,20 +51,6 @@ if [ "$dlClientSource" = "tidal" ] || [ "$dlClientSource" = "both" ]; then
 fi
 
 
-verifyApiAccess () {
-	until false
-	do
-		lidarrTest=$(wget --timeout=0 -q -O - "$arrUrl/api/v1/system/status?apikey=${arrApiKey}" | jq -r .appName)
-		if [ "$lidarrTest" == "Lidarr" ]; then
-			lidarrVersion=$(wget --timeout=0 -q -O - "$arrUrl/api/v1/system/status?apikey=${arrApiKey}" | jq -r .version)
-			log "Lidarr Version: $lidarrVersion"
-			break
-		else
-			log "Lidarr is not ready, sleeping until valid response..."
-			sleep 1
-		fi
-	done
-}
 
 # auto-clean up log file to reduce space usage
 if [ -f "/config/logs/Video.txt" ]; then
