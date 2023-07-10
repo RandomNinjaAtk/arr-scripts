@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.1"
+scriptVersion="1.2"
 
 # Settings
 addFeaturedVideoArtists="true"
@@ -54,9 +54,9 @@ fi
 verifyApiAccess () {
 	until false
 	do
-		lidarrTest=$(wget --timeout=0 -q -O - "$lidarrUrl/api/v1/system/status?apikey=${lidarrApiKey}" | jq -r .appName)
+		lidarrTest=$(wget --timeout=0 -q -O - "$arrUrl/api/v1/system/status?apikey=${arrApiKey}" | jq -r .appName)
 		if [ "$lidarrTest" == "Lidarr" ]; then
-			lidarrVersion=$(wget --timeout=0 -q -O - "$lidarrUrl/api/v1/system/status?apikey=${lidarrApiKey}" | jq -r .version)
+			lidarrVersion=$(wget --timeout=0 -q -O - "$arrUrl/api/v1/system/status?apikey=${arrApiKey}" | jq -r .version)
 			log "Lidarr Version: $lidarrVersion"
 			break
 		else
@@ -443,7 +443,7 @@ LidarrTaskStatusCheck () {
 	alerted=no
 	until false
 	do
-		taskCount=$(curl -s "$lidarrUrl/api/v1/command?apikey=${lidarrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | wc -l)
+		taskCount=$(curl -s "$arrUrl/api/v1/command?apikey=${arrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | wc -l)
 		if [ "$taskCount" -ge "1" ]; then
 			if [ "$alerted" = "no" ]; then
 				alerted=yes
@@ -466,7 +466,7 @@ AddFeaturedVideoArtists () {
     log "-----------------------------------------------------------------------------"
     log "Add Featured Music Video Artists to Lidarr :: ENABLED"    
     log "-----------------------------------------------------------------------------"
-    lidarrArtistsData="$(curl -s "$lidarrUrl/api/v1/artist?apikey=${lidarrApiKey}" | jq -r ".[]")"
+    lidarrArtistsData="$(curl -s "$arrUrl/api/v1/artist?apikey=${arrApiKey}" | jq -r ".[]")"
     artistImvdbUrl=$(echo $lidarrArtistsData | jq -r '.links[] | select(.name=="imvdb") | .url')
     videoArtists=$(ls /config/extended/cache/imvdb/ | grep -Ev ".*--.*")
     videoArtistsCount=$(ls /config/extended/cache/imvdb/ | grep -Ev ".*--.*" | wc -l)
@@ -485,7 +485,7 @@ AddFeaturedVideoArtists () {
         log "$loopCount of $videoArtistsCount :: $artistName :: Processing url :: https://imvdb.com/n/$slug"
 
 		artistNameEncoded="$(jq -R -r @uri <<<"$artistName")"
-		lidarrArtistSearchData="$(curl -s "$lidarrUrl/api/v1/search?term=${artistNameEncoded}&apikey=${lidarrApiKey}")"
+		lidarrArtistSearchData="$(curl -s "$arrUrl/api/v1/search?term=${artistNameEncoded}&apikey=${arrApiKey}")"
 		lidarrArtistMatchedData=$(echo $lidarrArtistSearchData | jq -r ".[] | select(.artist) | select(.artist.links[].url | contains (\"imvdb.com/n/${slug}\"))" 2>/dev/null)
 							
 		if [ ! -z "$lidarrArtistMatchedData" ]; then
@@ -496,7 +496,7 @@ AddFeaturedVideoArtists () {
             log "$loopCount of $videoArtistsCount :: $artistName :: ERROR : Musicbrainz ID Not Found, skipping..."
             continue
         fi
-		data=$(curl -s "$lidarrUrl/api/v1/rootFolder" -H "X-Api-Key: $lidarrApiKey" | jq -r ".[]")
+		data=$(curl -s "$arrUrl/api/v1/rootFolder" -H "X-Api-Key: $arrApiKey" | jq -r ".[]")
 		path="$(echo "$data" | jq -r ".path")"
 		qualityProfileId="$(echo "$data" | jq -r ".defaultQualityProfileId")"
 		metadataProfileId="$(echo "$data" | jq -r ".defaultMetadataProfileId")"
@@ -517,7 +517,7 @@ AddFeaturedVideoArtists () {
 		fi
 		log "$loopCount of $videoArtistsCount :: $artistName :: Adding $artistName to Lidarr ($foreignId)..."
 		LidarrTaskStatusCheck
-		lidarrAddArtist=$(curl -s "$lidarrUrl/api/v1/artist" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $lidarrApiKey" --data-raw "$data")
+		lidarrAddArtist=$(curl -s "$arrUrl/api/v1/artist" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw "$data")
     done
 
 }
@@ -539,17 +539,17 @@ VideoProcess () {
   log "Finding Videos"    
   log "-----------------------------------------------------------------------------"
   if [ -z "$videoDownloadTag" ]; then
-  	lidarrArtists=$(wget --timeout=0 -q -O - "$lidarrUrl/api/v1/artist?apikey=$lidarrApiKey" | jq -r .[])
+  	lidarrArtists=$(wget --timeout=0 -q -O - "$arrUrl/api/v1/artist?apikey=$arrApiKey" | jq -r .[])
   	lidarrArtistIds=$(echo $lidarrArtists | jq -r .id)
   else
-  	lidarrArtists=$(curl -s "$lidarrUrl/api/v1/tag/detail" -H 'Content-Type: application/json' -H "X-Api-Key: $lidarrApiKey" | jq -r -M ".[] | select(.label == \"$videoDownloadTag\") | .artistIds")
+  	lidarrArtists=$(curl -s "$arrUrl/api/v1/tag/detail" -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" | jq -r -M ".[] | select(.label == \"$videoDownloadTag\") | .artistIds")
   	lidarrArtistIds=$(echo $lidarrArtists | jq -r .[])
   fi
   lidarrArtistIdsCount=$(echo "$lidarrArtistIds" | wc -l)
   processCount=0
   for lidarrArtistId in $(echo $lidarrArtistIds); do
   	processCount=$(( $processCount + 1))
-      	lidarrArtistData=$(wget --timeout=0 -q -O - "$lidarrUrl/api/v1/artist/$lidarrArtistId?apikey=$lidarrApiKey")
+      	lidarrArtistData=$(wget --timeout=0 -q -O - "$arrUrl/api/v1/artist/$lidarrArtistId?apikey=$arrApiKey")
   	lidarrArtistName=$(echo $lidarrArtistData | jq -r .artistName)
   	lidarrArtistMusicbrainzId=$(echo $lidarrArtistData | jq -r .foreignArtistId)
       
