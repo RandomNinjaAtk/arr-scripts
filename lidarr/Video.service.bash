@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
-scriptVersion="1.0"
-
-# Debugging Settings
-#addFeaturedVideoArtists=true
+scriptVersion="1.1"
 
 # Settings
-videoFormat=bv[width>=1920]+ba
+addFeaturedVideoArtists="true"
+videoFormat="bv[width>=1920]+ba"
 
 log () {
 	m_time=`date "+%F %T"`
@@ -47,10 +45,6 @@ verifyApiAccess () {
     fi
   done
 }
-
-# Debugging Settings
-#addFeaturedVideoArtists=true
-#videoFormat=bestvideo+best+bestaudio
 
 if [ "$dlClientSource" = "tidal" ] || [ "$dlClientSource" = "both" ]; then
 	sourcePreference=tidal
