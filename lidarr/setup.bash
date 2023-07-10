@@ -57,6 +57,10 @@ echo "Download AutoConfig service..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/AutoConfig.service -o /custom-services.d/AutoConfig
 echo "Done"
 
+echo "Download Video service..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/Video.service.bash -o /custom-services.d/Video
+echo "Done"
+
 mkdir -p /config/extended
 echo "Download Naming script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/naming.json -o /config/extended/naming.json 
