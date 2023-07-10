@@ -54,7 +54,7 @@ curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal
 echo "Done"
 
 echo "Download AutoConfig service..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/AutoConfig.service -o /custom-services.d/AutoConfig
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/AutoConfig.service.bash -o /custom-services.d/AutoConfig
 echo "Done"
 
 echo "Download Video service..."
