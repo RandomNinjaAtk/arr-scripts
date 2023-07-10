@@ -3,7 +3,9 @@ scriptVersion="1.0"
 
 # Debugging Settings
 #addFeaturedVideoArtists=true
-#videoFormat=bestvideo+best+bestaudio
+
+# Settings
+videoFormat=bv[width>=1920]+ba
 
 log () {
 	m_time=`date "+%F %T"`
