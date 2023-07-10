@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
-scriptVersion="1.0"
+scriptVersion="1.1"
+
+log () {
+  m_time=`date "+%F %T"`
+  echo $m_time" :: AutoConfig :: $scriptVersion :: "$1
+}
 
 getArrAppInfo () {
   # Get Arr App information
@@ -51,10 +56,6 @@ if [ ! -f "/config/logs/AutoConfig.txt" ]; then
 fi
 exec &> >(tee -a "/config/logs/AutoConfig.txt")
 
-log () {
-  m_time=`date "+%F %T"`
-  echo $m_time" :: AutoConfig :: $scriptVersion :: "$1
-}
 
 
 if [ -f /config/extended/naming.json ]; then
