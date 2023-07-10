@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.1"
+scriptVersion="1.2"
 
 getArrAppInfo () {
   # Get Arr App information
@@ -66,7 +66,11 @@ RecyclarrProcess () {
   
   # update radarr
   log "Updating Sonarr via Recyclarr"
-  /recyclarr/recyclarr sync $recylcarrApp -c /config/extended/recyclarr.yaml --app-data /recyclarr-data
+  if [ ! -d /config/extended/recyclarr-data ]; then
+    mkdir -p /config/extended/recyclarr-data
+    chmod 777 /config/extended/recyclarr-data
+  fi
+  /recyclarr/recyclarr sync $recylcarrApp -c /config/extended/recyclarr.yaml --app-data /config/extended/recyclarr-data
   log "Complete"
 }
 
