@@ -67,6 +67,9 @@ echo "Download PlexNotify script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/PlexNotify.bash -o /config/extended/PlexNotify.bash 
 echo "Done"
 
+echo "Download MetadataPostProcess script..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/MetadataPostProcess.bash -o /config/extended/MetadataPostProcess.bash
+echo "Done"
 
 echo "Download SMA config..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/sma.ini -o /config/extended/sma.ini 
