@@ -61,10 +61,6 @@ echo "Download Video service..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/Video.service.bash -o /custom-services.d/Video
 echo "Done"
 
-mkdir -p /config/extended
-echo "Download Naming script..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/naming.json -o /config/extended/naming.json 
-echo "Done"
 
 mkdir -p /config/extended
 echo "Download PlexNotify script..."
