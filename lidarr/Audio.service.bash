@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.0.3"
+scriptVersion="1.0.4"
 
 
 getArrAppInfo () {
@@ -187,7 +187,7 @@ Configuration () {
 }
 
 DownloadClientFreyr () {
-	freyr --no-bar -d /downloads-lidarr-extended/incomplete deezer:album:$1
+	freyr --no-bar -d $downloadPath/incomplete deezer:album:$1
 }
 
 DownloadFormat () {
@@ -546,7 +546,7 @@ DownloadProcess () {
 	# Consolidate files to a single folder
 	log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Consolidating files to single folder"
 	find "$downloadPath/incomplete" -type f -exec mv "{}" "$downloadPath"/incomplete/ \;
-	find /downloads-lidarr-extended/incomplete/ -type d -mindepth 1 -maxdepth 1 -exec rm -rf {} \;
+	find $downloadPath/incomplete/ -type d -mindepth 1 -maxdepth 1 -exec rm -rf {} \;
 
 	downloadCount=$(find "$downloadPath"/incomplete/ -type f -regex ".*/.*\.\(flac\|m4a\|mp3\)" | wc -l)
 	if [ "$downloadCount" -gt "0" ]; then
