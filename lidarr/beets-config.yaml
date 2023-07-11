@@ -1,0 +1,69 @@
+plugins: embedart
+art_filename: folder
+threaded: no
+per_disc_numbering: yes
+id3v23: no
+asciify_paths: true
+
+match:
+    strong_rec_thresh: 0.10 # 0.04
+    medium_rec_thresh: 0.25 # 0.25
+    rec_gap_thresh: 0.25 # 0.25
+    max_rec:
+        missing_tracks: medium # medium
+        unmatched_tracks: medium # medium
+        track_length: medium
+        track_index: medium
+    distance_weights:
+        source: 2.0 # 2.0
+        artist: 3.0 # 3.0
+        album: 3.0 # 3.0
+        media: 1.0 # 1.0
+        mediums: 1.0 # 1.0
+        year: 1.0 # 1.0
+        country: 0.5 # 0.5
+        label: 0.5 # 0.5
+        catalognum: 0.5 # 0.5
+        albumdisambig: 0.5 # 0.5
+        album_id: 5.0 # 5.0
+        tracks: 2.0 # 2.0
+        missing_tracks: 0.9 # 0.9
+        unmatched_tracks: 0.6 # 0.6
+        track_title: 3.0 # 3.0
+        track_artist: 2.0 # 2.0
+        track_index: 1.0 # 1.0
+        track_length: 2.0 # 2.0
+        track_id: 5.0 # 5.0
+    preferred:
+        countries: [] # []
+        media: [] # []
+        original_year: no # no
+    ignored: ['missing_tracks', 'track_length', 'unmatched_tracks', 'track_index'] # []
+    required: [] # []
+    ignored_media: [] # []
+    ignore_data_tracks: yes # yes
+    ignore_video_tracks: yes # yes
+    track_length_grace: 10 # 10
+    track_length_max: 30 # 30
+
+paths:
+    default: $disc$track - $title
+    singleton: $disc$track - $title
+    comp: $disc$track - $title
+    albumtype_soundtrack: $disc$track - $title
+        
+import:
+    write: yes
+    copy: no
+    move: no
+    resume: ask
+    incremental: no
+    quiet_fallback: skip
+    timid: no
+    duplicate_action: skip
+    log: /config/scripts/beets.log
+    languages: ['en']
+    group_albums: no
+
+embedart:
+    auto: no
