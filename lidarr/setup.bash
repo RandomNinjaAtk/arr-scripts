@@ -61,6 +61,10 @@ echo "Download Video service..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/Video.service.bash -o /custom-services.d/Video
 echo "Done"
 
+echo "Download Audio service..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/Audio.service.bash -o /custom-services.d/Audio
+echo "Done"
+
 
 mkdir -p /config/extended
 echo "Download PlexNotify script..."
@@ -73,6 +77,10 @@ echo "Done"
 
 echo "Download SMA config..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/sma.ini -o /config/extended/sma.ini 
+echo "Done"
+
+echo "Download Beets config..."
+curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/beets-config.yaml" -o /config/extended/beets-config.yaml
 echo "Done"
 
 
