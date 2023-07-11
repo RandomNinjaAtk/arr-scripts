@@ -734,8 +734,8 @@ ProcessWithBeets () {
 		rm /config/extended/beets-library.blb
 		sleep 0.5
 	fi
-	if [ -f /config/extended/logs/beets.log ]; then 
-		rm /config/extended/logs/beets.log
+	if [ -f /config/extended/beets.log ]; then 
+		rm /config/extended/beets.log
 		sleep 0.5
 	fi
 
