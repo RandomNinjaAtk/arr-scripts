@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.0.1"
+scriptVersion="1.0.2"
 
 
 getArrAppInfo () {
@@ -804,8 +804,8 @@ ProcessWithBeets () {
 
 	fi
 
-	getLidarrAlbumId=$(curl -s "$lidarrUrl/api/v1/search?term=lidarr%3A${matchedTagsAlbumReleaseGroupId}&apikey=$lidarrApiKey" | jq -r .[].album.releases[].albumId | sort -u)
-	checkLidarrAlbumData="$(curl -s "$lidarrUrl/api/v1/album/$getLidarrAlbumId?apikey=${lidarrApiKey}")"
+	getLidarrAlbumId=$(curl -s "$arrUrl/api/v1/search?term=lidarr%3A${matchedTagsAlbumReleaseGroupId}&apikey=$arrApiKey" | jq -r .[].album.releases[].albumId | sort -u)
+	checkLidarrAlbumData="$(curl -s "$arrUrl/api/v1/album/$getLidarrAlbumId?apikey=${arrApiKey}")"
 	checkLidarrAlbumPercentOfTracks=$(echo "$checkLidarrAlbumData" | jq -r ".statistics.percentOfTracks")
 
 	if [ "$checkLidarrAlbumPercentOfTracks" = "null" ]; then
@@ -890,7 +890,7 @@ AddReplaygainTags () {
 }
 
 NotifyLidarrForImport () {
-	LidarrProcessIt=$(curl -s "$lidarrUrl/api/v1/command" --header "X-Api-Key:"${lidarrApiKey} -H "Content-Type: application/json" --data "{\"name\":\"DownloadedAlbumsScan\", \"path\":\"$1\"}")
+	LidarrProcessIt=$(curl -s "$arrUrl/api/v1/command" --header "X-Api-Key:"${arrApiKey} -H "Content-Type: application/json" --data "{\"name\":\"DownloadedAlbumsScan\", \"path\":\"$1\"}")
 	log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: LIDARR IMPORT NOTIFICATION SENT! :: $1"
 }
 
@@ -949,7 +949,7 @@ DeemixClientSetup () {
 }
 
 LidarrRootFolderCheck () {
-	if curl -s "$lidarrUrl/api/v1/rootFolder" -H "X-Api-Key: ${lidarrApiKey}" | sed '1q' | grep "\[\]" | read; then
+	if curl -s "$arrUrl/api/v1/rootFolder" -H "X-Api-Key: ${arrApiKey}" | sed '1q' | grep "\[\]" | read; then
 		log "ERROR :: No root folder found"
 		log "ERROR :: Configure root folder in Lidarr to continue..."
 		log "ERROR :: Exiting..."
@@ -986,7 +986,7 @@ GetMissingCutOffList () {
 		searchDirection="ascending"
 	fi
 
-	lidarrMissingTotalRecords=$(wget --timeout=0 -q -O - "$lidarrUrl/api/v1/wanted/missing?page=1&pagesize=1&sortKey=$searchOrder&sortDirection=$searchDirection&apikey=${lidarrApiKey}" | jq -r .totalRecords)
+	lidarrMissingTotalRecords=$(wget --timeout=0 -q -O - "$arrUrl/api/v1/wanted/missing?page=1&pagesize=1&sortKey=$searchOrder&sortDirection=$searchDirection&apikey=${arrApiKey}" | jq -r .totalRecords)
 
 	log "FINDING MISSING ALBUMS :: sorted by $searchSort"
 
@@ -1004,7 +1004,7 @@ GetMissingCutOffList () {
 				dlnumber="$lidarrMissingTotalRecords"
 			fi
 			log "$page :: missing :: Downloading page $page... ($offset - $dlnumber of $lidarrMissingTotalRecords Results)"
-			lidarrRecords=$(wget --timeout=0 -q -O - "$lidarrUrl/api/v1/wanted/missing?page=$page&pagesize=$amountPerPull&sortKey=$searchOrder&sortDirection=$searchDirection&apikey=${lidarrApiKey}" | jq -r '.records[].id')
+			lidarrRecords=$(wget --timeout=0 -q -O - "$arrUrl/api/v1/wanted/missing?page=$page&pagesize=$amountPerPull&sortKey=$searchOrder&sortDirection=$searchDirection&apikey=${arrApiKey}" | jq -r '.records[].id')
 			log "$page :: missing :: Filtering Album IDs by removing previously searched Album IDs (/config/extended/logs/notfound/<files>)"
 			for lidarrRecordId in $(echo $lidarrRecords); do
 				if [ ! -f /config/extended/logs/notfound/$lidarrRecordId--* ]; then
@@ -1026,7 +1026,7 @@ GetMissingCutOffList () {
 	
 
 	# Get cutoff album list
-	lidarrCutoffTotalRecords=$(wget --timeout=0 -q -O - "$lidarrUrl/api/v1/wanted/cutoff?page=1&pagesize=1&sortKey=$searchOrder&sortDirection=$searchDirection&apikey=${lidarrApiKey}" | jq -r .totalRecords)
+	lidarrCutoffTotalRecords=$(wget --timeout=0 -q -O - "$arrUrl/api/v1/wanted/cutoff?page=1&pagesize=1&sortKey=$searchOrder&sortDirection=$searchDirection&apikey=${arrApiKey}" | jq -r .totalRecords)
 	log "FINDING CUTOFF ALBUMS sorted by $searchSort"
 	log "$lidarrCutoffTotalRecords CutOff Albums Found Found!"
 	log "Getting CutOff Album IDs"
@@ -1042,7 +1042,7 @@ GetMissingCutOffList () {
 			fi
 
 			log "$page :: cutoff :: Downloading page $page... ($offset - $dlnumber of $lidarrCutoffTotalRecords Results)"
-			lidarrRecords=$(wget --timeout=0 -q -O - "$lidarrUrl/api/v1/wanted/cutoff?page=$page&pagesize=$amountPerPull&sortKey=$searchOrder&sortDirection=$searchDirection&apikey=${lidarrApiKey}" | jq -r '.records[].id')
+			lidarrRecords=$(wget --timeout=0 -q -O - "$arrUrl/api/v1/wanted/cutoff?page=$page&pagesize=$amountPerPull&sortKey=$searchOrder&sortDirection=$searchDirection&apikey=${arrApiKey}" | jq -r '.records[].id')
 			log "$page :: cutoff :: Filtering Album IDs by removing previously searched Album IDs (/config/extended/logs/notfound/<files>)"
 			
 			for lidarrRecordId in $(echo $lidarrRecords); do
@@ -1078,7 +1078,7 @@ SearchProcess () {
 		wantedAlbumId=$(echo $lidarrMissingId | sed -e "s%[^[:digit:]]%%g")
 		checkLidarrAlbumId=$wantedAlbumId
 		wantedAlbumListSource=$(echo $lidarrMissingId | sed -e "s%[^[:alpha:]]%%g")
-		lidarrAlbumData="$(curl -s "$lidarrUrl/api/v1/album/$wantedAlbumId?apikey=${lidarrApiKey}")"
+		lidarrAlbumData="$(curl -s "$arrUrl/api/v1/album/$wantedAlbumId?apikey=${arrApiKey}")"
 		lidarrArtistData=$(echo "${lidarrAlbumData}" | jq -r ".artist")
 		lidarrArtistName=$(echo "${lidarrArtistData}" | jq -r ".artistName")
 		lidarrArtistForeignArtistId=$(echo "${lidarrArtistData}" | jq -r ".foreignArtistId")
@@ -1745,7 +1745,7 @@ FuzzyTidalSearch () {
 CheckLidarrBeforeImport () {
 
 	alreadyImported=false		
-	checkLidarrAlbumData="$(curl -s "$lidarrUrl/api/v1/album/$1?apikey=${lidarrApiKey}")"
+	checkLidarrAlbumData="$(curl -s "$arrUrl/api/v1/album/$1?apikey=${arrApiKey}")"
 	checkLidarrAlbumPercentOfTracks=$(echo "$checkLidarrAlbumData" | jq -r ".statistics.percentOfTracks")
 	log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Checking Lidarr for existing files"
 	log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: $checkLidarrAlbumPercentOfTracks% Tracks found"
@@ -1761,7 +1761,7 @@ CheckLidarrBeforeImport () {
 		fi
 
 		if [ "$wantedAlbumListSource" == "cutoff" ]; then
-			checkLidarrAlbumFiles="$(curl -s "$lidarrUrl/api/v1/trackFile?albumId=$1?apikey=${lidarrApiKey}")"
+			checkLidarrAlbumFiles="$(curl -s "$arrUrl/api/v1/trackFile?albumId=$1?apikey=${arrApiKey}")"
 			checkLidarrAlbumQualityCutoffNotMet=$(echo "$checkLidarrAlbumFiles" | jq -r ".[].qualityCutoffNotMet")
 			if echo "$checkLidarrAlbumQualityCutoffNotMet" | grep "true" | read; then
 				log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Already Imported Album (CutOff - $checkLidarrAlbumQualityCutoffNotMet), skipping..."
@@ -1776,7 +1776,7 @@ LidarrTaskStatusCheck () {
 	alerted=no
 	until false
 	do
-		taskCount=$(curl -s "$lidarrUrl/api/v1/command?apikey=${lidarrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | wc -l)
+		taskCount=$(curl -s "$arrUrl/api/v1/command?apikey=${arrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | wc -l)
 		if [ "$taskCount" -ge "1" ]; then
 			if [ "$alerted" == "no" ]; then
 				alerted=yes
@@ -1807,7 +1807,7 @@ LidarrMissingAlbumSearch () {
 			fi
 		fi
 		log "$processCount of $lidarrArtistIdsCount :: Notified Lidarr to search for \"$lidarrArtistName\""
-		startLidarrArtistSearch=$(curl -s "$lidarrUrl/api/v1/command" -X POST -H "Content-Type: application/json" -H "X-Api-Key: $lidarrApiKey"  --data-raw "{\"name\":\"ArtistSearch\",\"artistId\":$lidarrArtistId}")
+		startLidarrArtistSearch=$(curl -s "$arrUrl/api/v1/command" -X POST -H "Content-Type: application/json" -H "X-Api-Key: $arrApiKey"  --data-raw "{\"name\":\"ArtistSearch\",\"artistId\":$lidarrArtistId}")
 		if [ ! -d /config/extended/logs/searched/lidarr/artist ]; then
 			mkdir -p /config/extended/logs/searched/lidarr/artist
 			chmod -R 777 /config/extended/logs/searched/lidarr/artist
@@ -1896,7 +1896,7 @@ AudioProcess () {
   LidarrTaskStatusCheck
   
   # Get artist list for LidarrMissingAlbumSearch process, to prevent searching for artists that will not be processed by the script
-  lidarrMissingAlbumArtistsData=$(wget --timeout=0 -q -O - "$lidarrUrl/api/v1/artist?apikey=$lidarrApiKey" | jq -r .[])
+  lidarrMissingAlbumArtistsData=$(wget --timeout=0 -q -O - "$arrUrl/api/v1/artist?apikey=$arrApiKey" | jq -r .[])
   
   if [ "$dlClientSource" == "deezer" ] || [ "$dlClientSource" == "tidal" ] || [ "$dlClientSource" == "both" ]; then
   	GetMissingCutOffList
