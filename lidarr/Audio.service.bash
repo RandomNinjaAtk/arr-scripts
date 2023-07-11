@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.0.2"
+scriptVersion="1.0.3"
 
 
 getArrAppInfo () {
@@ -54,6 +54,7 @@ searchSort="album"
 arlToken=""
 matchDistance=10
 enableBeetsTagging=true
+downloadPath=/config/extended/downloads
 
 sleepTimer=0.5
 tidaldlFail=0
@@ -137,7 +138,7 @@ Configuration () {
 		log "Add Deezer Related Artists is disabled (enable by setting addRelatedArtists=true)"
 	fi
 	
-	log "Download Location: $downloadPath"
+	log "Download Location: $"
 
 
 	log "Output format: $audioFormat"
@@ -1874,9 +1875,6 @@ NotifyWebhook () {
 AudioProcess () {
 
   Configuration
-  
-  # Perform Completed Download Folder Cleanup process
-  DownloadFolderCleaner
   
   # Perform NotFound Folder Cleanup process
   NotFoundFolderCleaner
