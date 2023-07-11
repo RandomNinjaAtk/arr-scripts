@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.0"
+scriptVersion="1.0.1"
 
 
 getArrAppInfo () {
@@ -45,7 +45,7 @@ addDeezerTopArtists="false"
 addDeezerTopAlbumArtists="false"
 addDeezerTopTrackArtists="false"
 audioFormat="native"
-audioBitrate="160"
+audioBitrate="lossless"
 addRelatedArtists="false"
 numberOfRelatedArtistsToAddPerArtist="1"
 beetsMatchPercentage="90"
