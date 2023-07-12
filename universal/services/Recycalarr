@@ -83,13 +83,13 @@ RecyclarrProcess () {
   log "Complete"
 }
 
-echo "Starting Script...."
+log "Starting Script...."
 for (( ; ; )); do
 	let i++
 	getArrAppInfo
 	verifyApiAccess
 	RecyclarrProcess
-	echo "Script sleeping for 4 hours..."
+	log "Script sleeping for 4 hours..."
 	sleep 4h
 done
 
