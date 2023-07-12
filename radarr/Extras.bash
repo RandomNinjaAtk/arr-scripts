@@ -1,11 +1,26 @@
 #!/usr/bin/env bash
-scriptVersion="1.1"
+scriptVersion="1.2"
 arrEventType="$radarr_eventtype"
 arrItemId=$radarr_movie_id
 tmdbApiKey="3b7751e3179f796565d88fdb2fcdf426"
 autoScan="false"
 updatePlex="false"
 ytdlpExtraOpts="--user-agent facebookexternalhit/1.1"
+scriptName="Extras"
+
+#### Import Settings
+source /config/extended.conf
+
+log () {
+  m_time=`date "+%F %T"`
+  echo $m_time" :: $scriptName :: $scriptVersion :: "$1
+}
+
+if [ "$enableExtras" != "true" ]; then
+	log "Script is not enabled, enable by setting enableExtras to \"true\" by modifying the \"/config/extended.conf\" config file..."
+	log "Sleeping (infinity)"
+	sleep infinity
+fi
 
 if [ ! -z "$1" ]; then
     arrItemId="$1"
@@ -16,13 +31,7 @@ fi
 
 # Debugging
 #arrItemId=1
-extrasLanguages="en-US"
-extrasType="all"
-extrasOfficialOnly="false"
-extrasKodiCompatibility="false"
-extrasSingle="false"
-enableExtras="true"
-videoFormat="bv[width>=1280]+ba"
+
 
 if [ -z "$arrUrl" ] || [ -z "$arrApiKey" ]; then
   arrUrlBase="$(cat /config/config.xml | xq | jq -r .Config.UrlBase)"
@@ -47,10 +56,6 @@ if [ ! -f "/config/logs/Extras.txt" ]; then
 fi
 exec &> >(tee -a "/config/logs/Extras.txt")
 
-log () {
-  m_time=`date "+%F %T"`
-  echo $m_time" :: Extras :: $scriptVersion :: "$1
-}
 
 if [ "$arrEventType" == "Test" ]; then
 	log "Tested Successfully"
