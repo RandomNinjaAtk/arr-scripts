@@ -93,7 +93,14 @@ if [ -f /config/beets-config.yaml ]; then
   echo "Importing /config/beets-config.yaml to /config/scripts/beets-config.yaml"
   mv /config/beets-config.yaml /config/scripts/beets-config.yaml 
   chmod 777 /config/scripts/beets-config.yaml 
-fi  
+fi 
+
+if [ ! -f /config/extended.conf ]; then
+	echo "Download Extended config..."
+	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/extended.conf -o /config/extended.conf
+	chmod 777 /config/extended.conf
+	echo "Done"
+fi
 
 chmod 777 -R /config/scripts
 exit
