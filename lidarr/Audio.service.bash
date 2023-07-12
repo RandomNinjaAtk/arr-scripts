@@ -1,5 +1,20 @@
 #!/usr/bin/env bash
-scriptVersion="1.0.5"
+scriptVersion="1.0.6"
+scriptName="Audio"
+
+#### Import Settings
+source /config/extended.conf
+
+log () {
+  m_time=`date "+%F %T"`
+  echo $m_time" :: $scriptName :: $scriptVersion :: "$1
+}
+
+if [ "$enableAudio" != "true" ]; then
+	log "Script is not enabled, enable by setting enableAudio to \"true\" by modifying the \"/config/extended.conf\" config file..."
+	log "Sleeping (infinity)"
+	sleep infinity
+fi
 
 
 getArrAppInfo () {
@@ -38,33 +53,12 @@ verifyApiAccess () {
   done
 }
 
-# Debugging settings
-dlClientSource="deezer"
-topLimit="3"
-addDeezerTopArtists="false"
-addDeezerTopAlbumArtists="false"
-addDeezerTopTrackArtists="false"
-audioLyricType="both"
-audioFormat="native"
-audioBitrate="lossless"
-addRelatedArtists="false"
-numberOfRelatedArtistsToAddPerArtist="1"
-beetsMatchPercentage="90"
-requireQuality="false"
-searchSort="album"
-arlToken=""
-matchDistance=10
-enableBeetsTagging=true
-downloadPath=/config/extended/downloads
 
 sleepTimer=0.5
 tidaldlFail=0
 deemixFail=0
 
-log () {
-	m_time=`date "+%F %T"`
-	echo $m_time" :: Audio :: $scriptVersion :: "$1
-}
+
 
 # auto-clean up log file to reduce space usage
 if [ -f "/config/logs/Audio.txt" ]; then
@@ -1913,13 +1907,13 @@ AudioProcess () {
   log "Script end..."
 }
 
-echo "Starting Script...."
+log "Starting Script...."
 for (( ; ; )); do
 	let i++
-  getArrAppInfo
-  verifyApiAccess
+	getArrAppInfo
+	verifyApiAccess
 	AudioProcess
-	echo "Script sleeping for 15 minutes..."
+	log "Script sleeping for 15 minutes..."
 	sleep 15m
 done
 
