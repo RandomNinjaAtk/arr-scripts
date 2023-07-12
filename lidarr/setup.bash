@@ -83,6 +83,12 @@ echo "Download Beets config..."
 curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/beets-config.yaml" -o /config/extended/beets-config.yaml
 echo "Done"
 
+if [ ! -f /config/extended.conf ]; then
+	echo "Download Extended config..."
+	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/liodarr/extended.conf -o /config/extended.conf
+	chmod 777 /config/extended.conf
+	echo "Done"
+fi
 
 chmod 777 -R /config/extended
 
