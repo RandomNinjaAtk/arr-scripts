@@ -94,7 +94,7 @@ echo "Done"
 if [ ! -f /config/extended.conf ]; then
 	echo "Download Extended config..."
 	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/extended.conf -o /config/extended.conf
-	chmod 777 /config/extended/extended.conf
+	chmod 777 /config/extended.conf
 	echo "Done"
 fi
 
