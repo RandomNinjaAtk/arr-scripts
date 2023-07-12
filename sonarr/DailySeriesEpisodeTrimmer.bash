@@ -1,5 +1,21 @@
 #!/usr/bin/env bash
-scriptVersion="1.0"
+scriptVersion="1.1"
+scriptName="DailySeriesEpisodeTrimmer"
+
+#### Import Settings
+source /config/extended.conf
+
+log () {
+  m_time=`date "+%F %T"`
+  echo $m_time" :: $scriptName :: $scriptVersion :: "$1
+}
+
+if [ "$enableDailySeriesEpisodeTrimmer" != "true" ]; then
+	log "Script is not enabled, enable by setting enableDailySeriesEpisodeTrimmer to \"true\" by modifying the \"/config/extended.conf\" config file..."
+	log "Sleeping (infinity)"
+	sleep infinity
+fi
+
 
 if [ -z "$arrUrl" ] || [ -z "$arrApiKey" ]; then
   arrUrlBase="$(cat /config/config.xml | xq | jq -r .Config.UrlBase)"
@@ -13,10 +29,6 @@ if [ -z "$arrUrl" ] || [ -z "$arrApiKey" ]; then
   arrUrl="http://127.0.0.1:${arrPort}${arrUrlBase}"
 fi
 
-log () {
-  m_time=`date "+%F %T"`
-  echo $m_time" :: DailySeriesEpisodeTrimmer :: $scriptVersion :: "$1
-}
 
 # auto-clean up log file to reduce space usage
 if [ -f "/config/logs/DailySeriesEpisodeTrimmer.txt" ]; then
