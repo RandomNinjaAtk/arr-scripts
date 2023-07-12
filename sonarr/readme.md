@@ -1,5 +1,5 @@
 # Requirements
-Container: https://docs.linuxserver.io/images/docker-sonarr
+Container: https://docs.linuxserver.io/images/docker-sonarr<br>
 Version Tag: develop
 
 # Installation/setup
