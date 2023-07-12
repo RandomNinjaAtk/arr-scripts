@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
-scriptVersion=1.0.7
+scriptVersion="1.0.8"
+scriptName="PlexNotify"
+
+#### Import Settings
+source /config/extended.conf
+
+log () {
+  m_time=`date "+%F %T"`
+  echo $m_time" :: $scriptName :: $scriptVersion :: "$1
+}
+
 if [ -z "$lidarr_artist_path" ]; then
 	lidarr_artist_path="$1"
 	notfidedBy=Extended_Script
@@ -16,10 +26,7 @@ fi
 exec &> >(tee -a "/config/logs/PlexNotify.txt")
 chmod 666 "/config/logs/PlexNotify.txt"
 
-log () {
-    m_time=`date "+%F %T"`
-    echo $m_time" :: PlexNotify :: $scriptVersion :: "$1
-}
+
 
 if [ "$lidarr_eventtype" == "Test" ]; then
 	log "Tested Successfully"
