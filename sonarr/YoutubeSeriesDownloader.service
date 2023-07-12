@@ -1,9 +1,21 @@
 #!/usr/bin/env bash
 scriptVersion="1.2"
 ytdlpExtraOpts="--user-agent facebookexternalhit/1.1"
+scriptName="YoutubeSeriesDownloader"
 
 #### Import Settings
 source /config/extended.conf
+
+log () {
+  m_time=`date "+%F %T"`
+  echo $m_time" :: $scriptName :: $scriptVersion :: "$1
+}
+
+if [ "$enableYoutubeSeriesDownloader" != "true" ]; then
+	log "Script is not enabled, enable by setting enableYoutubeSeriesDownloader to \"true\" by modifying the \"/config/extended.conf\" config file..."
+	log "Sleeping (infinity)"
+	sleep infinity
+fi
 
 getArrAppInfo () {
   # Get Arr App information
@@ -39,12 +51,6 @@ verifyApiAccess () {
       sleep 1
     fi
   done
-}
-
-
-log () {
-  m_time=`date "+%F %T"`
-  echo $m_time" :: Youtube Series Downloader :: $scriptVersion :: "$1
 }
 
 # auto-clean up log file to reduce space usage
@@ -174,20 +180,13 @@ YoutubeSeriesDownloaderProcess () {
 	done
 }
 
-if [ "$enableYoutubeSeriesDownloader" == "true" ]; then
-	log "Starting Script...."
-	for (( ; ; )); do
-		let i++
-	  	getArrAppInfo
-		verifyApiAccess
-		YoutubeSeriesDownloaderProcess
-		log "Script sleeping for 2 hours..."
-		sleep 2h
-	done
-else
-	log "Script is not enabled, enable by setting enableYoutubeSeriesDownloader to \"true\" by modifying the \"/config/extended.conf\" config file..."
-	log "Sleeping (infinity)"
-	sleep infinity
-fi
-
+log "Starting Script...."
+for (( ; ; )); do
+	let i++
+  	getArrAppInfo
+	verifyApiAccess
+	YoutubeSeriesDownloaderProcess
+	log "Script sleeping for 2 hours..."
+	sleep 2h
+done
 exit
