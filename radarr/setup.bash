@@ -77,6 +77,14 @@ echo "Download Recyclarr config..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/recyclarr.yaml -o /config/extended/recyclarr.yaml
 echo "Done"
 
+if [ ! -f /config/extended.conf ]; then
+	echo "Download Extended config..."
+	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/extended.conf -o /config/extended.conf
+	chmod 777 /config/extended.conf
+	echo "Done"
+fi
+
+
 chmod 777 -R /config/extended
 
 exit
