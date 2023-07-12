@@ -1,5 +1,5 @@
 # Requirements
-Container: [https://docs.linuxserver.io/images/docker-sonarr](https://docs.linuxserver.io/images/docker-sabnzbd)<br>
+Container: [https://docs.linuxserver.io/images/docker-sabnzbd](https://docs.linuxserver.io/images/docker-sabnzbd)<br>
 
 # Installation/setup
 1. Add volume to your container <br>
