@@ -1,6 +1,16 @@
 #!/usr/bin/with-contenv bash
 TITLESHORT="APP"
-ScriptVersion="1.4"
+ScriptVersion="1.5"
+scriptName="Audio"
+
+#### Import Settings
+source /config/extended.conf
+
+log () {
+  m_time=`date "+%F %T"`
+  echo $m_time" :: $scriptName :: $scriptVersion :: "$1
+}
+
 
 set -e
 set -o pipefail
@@ -9,14 +19,6 @@ touch "/config/scripts/audio.txt"
 exec &> >(tee -a "/config/scripts/audio.txt")
 
 Main () {
-	# SETTINGS
-	AudioVerification="TRUE" # TRUE = ENABLED, Verifies FLAC/MP3 files for errors (fixes MP3's, deletes bad FLAC files)
-	ConversionFormat="FLAC" # SET TO: OPUS or AAC or MP3 or ALAC or FLAC - converts lossless FLAC files to set format
-	ConversionBitrate="160" # Set to desired bitrate when converting to OPUS/AAC/MP3 format types
-	ReplaygainTagging="false" # TRUE = ENABLED, adds replaygain tags for compatible players (FLAC ONLY)
-	BeetsTagging="TRUE" # TRUE = ENABLED, enables tagging with beets
-	DetectNonSplitAlubms="TRUE" # TRUE = ENABLED :: Uses "MaxFileSize" to detect and mark download as failed if detected
-	MaxFileSize="153600k" # M = MB, G = GB :: Set size threshold for detecting single file albums
 
 	#============FUNCTIONS============
 
