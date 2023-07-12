@@ -85,7 +85,7 @@ echo "Done"
 
 if [ ! -f /config/extended.conf ]; then
 	echo "Download Extended config..."
-	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/liodarr/extended.conf -o /config/extended.conf
+	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/extended.conf -o /config/extended.conf
 	chmod 777 /config/extended.conf
 	echo "Done"
 fi
