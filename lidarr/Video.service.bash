@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.3"
+scriptVersion="1.4"
 scriptName="Video"
 
 #### Import Settings
@@ -70,13 +70,12 @@ chmod 666 "/config/logs/Video.txt"
 log "-----------------------------------------------------------------------------"
 log "|~) _ ._  _| _ ._ _ |\ |o._  o _ |~|_|_|"
 log "|~\(_|| |(_|(_)| | || \||| |_|(_||~| | |<"
-log "Presents: lidarr-extended ($scriptVersion)"
-log "Docker Version: $dockerVersion"
-log "May the vidz be with you!"
+log " Presents: $scriptName ($scriptVersion)"
+log " May the beats be with you!"
 log "-----------------------------------------------------------------------------"
 log "Donate: https://github.com/sponsors/RandomNinjaAtk"
-log "Project: https://github.com/RandomNinjaAtk/docker-lidarr-extended"
-log "Support: https://github.com/RandomNinjaAtk/docker-lidarr-extended/discussions"
+log "Project: https://github.com/RandomNinjaAtk/arr-scripts"
+log "Support: https://github.com/RandomNinjaAtk/arr-scripts/discussions"
 log "-----------------------------------------------------------------------------"
 sleep 5
 log ""
