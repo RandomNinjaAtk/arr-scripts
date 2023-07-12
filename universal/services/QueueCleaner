@@ -1,24 +1,20 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.0.5"
+scriptVersion="1.0.6"
+scriptName="QueueCleaner"
 
-######## Settings
-scriptInterval="15m"
+#### Import Settings
+source /config/extended.conf
 
-######## Package dependencies installation
-PackageInstallation () {
-  if [ ! -f "/config/logs/QueueCleaner.txt" ]; then
-    echo "Installing Required Packages..."
-    apk add -U --update --no-cache curl jq python3-dev py3-pip &>/dev/null
-    pip install --upgrade --no-cache-dir -U yq &>/dev/null
-    echo "Done"
-  fi
-}
-
-# Logging output function
 log () {
   m_time=`date "+%F %T"`
-  echo $m_time" :: QueueCleaner :: $scriptVersion :: "$1
+  echo $m_time" :: $scriptName :: $scriptVersion :: "$1
 }
+
+if [ "$enableQueueCleaner" != "true" ]; then
+	log "Script is not enabled, enable by setting enableQueueCleaner to \"true\" by modifying the \"/config/extended.conf\" config file..."
+	log "Sleeping (infinity)"
+	sleep infinity
+fi
 
 # auto-clean up log file to reduce space usage
 if [ -f "/config/logs/QueueCleaner.txt" ]; then
@@ -127,8 +123,8 @@ if [ "$arrName" == "Sonarr" ] || [ "$arrName" == "Radarr" ] || [ "$arrName" == "
     let i++
     log "Starting..."
     QueueCleanerProcess
-    log "Sleeping $scriptInterval..."
-    sleep $scriptInterval
+    log "Sleeping 15m..."
+    sleep 15m
   done
 else
   log "ERROR :: Arr app not detected, exiting..."
