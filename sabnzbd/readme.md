@@ -10,5 +10,5 @@ Container: [https://docs.linuxserver.io/images/docker-sonarr](https://docs.linux
 4. Start your container and wait for the application to load
 5. Optional: Customize the configuration by modifying the following file `/config/extended.conf`
 6. Restart the container
-7. Add the `/config/scripts` folder to the "Scripts Folder" folder setting in sabnzbd
+7. Add the `/config/scripts` folder to the "Scripts Folder" folder setting in SABnzbd
 8. Add `video.bash` or `audio.bash` script to the appropriate SABnzbd category 
