@@ -1,14 +1,20 @@
 #!/usr/bin/env bash
-scriptVersion="1.2"
+scriptVersion="1.3"
+scriptName="Video"
 
-# Settings
-addFeaturedVideoArtists="true"
-videoFormat="bv[width>=1920]+ba"
+#### Import Settings
+source /config/extended.conf
 
 log () {
-	m_time=`date "+%F %T"`
-	echo $m_time" :: Video :: $scriptVersion :: "$1
+  m_time=`date "+%F %T"`
+  echo $m_time" :: $scriptName :: $scriptVersion :: "$1
 }
+
+if [ "$enableVideo" != "true" ]; then
+	log "Script is not enabled, enable by setting enableVideo to \"true\" by modifying the \"/config/extended.conf\" config file..."
+	log "Sleeping (infinity)"
+	sleep infinity
+fi
 
 getArrAppInfo () {
   # Get Arr App information
@@ -713,13 +719,13 @@ VideoProcess () {
   done
 }
 
-echo "Starting Script...."
+log "Starting Script...."
 for (( ; ; )); do
 	let i++
-  getArrAppInfo
-  verifyApiAccess
+	getArrAppInfo
+	verifyApiAccess
 	VideoProcess
-	echo "Script sleeping for 15 minutes..."
+	log "Script sleeping for 15 minutes..."
 	sleep 15m
 done
 
