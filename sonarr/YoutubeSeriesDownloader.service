@@ -186,7 +186,7 @@ if [ "$enableYoutubeSeriesDownloader" == "true" ]; then
 	done
 else
 	log "Script is not enabled, enable by setting enableYoutubeSeriesDownloader to \"true\" by modifying the \"/config/extended.conf\" config file..."
-	log "Sleeping (infinity)
+	log "Sleeping (infinity)"
 	sleep infinity
 fi
 
