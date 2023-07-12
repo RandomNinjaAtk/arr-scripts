@@ -1,5 +1,20 @@
 #!/usr/bin/env bash
-scriptVersion="1.0"
+scriptVersion="1.1"
+scriptName="AutoExtras"
+
+#### Import Settings
+source /config/extended.conf
+
+log () {
+  m_time=`date "+%F %T"`
+  echo $m_time" :: $scriptName :: $scriptVersion :: "$1
+}
+
+if [ "$enableExtras" != "true" ]; then
+	log "Script is not enabled, enable by setting enableExtras to \"true\" by modifying the \"/config/extended.conf\" config file..."
+	log "Sleeping (infinity)"
+	sleep infinity
+fi
 
 getArrAppInfo () {
   # Get Arr App information
@@ -37,11 +52,6 @@ verifyApiAccess () {
   done
 }
 
-log () {
-  m_time=`date "+%F %T"`
-  echo $m_time" :: AutoExtras :: $scriptVersion :: "$1
-}
-
 AutoExtrasProcess () {
 
   # auto-clean up log file to reduce space usage
@@ -68,13 +78,13 @@ AutoExtrasProcess () {
 
 }
 
-echo "Starting Script...."
+log "Starting Script...."
 for (( ; ; )); do
   let i++
   getArrAppInfo
   verifyApiAccess
   AutoExtrasProcess
-  echo "Script sleeping for 24 hours..."
+  log "Script sleeping for 24 hours..."
   sleep 24h
 done
 
