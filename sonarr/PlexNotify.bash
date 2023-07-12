@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
-scriptVersion="1.0.1"
+scriptVersion="1.0.2"
 notfidedBy="Sonarr"
 arrRootFolderPath="$(dirname "$sonarr_series_path")"
 arrFolderPath="$sonarr_series_path"
 arrEventType="$sonarr_eventtype"
 extrasPath="$1"
+scriptName="PlexNotify"
 
-# Debugging Settings
-#enableExtras=false
+#### Import Settings
+source /config/extended.conf
 
 log () {
-    m_time=`date "+%F %T"`
-    echo $m_time" :: PlexNotify :: $scriptVersion :: "$1
+  m_time=`date "+%F %T"`
+  echo $m_time" :: $scriptName :: $scriptVersion :: "$1
 }
 
 # auto-clean up log file to reduce space usage
