@@ -1,11 +1,14 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.0.4"
+scriptVersion="1.0.5"
+scriptName="Video"
 
-######## Settings
-videoLanguages="eng"
-requireLanguageMatch="true"
-enableSma="true"
-enableSmaTagging="true"
+#### Import Settings
+source /config/extended.conf
+
+log () {
+  m_time=`date "+%F %T"`
+  echo $m_time" :: $scriptName :: $scriptVersion :: "$1
+}
 
 set -e
 set -o pipefail
@@ -47,12 +50,6 @@ function Configuration {
 	if [ -z "enableSmaTagging" ]; then
 		enableSmaTagging=FALSE
 	fi
-}
-
-
-function log {
-    m_time=`date "+%F %T"`
-    echo $m_time" :: $scriptVersion :: "$1
 }
 
 VideoLanguageCheck () {
