@@ -1,24 +1,32 @@
 #!/usr/bin/env bash
-scriptVersion="1.2"
+scriptVersion="1.3"
 arrEventType="$sonarr_eventtype"
 arrItemId=$sonarr_series_id
 tmdbApiKey="3b7751e3179f796565d88fdb2fcdf426"
 autoScan="false"
 updatePlex="false"
 ytdlpExtraOpts="--user-agent facebookexternalhit/1.1"
+scriptName="Extras"
+
+#### Import Settings
+source /config/extended.conf
+
+log () {
+  m_time=`date "+%F %T"`
+  echo $m_time" :: $scriptName :: $scriptVersion :: "$1
+}
+
+if [ "$enableExtras" != "true" ]; then
+	log "Script is not enabled, enable by setting enableExtras to \"true\" by modifying the \"/config/extended.conf\" config file..."
+	log "Sleeping (infinity)"
+	sleep infinity
+fi
 
 if [ ! -z "$1" ]; then
     arrItemId="$1"
     autoScan="true"
 fi
 
-# Debugging
-#arrItemId=818
-extrasLanguages=en-US
-extrasType=all
-extrasOfficialOnly=false
-enableExtras=true
-videoFormat="bv[width>=1280]+ba"
 
 if [ -z "$arrUrl" ] || [ -z "$arrApiKey" ]; then
   arrUrlBase="$(cat /config/config.xml | xq | jq -r .Config.UrlBase)"
@@ -32,10 +40,6 @@ if [ -z "$arrUrl" ] || [ -z "$arrApiKey" ]; then
   arrUrl="http://127.0.0.1:${arrPort}${arrUrlBase}"
 fi
 
-log () {
-  m_time=`date "+%F %T"`
-  echo $m_time" :: Extras :: $scriptVersion :: "$1
-}
 
 # auto-clean up log file to reduce space usage
 if [ -f "/config/logs/Extras.txt" ]; then
