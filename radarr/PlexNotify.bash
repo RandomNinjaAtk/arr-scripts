@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
-scriptVersion="1.0"
+scriptVersion="1.1"
+scriptName="PlexNotify"
+
+#### Import Settings
+source /config/extended.conf
+
+log () {
+  m_time=`date "+%F %T"`
+  echo $m_time" :: $scriptName :: $scriptVersion :: "$1
+}
 
 notfidedBy="Radarr"
 arrRootFolderPath="$(dirname "$radarr_movie_path")"
@@ -7,8 +16,6 @@ arrFolderPath="$radarr_movie_path"
 arrEventType="$radarr_eventtype"
 movieExtrasPath="$1"
 
-# Debugging Settings
-enableExtras=true
 
 # auto-clean up log file to reduce space usage
 if [ -f "/config/logs/PlexNotify.txt" ]; then
@@ -21,10 +28,6 @@ if [ ! -f "/config/logs/PlexNotify.txt" ]; then
 fi
 exec &> >(tee -a "/config/logs/PlexNotify.txt")
 
-log () {
-    m_time=`date "+%F %T"`
-    echo $m_time" :: PlexNotify :: $scriptVersion :: "$1
-}
 
 if [ "$enableExtras" == "true" ]; then
     if [ -z "$movieExtrasPath" ]; then
