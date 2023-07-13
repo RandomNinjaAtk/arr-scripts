@@ -11,3 +11,9 @@ Container: [https://docs.linuxserver.io/images/docker-sabnzbd](https://docs.linu
 1. Optional: Customize the configuration by modifying the following file `/config/extended.conf`
 1. Add the `/config/scripts` folder to the "Scripts Folder" folder setting in SABnzbd
 1. Add `video.bash` or `audio.bash` script to the appropriate SABnzbd category 
+
+# Updating
+Updating is a bit more combersum. To update, do the following:
+1. Download/update your local `/config/extended.conf` file with the latest options from: [extended.conf](https://github.com/RandomNinjaAtk/arr-scripts/blob/main/sabnzbd/extended.conf)
+2. Restart the container, wait for it to fully load the application.
+3. Restart the container again, for the new scripts to activate.
