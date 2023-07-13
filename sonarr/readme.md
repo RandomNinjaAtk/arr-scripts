@@ -28,25 +28,28 @@ Updating is a bit more combersum. To update, do the following:
   </tr>
  </table>
  
-* [Downloading TV **Trailers** and **Extras** using online sources for use in popular applications (Plex):](https://github.com/RandomNinjaAtk/docker-sonarr-extended/wiki/Extras.bash) 
+* Downloading TV **Trailers** and **Extras** using online sources for use in popular applications (Plex):
   * Connects to Sonarr to automatically download trailers for TV Series in your existing library
   * Downloads videos using yt-dlp automatically
   * Names videos correctly to match Plex naming convention
-* [Auto Configure Sonarr with optimized settings](https://github.com/RandomNinjaAtk/docker-sonarr-extended/wiki/AutoConfig.bash)
+* Auto Configure Sonarr with optimized settings
   * Optimized file/folder naming (based on trash guides)
   * Configures media management settings
   * Configures metadata settings
-* [Daily Series Episode Trimmer](https://github.com/RandomNinjaAtk/docker-sonarr-extended/wiki/DailySeriesEpisodeTrimmer.bash)
+* Daily Series Episode Trimmer
   * Keep only the latest 14 episodes of a daily series
-* [Recyclarr built-in](https://github.com/RandomNinjaAtk/docker-sonarr-extended/wiki/Recyclarr.bash)
+* Recyclarr built-in
   * Auto configures Release Profiles + Scores
   * Auto configures optimzed quality definitions
-* [Plex Notify Script](https://github.com/RandomNinjaAtk/docker-sonarr-extended/wiki/PlexNotify.bash)
+* Plex Notify Script
   * Reduce Plex scanning by notifying Plex the exact folder to scan
-* [Queue Cleaner Script](https://github.com/RandomNinjaAtk/docker-sonarr-extended/wiki/QueueCleaner.bash)
+* Queue Cleaner Script
   * Automatically removes downloads that have a "warning" or "failed" status that will not auto-import into Sonarr, which enables Sonarr to automatically re-search for the Title
-* [Youtube Series Downloader Script](https://github.com/RandomNinjaAtk/docker-sonarr-extended/wiki/Youtube-Series-Downloader.bash)
+* Youtube Series Downloader Script
   * Automatically downloads and imports episodes from Youtube.com for Sonarr series that have their network set as "Youtube"
+ 
+For more details, visit the [Wiki](https://github.com/RandomNinjaAtk/arr-scripts/wiki)
+
 
 ### Plex Example
 ![](https://raw.githubusercontent.com/RandomNinjaAtk/docker-amtd/master/.github/amvtd-plex-example.jpg)
