@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-scriptVersion=1.0
+#!/usr/bin/with-contenv bash
+scriptVersion=1.1
 if [ -z "$lidarrUrl" ] || [ -z "$lidarrApiKey" ]; then
 	lidarrUrlBase="$(cat /config/config.xml | xq | jq -r .Config.UrlBase)"
 	if [ "$lidarrUrlBase" == "null" ]; then
@@ -40,17 +40,13 @@ getAlbumArtist="$(curl -s "$lidarrUrl/api/v1/album/$lidarr_album_id" -H "X-Api-K
 getAlbumArtistPath="$(curl -s "$lidarrUrl/api/v1/album/$lidarr_album_id" -H "X-Api-Key: ${lidarrApiKey}" | jq -r .artist.path)"
 getTrackPath="$(curl -s "$lidarrUrl/api/v1/trackFile?albumId=$lidarr_album_id" -H "X-Api-Key: ${lidarrApiKey}" | jq -r .[].path | head -n1)"
 getFolderPath="$(dirname "$getTrackPath")"
-getAlbumFolderName="$(basename "$getFolderPath")"
-
-log "Processing :: $getAlbumFolderName :: Start"
 
 if echo "$getFolderPath" | grep "$getAlbumArtistPath" | read; then
 	if [ ! -d "$getFolderPath" ]; then
-		log "Processing :: $getAlbumFolderName :: ERROR :: \"$getFolderPath\" Folder is missing :: Exiting..."
-        exit
+		log "ERROR :: \"$getFolderPath\" Folder is missing :: Exiting..."
 	fi
 else 
-	log "Processing :: $getAlbumFolderName :: ERROR :: $getAlbumArtistPath not found within \"$getFolderPath\" :: Exiting..."
+	log "ERROR :: $getAlbumArtistPath not found within \"$getFolderPath\" :: Exiting..."
 	exit
 fi
 
