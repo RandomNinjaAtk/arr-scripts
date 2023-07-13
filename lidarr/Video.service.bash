@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-scriptVersion="1.6"
+#!/usr/bin/with-contenv bash
+scriptVersion="1.7"
 scriptName="Video"
 
 #### Import Settings
