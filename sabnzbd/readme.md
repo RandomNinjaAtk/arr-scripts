@@ -17,3 +17,6 @@ Updating is a bit more combersum. To update, do the following:
 1. Download/update your local `/config/extended.conf` file with the latest options from: [extended.conf](https://github.com/RandomNinjaAtk/arr-scripts/blob/main/sabnzbd/extended.conf)
 2. Restart the container, wait for it to fully load the application.
 3. Restart the container again, for the new scripts to activate.
+
+# Additional Information
+For more details, visit the [Wiki](https://github.com/RandomNinjaAtk/arr-scripts/wiki)
