@@ -21,6 +21,16 @@ Updating is a bit more combersum. To update, do the following:
 This configuration does its best to update everything automatically, but with how the core system is designed, the new scripts will not take affect until a second restart is completed because the container copies/uses the previous versions of the script for execution on the first restart.
 
 # Features
+<table>
+  <tr>
+    <td><img src="https://github.com/RandomNinjaAtk/docker-lidarr-extended/raw/main/.github/lidarr.png" width="150"></td>
+    <td><img src="https://github.com/RandomNinjaAtk/docker-lidarr-extended/raw/main/.github/plus.png" width="75"></td>
+    <td><img src="https://github.com/RandomNinjaAtk/docker-lidarr-extended/raw/main/.github/music.png" width="150"></td>
+    <td><img src="https://github.com/RandomNinjaAtk/docker-lidarr-extended/raw/main/.github/plus.png" width="75"></td>
+    <td><img src="https://github.com/RandomNinjaAtk/docker-lidarr-extended/raw/main/.github/video.png" width="150"></td>
+  </tr>
+ </table>
+ 
 * Downloading **Music** using online sources for use in popular applications (Plex/Kodi/Emby/Jellyfin): 
   * Completely automated
   * Searches for downloads based on Lidarr's album missing & cutoff list
