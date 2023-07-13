@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.5"
+scriptVersion="1.6"
 scriptName="Video"
 
 #### Import Settings
@@ -15,6 +15,18 @@ if [ "$enableVideo" != "true" ]; then
 	log "Sleeping (infinity)"
 	sleep infinity
 fi
+
+if [ -z "$downloadPath" ]; then
+	downloadPath="/config/extended/downloads"
+fi
+
+if [ -z "$videoPath" ]; then
+	log "ERROR: videoPath is not configured via the \"/config/extended.conf\" config file..."
+ 	log "Updated your \"/config/extended.conf\" file with the latest options, see: https://github.com/RandomNinjaAtk/arr-scripts/blob/main/lidarr/extended.conf"
+	log "Sleeping (infinity)"
+	sleep infinity
+fi
+
 
 getArrAppInfo () {
   # Get Arr App information
