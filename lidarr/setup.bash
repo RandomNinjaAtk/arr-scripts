@@ -75,6 +75,10 @@ echo "Download MetadataPostProcess script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/MetadataPostProcess.bash -o /config/extended/MetadataPostProcess.bash
 echo "Done"
 
+echo "Download BeetsPostProcessor script..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/BeetsPostProcessor.bash -o /config/extended/BeetsPostProcessor.bash
+echo "Done"
+
 echo "Download SMA config..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/sma.ini -o /config/extended/sma.ini 
 echo "Done"
