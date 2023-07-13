@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.3"
+scriptVersion="1.4"
 scriptName="Audio"
 
 #### Import Settings
