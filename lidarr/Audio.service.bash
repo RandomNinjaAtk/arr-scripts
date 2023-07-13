@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.2"
+scriptVersion="1.3"
 scriptName="Audio"
 
 #### Import Settings
@@ -16,6 +16,9 @@ if [ "$enableAudio" != "true" ]; then
 	sleep infinity
 fi
 
+if [ -z "$downloadPath" ]; then
+	downloadPath="/config/extended/downloads"
+fi
 
 getArrAppInfo () {
   # Get Arr App information
