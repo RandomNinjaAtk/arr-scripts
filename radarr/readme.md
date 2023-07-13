@@ -43,6 +43,9 @@ Updating is a bit more combersum. To update, do the following:
   * Reduce Plex scanning by notifying Plex the exact folder to scan
 * Queue Cleaner Script
   * Automatically removes downloads that have a "warning" or "failed" status that will not auto-import into Radarr, which enables Radarr to automatically re-search for the Title
+ 
+For more details, visit the [Wiki](https://github.com/RandomNinjaAtk/arr-scripts/wiki)
+
   
 ### Plex Example
 ![](https://raw.githubusercontent.com/RandomNinjaAtk/docker-amtd/master/.github/amvtd-plex-example.jpg)
