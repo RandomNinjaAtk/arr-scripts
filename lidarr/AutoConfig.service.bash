@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-scriptVersion="1.6"
+scriptVersion="1.7"
+
+#### Import Settings
+source /config/extended.conf
 
 log () {
   m_time=`date "+%F %T"`
