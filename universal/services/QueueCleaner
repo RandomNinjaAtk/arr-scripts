@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.0.6"
+scriptVersion="1.1"
 scriptName="QueueCleaner"
 
 #### Import Settings
@@ -10,22 +10,26 @@ log () {
   echo $m_time" :: $scriptName :: $scriptVersion :: "$1
 }
 
-if [ "$enableQueueCleaner" != "true" ]; then
-	log "Script is not enabled, enable by setting enableQueueCleaner to \"true\" by modifying the \"/config/extended.conf\" config file..."
-	log "Sleeping (infinity)"
-	sleep infinity
-fi
+verifyConfig () {
+	if [ "$enableQueueCleaner" != "true" ]; then
+		log "Script is not enabled, enable by setting enableQueueCleaner to \"true\" by modifying the \"/config/extended.conf\" config file..."
+		log "Sleeping (infinity)"
+		sleep infinity
+	fi
+}
 
-# auto-clean up log file to reduce space usage
-if [ -f "/config/logs/QueueCleaner.txt" ]; then
-  find /config/logs -type f -name "QueueCleaner.txt" -size +1024k -delete
-fi
-
-if [ ! -f "/config/logs/QueueCleaner.txt" ]; then
-    touch "/config/logs/QueueCleaner.txt"
-    chmod 666 "/config/logs/QueueCleaner.txt"
-fi
-exec &> >(tee -a "/config/logs/QueueCleaner.txt")
+logfileSetup () {
+	# auto-clean up log file to reduce space usage
+	if [ -f "/config/logs/QueueCleaner.txt" ]; then
+	  find /config/logs -type f -name "QueueCleaner.txt" -size +1024k -delete
+	fi
+	
+	if [ ! -f "/config/logs/QueueCleaner.txt" ]; then
+	    touch "/config/logs/QueueCleaner.txt"
+	    chmod 666 "/config/logs/QueueCleaner.txt"
+	fi
+	exec &> >(tee -a "/config/logs/QueueCleaner.txt")
+}
 
 QueueCleanerProcess () {
   # Get Arr App information
@@ -114,13 +118,12 @@ verifyApiAccess () {
   done
 }
 
-# Install packages
-PackageInstallation
-
 arrName="$(cat /config/config.xml | xq | jq -r .Config.InstanceName)"
 if [ "$arrName" == "Sonarr" ] || [ "$arrName" == "Radarr" ] || [ "$arrName" == "Lidarr" ] || [ "$arrName" == "Readarr" ]; then
   for (( ; ; )); do
     let i++
+    logfileSetup
+    verifyConfig
     log "Starting..."
     QueueCleanerProcess
     log "Sleeping 15m..."
