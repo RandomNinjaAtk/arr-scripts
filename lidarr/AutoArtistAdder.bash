@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.0"
+scriptVersion="1.1"
 scriptName="AutoArtistAdder"
 
 log () {
@@ -45,17 +45,6 @@ if [ -z "$lidarrUrl" ] || [ -z "$lidarrApiKey" ]; then
 	lidarrPort="$(cat /config/config.xml | xq | jq -r .Config.Port)"
 	lidarrUrl="http://localhost:${lidarrPort}${lidarrUrlBase}"
 fi
-
-# Debugging settings
-#addRelatedArtists="true"
-#addDeezerTopArtists="true"
-#addDeezerTopAlbumArtists="true"
-#addDeezerTopTrackArtists="true"
-#topLimit="2"
-#addRelatedArtists="true"
-#numberOfRelatedArtistsToAddPerArtist="2"
-#lidarrSearchForMissing=false
-
 
 sleepTimer=0.5
 
@@ -315,8 +304,8 @@ AddTidalArtistToLidarr () {
 
 # Loop Script
 for (( ; ; )); do
-	let i++
-	logfileSetup
+  let i++
+  logfileSetup
   verifyConfig
   
   if [ -z $lidarrSearchForMissing ]; then
@@ -340,6 +329,7 @@ for (( ; ; )); do
   	AddTidalRelatedArtists
   fi
   log "Script sleeping for 12 hours..."
-	sleep 12h
+  sleep 12h
 done
+
 exit
