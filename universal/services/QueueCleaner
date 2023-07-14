@@ -1,9 +1,6 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.1"
+scriptVersion="1.2"
 scriptName="QueueCleaner"
-
-#### Import Settings
-source /config/extended.conf
 
 log () {
   m_time=`date "+%F %T"`
@@ -11,6 +8,9 @@ log () {
 }
 
 verifyConfig () {
+	#### Import Settings
+	source /config/extended.conf
+	
 	if [ "$enableQueueCleaner" != "true" ]; then
 		log "Script is not enabled, enable by setting enableQueueCleaner to \"true\" by modifying the \"/config/extended.conf\" config file..."
 		log "Sleeping (infinity)"
