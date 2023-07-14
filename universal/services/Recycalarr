@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.4"
+scriptVersion="1.5"
 scriptName="Recyclarr"
 
 log () {
@@ -47,22 +47,21 @@ getArrAppInfo () {
     arrPort="$(cat /config/config.xml | xq | jq -r .Config.Port)"
     arrUrl="http://127.0.0.1:${arrPort}${arrUrlBase}"
   fi
-  if [ "$arrName" == "Radarr" ]; then
+  if [ "$arrPort" == "7878" ]; then
     recylcarrApp="radarr"
   fi
-  if [ "$arrName" == "Sonarr" ]; then
+  if [ "$arrPort" == "8989" ]; then
     recylcarrApp="sonarr"
   fi
 }
-
 verifyApiAccess () {
   until false
   do
     arrApiTest=""
     arrApiVersion=""
-    if [ "$arrName" == "Sonarr" ] || [ "$arrName" == "Radarr" ]; then
+    if [ "$arrPort" == "8989" ] || [ "$arrPort" == "7878" ]; then
       arrApiVersion="v3"
-    elif [ "$arrName" == "Lidarr" ] || [ "$arrName" == "Readarr" ]; then
+    elif [ "$arrPort" == "8686" ] || [ "$arrPort" == "8787" ]; then
       arrApiVersion="v1"
     fi
     arrApiTest=$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)
@@ -74,6 +73,7 @@ verifyApiAccess () {
     fi
   done
 }
+
 RecyclarrProcess () {  
   # Configure Yaml with URL and API Key
   sed -i "s%arrUrl%$arrUrl%g" "/config/extended/recyclarr.yaml"
