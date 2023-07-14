@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.8"
+scriptVersion="1.9"
 scriptName="Video"
 
 #### Import Settings
@@ -10,6 +10,15 @@ log () {
   m_time=`date "+%F %T"`
   echo $m_time" :: $scriptName :: $scriptVersion :: "$1
 }
+
+# auto-clean up log file to reduce space usage
+if [ -f "/config/logs/Video.txt" ]; then
+	find /config/logs -type f -name "Video.txt" -size +5000k -delete
+	sleep 0.01
+fi
+exec &> >(tee -a "/config/logs/Video.txt")
+touch "/config/logs/Video.txt"
+chmod 666 "/config/logs/Video.txt"
 
 if [ "$enableVideo" != "true" ]; then
 	log "Script is not enabled, enable by setting enableVideo to \"true\" by modifying the \"/config/extended.conf\" config file..."
@@ -68,17 +77,6 @@ verifyApiAccess () {
 if [ "$dlClientSource" = "tidal" ] || [ "$dlClientSource" = "both" ]; then
 	sourcePreference=tidal
 fi
-
-
-
-# auto-clean up log file to reduce space usage
-if [ -f "/config/logs/Video.txt" ]; then
-	find /config/logs -type f -name "Video.txt" -size +5000k -delete
-	sleep 0.01
-fi
-exec &> >(tee -a "/config/logs/Video.txt")
-touch "/config/logs/Video.txt"
-chmod 666 "/config/logs/Video.txt"
 
 log "-----------------------------------------------------------------------------"
 log "|~) _ ._  _| _ ._ _ |\ |o._  o _ |~|_|_|"
