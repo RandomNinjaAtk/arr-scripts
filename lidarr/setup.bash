@@ -65,6 +65,9 @@ echo "Download Audio service..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/Audio.service.bash -o /custom-services.d/Audio
 echo "Done"
 
+echo "Download AutoArtistAdder service..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/AutoArtistAdder.bash -o /custom-services.d/AutoArtistAdder
+echo "Done"
 
 mkdir -p /config/extended
 echo "Download PlexNotify script..."
