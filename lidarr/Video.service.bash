@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.9"
+scriptVersion="2.0"
 scriptName="Video"
 
 #### Import Settings
@@ -11,31 +11,35 @@ log () {
   echo $m_time" :: $scriptName :: $scriptVersion :: "$1
 }
 
-# auto-clean up log file to reduce space usage
-if [ -f "/config/logs/Video.txt" ]; then
-	find /config/logs -type f -name "Video.txt" -size +5000k -delete
-	sleep 0.01
-fi
-exec &> >(tee -a "/config/logs/Video.txt")
-touch "/config/logs/Video.txt"
-chmod 666 "/config/logs/Video.txt"
+logfileSetup () {
+	# auto-clean up log file to reduce space usage
+	if [ -f "/config/logs/Video.txt" ]; then
+		find /config/logs -type f -name "Video.txt" -size +5000k -delete
+		sleep 0.01
+	fi
+	exec &> >(tee -a "/config/logs/Video.txt")
+	touch "/config/logs/Video.txt"
+	chmod 666 "/config/logs/Video.txt"
+}
 
-if [ "$enableVideo" != "true" ]; then
-	log "Script is not enabled, enable by setting enableVideo to \"true\" by modifying the \"/config/extended.conf\" config file..."
-	log "Sleeping (infinity)"
-	sleep infinity
-fi
-
-if [ -z "$downloadPath" ]; then
-	downloadPath="/config/extended/downloads"
-fi
-
-if [ -z "$videoPath" ]; then
-	log "ERROR: videoPath is not configured via the \"/config/extended.conf\" config file..."
- 	log "Updated your \"/config/extended.conf\" file with the latest options, see: https://github.com/RandomNinjaAtk/arr-scripts/blob/main/lidarr/extended.conf"
-	log "Sleeping (infinity)"
-	sleep infinity
-fi
+verifyConfig () {
+	if [ "$enableVideo" != "true" ]; then
+		log "Script is not enabled, enable by setting enableVideo to \"true\" by modifying the \"/config/extended.conf\" config file..."
+		log "Sleeping (infinity)"
+		sleep infinity
+	fi
+	
+	if [ -z "$downloadPath" ]; then
+		downloadPath="/config/extended/downloads"
+	fi
+	
+	if [ -z "$videoPath" ]; then
+		log "ERROR: videoPath is not configured via the \"/config/extended.conf\" config file..."
+	 	log "Updated your \"/config/extended.conf\" file with the latest options, see: https://github.com/RandomNinjaAtk/arr-scripts/blob/main/lidarr/extended.conf"
+		log "Sleeping (infinity)"
+		sleep infinity
+	fi
+}
 
 
 getArrAppInfo () {
@@ -732,6 +736,8 @@ VideoProcess () {
 log "Starting Script...."
 for (( ; ; )); do
 	let i++
+	logfileSetup
+ 	verifyConfig
 	getArrAppInfo
 	verifyApiAccess
 	VideoProcess
