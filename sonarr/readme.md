@@ -1,6 +1,6 @@
 # Requirements
 Container: https://docs.linuxserver.io/images/docker-sonarr<br>
-Version Tag: develop (only if migrating from original sonarr-extended container...)
+Version Tag: develop (v4 is required for some of the features)
 
 # Installation/setup
 1. Add 2 volumes to your container <br>
