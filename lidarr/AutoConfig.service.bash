@@ -1,10 +1,25 @@
 #!/usr/bin/env bash
-scriptVersion="1.5"
+scriptVersion="1.6"
 
 log () {
   m_time=`date "+%F %T"`
   echo $m_time" :: AutoConfig :: $scriptVersion :: "$1
 }
+
+# auto-clean up log file to reduce space usage
+if [ -f "/config/logs/AutoConfig.txt" ]; then
+	find /config/logs -type f -name "AutoConfig.txt" -size +1024k -delete
+	sleep 0.01
+fi
+exec &> >(tee -a "/config/logs/AutoConfig.txt")
+touch "/config/logs/AutoConfig.txt"
+chmod 666 "/config/logs/AutoConfig.txt"
+
+if [ "$enableAutoConfig" != "true" ]; then
+	log "Script is not enabled, enable by setting enableAutoConfig to \"true\" by modifying the \"/config/extended.conf\" config file..."
+	log "Sleeping (infinity)"
+	sleep infinity
+fi
 
 getArrAppInfo () {
   # Get Arr App information
@@ -44,19 +59,6 @@ verifyApiAccess () {
 
 getArrAppInfo
 verifyApiAccess
-
-# auto-clean up log file to reduce space usage
-if [ -f "/config/logs/AutoConfig.txt" ]; then
-	find /config/logs -type f -name "AutoConfig.txt" -size +1024k -delete
-	sleep 0.01
-fi
-exec &> >(tee -a "/config/logs/AutoConfig.txt")
-touch "/config/logs/AutoConfig.txt"
-chmod 666 "/config/logs/AutoConfig.txt"
-
-
-
-
 
 log "Configuring Lidarr Media Management Settings"
 postSettingsToLidarr=$(curl -s "$arrUrl/api/v1/config/mediamanagement" -X PUT -H 'Content-Type: application/json' -H "X-Api-Key: ${arrApiKey}" --data-raw '{"autoUnmonitorPreviouslyDownloadedTracks":false,"recycleBin":"","recycleBinCleanupDays":7,"downloadPropersAndRepacks":"preferAndUpgrade","createEmptyArtistFolders":true,"deleteEmptyFolders":true,"fileDate":"albumReleaseDate","watchLibraryForChanges":false,"rescanAfterRefresh":"never","allowFingerprinting":"never","setPermissionsLinux":false,"chmodFolder":"777","chownGroup":"","skipFreeSpaceCheckWhenImporting":false,"minimumFreeSpaceWhenImporting":100,"copyUsingHardlinks":true,"importExtraFiles":true,"extraFileExtensions":"jpg,png,lrc","id":1}')
