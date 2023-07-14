@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.1"
+scriptVersion="1.2"
 scriptName="AutoArtistAdder"
 
 log () {
@@ -27,7 +27,7 @@ verifyConfig () {
   if echo "$addDeezerTopArtists $addDeezerTopAlbumArtists $addDeezerTopTrackArtists $addRelatedArtists" | grep -i "true" | read; then
     sleep 0.01
   else
-    log "Script is not enabled, enable by setting enableRecyclarr to \"true\" by modifying the \"/config/extended.conf\" config file..."
+    log "Script is not enabled, enable by setting addDeezerTopArtists. addDeezerTopAlbumArtists, addDeezerTopTrackArtists or addRelatedArtists to \"true\" by modifying the \"/config/extended.conf\" config file..."
     log "Sleeping (infinity)"
     sleep infinity
   fi
