@@ -1,9 +1,10 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.7"
+scriptVersion="1.8"
 scriptName="Video"
 
 #### Import Settings
 source /config/extended.conf
+videoContainer=mkv
 
 log () {
   m_time=`date "+%F %T"`
