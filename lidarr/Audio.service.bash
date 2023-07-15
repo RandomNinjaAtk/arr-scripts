@@ -1,9 +1,6 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.7"
+scriptVersion="1.8"
 scriptName="Audio"
-
-#### Import Settings
-source /config/extended.conf
 
 log () {
   m_time=`date "+%F %T"`
