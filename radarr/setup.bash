@@ -58,7 +58,7 @@ curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal
 echo "Done"
 
 echo "Download UnmappedFolderCleaner service..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/services/UnmappedFolderCleaner.bash -o /custom-services.d/UnmappedFolderCleaner
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/UnmappedFolderCleaner.bash -o /custom-services.d/UnmappedFolderCleaner
 echo "Done"
 
 mkdir -p /config/extended
