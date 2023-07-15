@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.2"
+scriptVersion="1.3"
 scriptName="AutoArtistAdder"
 
 log () {
@@ -31,6 +31,11 @@ verifyConfig () {
     log "Sleeping (infinity)"
     sleep infinity
   fi
+
+  if [ -z "$autoArtistAdderInterval" ]; then
+    autoArtistAdderInterval="12h"
+  fi
+
 }
 
 if [ -z "$lidarrUrl" ] || [ -z "$lidarrApiKey" ]; then
@@ -328,8 +333,8 @@ for (( ; ; )); do
   	AddDeezerRelatedArtists
   	AddTidalRelatedArtists
   fi
-  log "Script sleeping for 12 hours..."
-  sleep 12h
+  log "Script sleeping for $autoArtistAdderInterval..."
+  sleep $autoArtistAdderInterval
 done
 
 exit
