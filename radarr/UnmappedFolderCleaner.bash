@@ -9,15 +9,15 @@ log () {
 
 logfileSetup () {
   # auto-clean up log file to reduce space usage
-  if [ -f "/config/logs/UnmappedFolderCleaner.txt" ]; then
-  	find /config/logs -type f -name "UnmappedFolderCleaner.txt" -size +1024k -delete
+  if [ -f "/config/logs/$scriptName.txt" ]; then
+  	find /config/logs -type f -name "$scriptName.txt" -size +1024k -delete
   fi
   
-  if [ ! -f "/config/logs/UnmappedFolderCleaner.txt" ]; then
-      touch "/config/logs/UnmappedFolderCleaner.txt"
-      chmod 666 "/config/logs/UnmappedFolderCleaner.txt"
+  if [ ! -f "/config/logs/$scriptName.txt" ]; then
+      touch "/config/logs/$scriptName.txt"
+      chmod 666 "/config/logs/$scriptName.txt"
   fi
-  exec &> >(tee -a "/config/logs/UnmappedFolderCleaner.txt")
+  exec &> >(tee -a "/config/logs/$scriptName.txt")
 }
 
 verifyConfig () {
