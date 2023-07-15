@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.1"
+scriptVersion="2.2"
 scriptName="Video"
 
 #### Import Settings
@@ -32,6 +32,10 @@ verifyConfig () {
 	if [ -z "$downloadPath" ]; then
 		downloadPath="/config/extended/downloads"
 	fi
+
+ 	if [ -z "$videoScriptInterval" ]; then
+  		videoScriptInterval="15m"
+    	fi
 	
 	if [ -z "$videoPath" ]; then
 		log "ERROR: videoPath is not configured via the \"/config/extended.conf\" config file..."
@@ -741,8 +745,8 @@ for (( ; ; )); do
 	getArrAppInfo
 	verifyApiAccess
 	VideoProcess
-	log "Script sleeping for 15 minutes..."
-	sleep 15m
+	log "Script sleeping for $videoScriptInterval..."
+	sleep $videoScriptInterval
 done
 
 exit
