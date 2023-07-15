@@ -1,10 +1,6 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.2"
+scriptVersion="2.3"
 scriptName="Video"
-
-#### Import Settings
-source /config/extended.conf
-videoContainer=mkv
 
 log () {
   m_time=`date "+%F %T"`
@@ -23,6 +19,10 @@ logfileSetup () {
 }
 
 verifyConfig () {
+    #### Import Settings
+    source /config/extended.conf
+    videoContainer=mkv
+
 	if [ "$enableVideo" != "true" ]; then
 		log "Script is not enabled, enable by setting enableVideo to \"true\" by modifying the \"/config/extended.conf\" config file..."
 		log "Sleeping (infinity)"
