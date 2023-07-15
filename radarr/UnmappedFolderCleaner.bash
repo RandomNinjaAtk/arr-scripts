@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.0"
+scriptVersion="1.1"
 scriptName="UnmappedFolderCleaner"
 
 log () {
@@ -104,8 +104,8 @@ for (( ; ; )); do
 	getArrAppInfo
 	verifyApiAccess
 	UnmappedFolderCleanerProcess
-	log "Script sleeping for $recyclarrScriptInterval..."
-	sleep $recyclarrScriptInterval
+	log "Script sleeping for $unmappedFolderCleanerScriptInterval..."
+	sleep $unmappedFolderCleanerScriptInterval
 done
 
 exit
