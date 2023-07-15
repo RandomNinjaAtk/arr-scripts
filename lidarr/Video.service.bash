@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.3"
+scriptVersion="2.4"
 scriptName="Video"
 
 log () {
@@ -82,31 +82,32 @@ verifyApiAccess () {
   done
 }
 
-if [ "$dlClientSource" = "tidal" ] || [ "$dlClientSource" = "both" ]; then
-	sourcePreference=tidal
-fi
 
-log "-----------------------------------------------------------------------------"
-log "|~) _ ._  _| _ ._ _ |\ |o._  o _ |~|_|_|"
-log "|~\(_|| |(_|(_)| | || \||| |_|(_||~| | |<"
-log " Presents: $scriptName ($scriptVersion)"
-log " May the beats be with you!"
-log "-----------------------------------------------------------------------------"
-log "Donate: https://github.com/sponsors/RandomNinjaAtk"
-log "Project: https://github.com/RandomNinjaAtk/arr-scripts"
-log "Support: https://github.com/RandomNinjaAtk/arr-scripts/discussions"
-log "-----------------------------------------------------------------------------"
-sleep 5
-log ""
-log "Lift off in..."; sleep 0.5
-log "5"; sleep 1
-log "4"; sleep 1
-log "3"; sleep 1
-log "2"; sleep 1
-log "1"; sleep 1
 
 
 Configuration () {
+    if [ "$dlClientSource" = "tidal" ] || [ "$dlClientSource" = "both" ]; then
+        sourcePreference=tidal
+    fi
+
+    log "-----------------------------------------------------------------------------"
+    log "|~) _ ._  _| _ ._ _ |\ |o._  o _ |~|_|_|"
+    log "|~\(_|| |(_|(_)| | || \||| |_|(_||~| | |<"
+    log " Presents: $scriptName ($scriptVersion)"
+    log " May the beats be with you!"
+    log "-----------------------------------------------------------------------------"
+    log "Donate: https://github.com/sponsors/RandomNinjaAtk"
+    log "Project: https://github.com/RandomNinjaAtk/arr-scripts"
+    log "Support: https://github.com/RandomNinjaAtk/arr-scripts/discussions"
+    log "-----------------------------------------------------------------------------"
+    sleep 5
+    log ""
+    log "Lift off in..."; sleep 0.5
+    log "5"; sleep 1
+    log "4"; sleep 1
+    log "3"; sleep 1
+    log "2"; sleep 1
+    log "1"; sleep 1
 	processdownloadid="$(ps -A -o pid,cmd|grep "Video.sh" | grep -v grep | head -n 1 | awk '{print $1}')"
 	log "To kill script, use the following command:"
 	log "kill -9 $processdownloadid"
@@ -114,8 +115,8 @@ Configuration () {
 	
 	verifyApiAccess
 
-	downloadPath="$downloadPath/videos"
-	log "CONFIG :: Download Location :: $downloadPath"
+	videoDownloadPath="$downloadPath/videos"
+	log "CONFIG :: Download Location :: $videoDownloadPath"
 	log "CONFIG :: Music Video Location :: $videoPath"
 	log "CONFIG :: Subtitle Language set to: $youtubeSubtitleLanguage"
 	log "CONFIG :: Video container set to format: $videoContainer"
@@ -226,36 +227,36 @@ ImvdbCache () {
 
 DownloadVideo () {
 
-    if [ -d "$downloadPath/incomplete" ]; then
-        rm -rf "$downloadPath/incomplete"
+    if [ -d "$videoDownloadPath/incomplete" ]; then
+        rm -rf "$videoDownloadPath/incomplete"
     fi
 
-    if [ ! -d "$downloadPath/incomplete" ]; then
-        mkdir -p "$downloadPath/incomplete"
-        chmod 777 "$downloadPath/incomplete"
+    if [ ! -d "$videoDownloadPath/incomplete" ]; then
+        mkdir -p "$videoDownloadPath/incomplete"
+        chmod 777 "$videoDownloadPath/incomplete"
     fi 
 
     if echo "$1" | grep -i "youtube" | read; then
         if [ $videoContainer = mkv ]; then
             if [ ! -z "$cookiesFile" ]; then
-                yt-dlp -f "$videoFormat" --no-video-multistreams --cookies "$cookiesFile" -o "$downloadPath/incomplete/${2}${3}" --embed-subs --sub-lang $youtubeSubtitleLanguage --merge-output-format mkv --remux-video mkv --no-mtime --geo-bypass "$1"
+                yt-dlp -f "$videoFormat" --no-video-multistreams --cookies "$cookiesFile" -o "$videoDownloadPath/incomplete/${2}${3}" --embed-subs --sub-lang $youtubeSubtitleLanguage --merge-output-format mkv --remux-video mkv --no-mtime --geo-bypass "$1"
             else
-                yt-dlp -f "$videoFormat" --no-video-multistreams -o "$downloadPath/incomplete/${2}${3}" --embed-subs --sub-lang $youtubeSubtitleLanguage --merge-output-format mkv --remux-video mkv --no-mtime --geo-bypass "$1"
+                yt-dlp -f "$videoFormat" --no-video-multistreams -o "$videoDownloadPath/incomplete/${2}${3}" --embed-subs --sub-lang $youtubeSubtitleLanguage --merge-output-format mkv --remux-video mkv --no-mtime --geo-bypass "$1"
             fi
-            if [ -f "$downloadPath/incomplete/${2}${3}.mkv" ]; then
-                chmod 666 "$downloadPath/incomplete/${2}${3}.mkv"
+            if [ -f "$videoDownloadPath/incomplete/${2}${3}.mkv" ]; then
+                chmod 666 "$videoDownloadPath/incomplete/${2}${3}.mkv"
                 downloadFailed=false
             else
                 downloadFailed=true
             fi
         else
             if [ ! -z "$cookiesFile" ]; then
-                yt-dlp --format-sort ext:mp4:m4a --merge-output-format mp4 --no-video-multistreams --cookies "$cookiesFile" -o "$downloadPath/incomplete/${2}${3}" --embed-subs --sub-lang $youtubeSubtitleLanguage --no-mtime --geo-bypass "$1"
+                yt-dlp --format-sort ext:mp4:m4a --merge-output-format mp4 --no-video-multistreams --cookies "$cookiesFile" -o "$videoDownloadPath/incomplete/${2}${3}" --embed-subs --sub-lang $youtubeSubtitleLanguage --no-mtime --geo-bypass "$1"
             else
-                yt-dlp --format-sort ext:mp4:m4a --merge-output-format mp4 --no-video-multistreams -o "$downloadPath/incomplete/${2}${3}" --embed-subs --sub-lang $youtubeSubtitleLanguage --no-mtime --geo-bypass "$1"
+                yt-dlp --format-sort ext:mp4:m4a --merge-output-format mp4 --no-video-multistreams -o "$videoDownloadPath/incomplete/${2}${3}" --embed-subs --sub-lang $youtubeSubtitleLanguage --no-mtime --geo-bypass "$1"
             fi
-            if [ -f "$downloadPath/incomplete/${2}${3}.mp4" ]; then
-                chmod 666 "$downloadPath/incomplete/${2}${3}.mp4"
+            if [ -f "$videoDownloadPath/incomplete/${2}${3}.mp4" ]; then
+                chmod 666 "$videoDownloadPath/incomplete/${2}${3}.mp4"
                 downloadFailed=false
             else
                 downloadFailed=true
@@ -267,19 +268,19 @@ DownloadVideo () {
         TidalClientTest
         sleep 1
         TidaldlStatusCheck
-        tidal-dl -o "$downloadPath/incomplete" -l "$1"
-        find "$downloadPath/incomplete" -type f -exec mv "{}" "$downloadPath/incomplete"/ \;
-        find "$downloadPath/incomplete" -mindepth 1 -type d -exec rm -rf "{}" \; &>/dev/null
-        find "$downloadPath/incomplete" -type f -regex ".*/.*\.\(mkv\|mp4\)"  -print0 | while IFS= read -r -d '' video; do
+        tidal-dl -o "$videoDownloadPath/incomplete" -l "$1"
+        find "$videoDownloadPath/incomplete" -type f -exec mv "{}" "$videoDownloadPath/incomplete"/ \;
+        find "$videoDownloadPath/incomplete" -mindepth 1 -type d -exec rm -rf "{}" \; &>/dev/null
+        find "$videoDownloadPath/incomplete" -type f -regex ".*/.*\.\(mkv\|mp4\)"  -print0 | while IFS= read -r -d '' video; do
             file="${video}"
             filenoext="${file%.*}"
             filename="$(basename "$video")"
             extension="${filename##*.}"
             filenamenoext="${filename%.*}"
-            mv "$file" "$downloadPath/incomplete/${2}${3}.mp4"
+            mv "$file" "$videoDownloadPath/incomplete/${2}${3}.mp4"
         done
-        if [ -f "$downloadPath/incomplete/${2}${3}.mp4" ]; then
-            chmod 666 "$downloadPath/incomplete/${2}${3}.mp4"
+        if [ -f "$videoDownloadPath/incomplete/${2}${3}.mp4" ]; then
+            chmod 666 "$videoDownloadPath/incomplete/${2}${3}.mp4"
             downloadFailed=false
         else
             downloadFailed=true
@@ -290,13 +291,13 @@ DownloadVideo () {
 
 DownloadThumb () {
 
-    curl -s "$1" -o "$downloadPath/incomplete/${2}${3}.jpg"
-    chmod 666 "$downloadPath/incomplete/${2}${3}.jpg"
+    curl -s "$1" -o "$videoDownloadPath/incomplete/${2}${3}.jpg"
+    chmod 666 "$videoDownloadPath/incomplete/${2}${3}.jpg"
 
 }
 
 VideoProcessWithSMA () {
-    find "$downloadPath/incomplete" -type f -regex ".*/.*\.\(mkv\|mp4\)"  -print0 | while IFS= read -r -d '' video; do
+    find "$videoDownloadPath/incomplete" -type f -regex ".*/.*\.\(mkv\|mp4\)"  -print0 | while IFS= read -r -d '' video; do
         count=$(($count+1))
         file="${video}"
         filenoext="${file%.*}"
@@ -332,7 +333,7 @@ VideoProcessWithSMA () {
 }
 
 VideoTagProcess () {
-    find "$downloadPath/incomplete" -type f -regex ".*/.*\.\(mkv\|mp4\)"  -print0 | while IFS= read -r -d '' video; do
+    find "$videoDownloadPath/incomplete" -type f -regex ".*/.*\.\(mkv\|mp4\)"  -print0 | while IFS= read -r -d '' video; do
         count=$(($count+1))
         file="${video}"
         filenoext="${file%.*}"
@@ -369,7 +370,7 @@ VideoTagProcess () {
 			-metadata ARTIST="$lidarrArtistName" \
 			-metadata ALBUMARTIST="$lidarrArtistName" \
 			-metadata ENCODED_BY="lidarr-extended" \
-			-attach "$downloadPath/incomplete/${1}${2}.jpg" -metadata:s:t mimetype=image/jpeg \
+			-attach "$videoDownloadPath/incomplete/${1}${2}.jpg" -metadata:s:t mimetype=image/jpeg \
 			"$filenoext.$videoContainer" &>/dev/null
 		rm "$filenoext-temp.$videoContainer"
 		chmod 666 "$filenoext.$videoContainer"
@@ -378,7 +379,7 @@ VideoTagProcess () {
 		log "$processCount of $lidarrArtistIdsCount :: $4 :: $lidarrArtistName :: ${1}${2} $3 :: Tagging file"
 		ffmpeg -y \
 			-i "$filenoext-temp.$videoContainer" \
-		 	-i "$downloadPath/incomplete/${1}${2}.jpg" \
+		 	-i "$videoDownloadPath/incomplete/${1}${2}.jpg" \
 			-map 1 \
 			-map 0 \
 			-c copy \
@@ -398,7 +399,7 @@ VideoTagProcess () {
 
 VideoNfoWriter () {
     log "$processCount of $lidarrArtistIdsCount :: $7 :: $lidarrArtistName :: ${3} :: Writing NFO"
-    nfo="$downloadPath/incomplete/${1}${2}.nfo"
+    nfo="$videoDownloadPath/incomplete/${1}${2}.nfo"
     if [ -f "$nfo" ]; then
         rm "$nfo"
     fi
@@ -703,7 +704,7 @@ VideoProcess () {
                       chmod 777 "$videoPath/$lidarrArtistFolderNoDisambig"
                   fi 
   
-                  mv $downloadPath/incomplete/* "$videoPath/$lidarrArtistFolderNoDisambig"/
+                  mv $videoDownloadPath/incomplete/* "$videoPath/$lidarrArtistFolderNoDisambig"/
               done
   
           fi
