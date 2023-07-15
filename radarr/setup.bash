@@ -16,7 +16,9 @@ apk add -U --update --no-cache \
   ffmpeg \
   yt-dlp && \
 echo "************ install python packages ************" && \
-pip install --upgrade --no-cache-dir -U yq && \
+pip install --upgrade --no-cache-dir -U \
+		excludarr \
+		yq && \
 echo "************ setup SMA ************" && \
 echo "************ setup directory ************" && \
 mkdir -p ${SMA_PATH} && \
