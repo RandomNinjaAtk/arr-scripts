@@ -58,7 +58,7 @@ curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/In
 echo "Done"
 
 echo "Download Recyclarr service..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/services/Recycalarr -o /custom-services.d/Recyclarr
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/services/Recyclarr -o /custom-services.d/Recyclarr
 echo "Done"
 
 echo "Download YoutubeSeriesDownloader service..."
