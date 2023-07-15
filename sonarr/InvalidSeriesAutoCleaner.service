@@ -119,7 +119,7 @@ for (( ; ; )); do
 	getArrAppInfo
 	verifyApiAccess
 	InvalidSeriesAutoCleanerProcess
-	echo "Script sleeping for $invalidSeriesAutoCleanerScriptInterval..."
+	log "Script sleeping for $invalidSeriesAutoCleanerScriptInterval..."
 	sleep $invalidSeriesAutoCleanerScriptInterval
 done
 
