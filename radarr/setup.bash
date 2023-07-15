@@ -57,6 +57,10 @@ echo "Download Recyclarr service..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/services/Recyclarr -o /custom-services.d/Recyclarr
 echo "Done"
 
+echo "Download UnmappedFolderCleaner service..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/services/UnmappedFolderCleaner.bash -o /custom-services.d/UnmappedFolderCleaner
+echo "Done"
+
 mkdir -p /config/extended
 echo "Download Naming script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/naming.json -o /config/extended/naming.json 
