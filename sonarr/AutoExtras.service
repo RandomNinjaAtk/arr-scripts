@@ -101,7 +101,7 @@ for (( ; ; )); do
 	getArrAppInfo
 	verifyApiAccess
 	AutoExtrasProcess
-	echo "Script sleeping for $autoExtrasScriptInterval..."
+	log "Script sleeping for $autoExtrasScriptInterval..."
 	sleep $autoExtrasScriptInterval
 done
 
