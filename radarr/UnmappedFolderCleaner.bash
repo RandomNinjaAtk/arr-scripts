@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.1"
+scriptVersion="1.2"
 scriptName="UnmappedFolderCleaner"
 
 log () {
@@ -86,7 +86,7 @@ UnmappedFolderCleanerProcess () {
 	log "$unmappedFoldersCount Folders Found!"
 	if [ $unmappedFoldersCount = 0 ]; then 
 	    log "No cleanup required, exiting..."
-	    exit
+	    return
 	fi
 	for folder in $(echo "$unmappedFolders"); do
 	    log "Removing $folder"
@@ -100,6 +100,7 @@ UnmappedFolderCleanerProcess () {
 for (( ; ; )); do
 	let i++
 	logfileSetup
+ 	log "Script starting..."
     	verifyConfig
 	getArrAppInfo
 	verifyApiAccess
