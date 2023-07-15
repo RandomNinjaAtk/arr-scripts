@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.8"
+scriptVersion="1.9"
 scriptName="Audio"
 
 log () {
@@ -137,7 +137,7 @@ Configuration () {
 		log "Add Deezer Related Artists is disabled (enable by setting addRelatedArtists=true)"
 	fi
 	
-	log "Download Location: $"
+	log "Download Location: $downloadPath"
 
 
 	log "Output format: $audioFormat"
