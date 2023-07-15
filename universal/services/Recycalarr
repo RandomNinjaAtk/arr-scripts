@@ -29,6 +29,10 @@ verifyConfig () {
     log "Sleeping (infinity)"
     sleep infinity
   fi
+
+  if [ -z "$recyclarrScriptInterval" ]; then
+    recyclarrScriptInterval="4h"
+  fi
 }
 
 
@@ -97,8 +101,8 @@ for (( ; ; )); do
 	getArrAppInfo
 	verifyApiAccess
 	RecyclarrProcess
-	log "Script sleeping for 4 hours..."
-	sleep 4h
+	log "Script sleeping for $recyclarrScriptInterval..."
+	sleep $recyclarrScriptInterval
 done
 
 exit
