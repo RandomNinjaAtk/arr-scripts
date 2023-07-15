@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.4"
+scriptVersion="1.5"
 scriptName="QueueCleaner"
 
 log () {
@@ -15,6 +15,10 @@ verifyConfig () {
 		log "Script is not enabled, enable by setting enableQueueCleaner to \"true\" by modifying the \"/config/extended.conf\" config file..."
 		log "Sleeping (infinity)"
 		sleep infinity
+	fi
+
+	if [ -z "$queueCleanerScriptInterval" ]; then
+	    queueCleanerScriptInterval="15m"
 	fi
 }
 
@@ -124,8 +128,8 @@ for (( ; ; )); do
   verifyConfig
   log "Starting..."
   QueueCleanerProcess
-  log "Sleeping 15m..."
-  sleep 15m
+  log "Sleeping $queueCleanerScriptInterval..."
+  sleep $queueCleanerScriptInterval
 done
 
 exit
