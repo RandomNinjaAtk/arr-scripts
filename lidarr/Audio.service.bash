@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.6"
+scriptVersion="1.7"
 scriptName="Audio"
 
 #### Import Settings
@@ -10,15 +10,35 @@ log () {
   echo $m_time" :: $scriptName :: $scriptVersion :: "$1
 }
 
-if [ "$enableAudio" != "true" ]; then
-	log "Script is not enabled, enable by setting enableAudio to \"true\" by modifying the \"/config/extended.conf\" config file..."
-	log "Sleeping (infinity)"
-	sleep infinity
-fi
+logfileSetup () {
+  # auto-clean up log file to reduce space usage
+  if [ -f "/config/logs/Audio.txt" ]; then
+    find /config/logs -type f -name "Audio.txt" -size +5000k -delete
+    sleep 0.01
+  fi
+  touch "/config/logs/Audio.txt"
+  exec &> >(tee -a "/config/logs/Audio.txt")
+  chmod 666 "/config/logs/Audio.txt"
+}
 
-if [ -z "$downloadPath" ]; then
-	downloadPath="/config/extended/downloads"
-fi
+verifyConfig () {
+  #### Import Settings
+  source /config/extended.conf
+
+  if [ "$enableAudio" != "true" ]; then
+    log "Script is not enabled, enable by setting enableAudio to \"true\" by modifying the \"/config/extended.conf\" config file..."
+    log "Sleeping (infinity)"
+    sleep infinity
+  fi
+
+  if [ -z "$audioScriptInterval" ]; then
+    audioScriptInterval="15m"
+  fi
+
+  if [ -z "$downloadPath" ]; then
+    downloadPath="/config/extended/downloads"
+  fi
+}
 
 getArrAppInfo () {
   # Get Arr App information
@@ -56,49 +76,34 @@ verifyApiAccess () {
   done
 }
 
-
-sleepTimer=0.5
-tidaldlFail=0
-deemixFail=0
-
-
-
-# auto-clean up log file to reduce space usage
-if [ -f "/config/logs/Audio.txt" ]; then
-	find /config/logs -type f -name "Audio.txt" -size +5000k -delete
-	sleep 0.01
-fi
-touch "/config/logs/Audio.txt"
-exec &> >(tee -a "/config/logs/Audio.txt")
-chmod 666 "/config/logs/Audio.txt"
-
-
-log "-----------------------------------------------------------------------------"
-log " |~) _ ._  _| _ ._ _ |\ |o._  o _ |~|_|_|"
-log " |~\(_|| |(_|(_)| | || \||| |_|(_||~| | |<"
-log " Presents: $scriptName ($scriptVersion)"
-log " May the beats be with you!"
-log "-----------------------------------------------------------------------------"
-log "Donate: https://github.com/sponsors/RandomNinjaAtk"
-log "Project: https://github.com/RandomNinjaAtk/arr-scripts"
-log "Support: https://github.com/RandomNinjaAtk/arr-scripts/discussions"
-log "-----------------------------------------------------------------------------"
-sleep 5
-log ""
-log "Lift off in..."; sleep 0.5
-log "5"; sleep 1
-log "4"; sleep 1
-log "3"; sleep 1
-log "2"; sleep 1
-log "1"; sleep 1
-
-
-
-if [ ! -d /config/xdg ]; then
-	mkdir -p /config/xdg
-fi
-
 Configuration () {
+	sleepTimer=0.5
+	tidaldlFail=0
+	deemixFail=0
+	log "-----------------------------------------------------------------------------"
+	log " |~) _ ._  _| _ ._ _ |\ |o._  o _ |~|_|_|"
+	log " |~\(_|| |(_|(_)| | || \||| |_|(_||~| | |<"
+	log " Presents: $scriptName ($scriptVersion)"
+	log " May the beats be with you!"
+	log "-----------------------------------------------------------------------------"
+	log "Donate: https://github.com/sponsors/RandomNinjaAtk"
+	log "Project: https://github.com/RandomNinjaAtk/arr-scripts"
+	log "Support: https://github.com/RandomNinjaAtk/arr-scripts/discussions"
+	log "-----------------------------------------------------------------------------"
+	sleep 5
+	log ""
+	log "Lift off in..."; sleep 0.5
+	log "5"; sleep 1
+	log "4"; sleep 1
+	log "3"; sleep 1
+	log "2"; sleep 1
+	log "1"; sleep 1
+	
+	
+	
+	if [ ! -d /config/xdg ]; then
+		mkdir -p /config/xdg
+	fi
 	processdownloadid="$(ps -A -o pid,cmd|grep "Audio.sh" | grep -v grep | head -n 1 | awk '{print $1}')"
 	log "To kill script, use the following command:"
 	log "kill -9 $processdownloadid"
@@ -1912,11 +1917,13 @@ AudioProcess () {
 log "Starting Script...."
 for (( ; ; )); do
 	let i++
+ 	logfileSetup
+    	verifyConfig
 	getArrAppInfo
 	verifyApiAccess
 	AudioProcess
-	log "Script sleeping for 15 minutes..."
-	sleep 15m
+	log "Script sleeping for $audioScriptInterval..."
+	sleep $audioScriptInterval
 done
 
 exit
