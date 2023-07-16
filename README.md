@@ -5,6 +5,7 @@ Official Home of the scripts that were previously packaged with the "Extended" c
  [Radarr Instructions](https://github.com/RandomNinjaAtk/arr-scripts/tree/main/radarr/readme.md)<br>
  [Sonarr Instructions](https://github.com/RandomNinjaAtk/arr-scripts/tree/main/sonarr/readme.md)<br>
  [Lidarr Instructions](https://github.com/RandomNinjaAtk/arr-scripts/tree/main/lidarr/readme.md)<br>
+ [Readarr Instructions](https://github.com/RandomNinjaAtk/arr-scripts/tree/main/readarr/readme.md)<br>
  [SABnzbd Instructions](https://github.com/RandomNinjaAtk/arr-scripts/tree/main/sabnzbd#/readme.md)
 
 # Support Info
