@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="0.1"
+scriptVersion="1.0"
 scriptName="UnmappedFilesCleaner"
 
 log () {
@@ -28,8 +28,8 @@ verifyConfig () {
     sleep infinity
   fi
 
-  if [ -z "$unmappedFilesCleanerScriptInterval" ]; then
-    unmappedFilesCleanerScriptInterval="15m"
+  if [ -z "$unmappedFolderCleanerScriptInterval" ]; then
+    unmappedFolderCleanerScriptInterval="15m"
   fi
 }
 
@@ -69,5 +69,36 @@ verifyApiAccess () {
   done
 }
 
+UnmappedFilesCleanerProcess () {
+    log "Finding UnmappedFiles to purge..."
+    OLDIFS="$IFS"
+    IFS=$'\n'
+    unamppedFiles="$(curl -s "$arrUrl/api/v1/trackFile?unmapped=true" -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" | jq -r .[].path)"
+    if [ -z "$unamppedFiles" ]; then
+      log "No unmapped files to process"
+      return
+    fi
 
-curl  "$arrUrl/api/v1/trackFile?unmapped=true" -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey"
+    for file in $(echo "$unamppedFiles"); do
+        unmappedFileDirectory=$(dirname "$file")
+        if [ -d "$unmappedFileDirectory" ]; then
+            log "Deleting \"$unmappedFileDirectory\""
+            rm -rf "$unmappedFileDirectory"
+        fi
+    done
+}
+
+# Loop Script
+for (( ; ; )); do
+	let i++
+	logfileSetup
+ 	log "Script starting..."
+  verifyConfig
+	getArrAppInfo
+	verifyApiAccess
+	UnmappedFilesCleanerProcess
+	log "Script sleeping for $unmappedFolderCleanerScriptInterval..."
+	sleep $unmappedFolderCleanerScriptInterval
+done
+
+exit
