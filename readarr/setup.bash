@@ -17,7 +17,11 @@ echo "Done"
 
 mkdir -p /config/extended
 echo "Download PlexNotify script..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/PlexNotify.bash -o /config/extended/PlexNotify.bash 
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/readarr/PlexNotify.bash -o /config/extended/PlexNotify.bash 
+echo "Done"
+
+echo "Download AutoConfig config..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/readarr/AutoConfig.json -o /config/extended/AutoConfig.json
 echo "Done"
 
 if [ ! -f /config/extended.conf ]; then
