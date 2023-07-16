@@ -1,8 +1,9 @@
-# Requirements
+# Sonarr
+## Requirements
 Container: https://docs.linuxserver.io/images/docker-sonarr<br>
 Version Tag: develop (v4 is required for some of the features)
 
-# Installation/setup
+## Installation/setup
 1. Add 2 volumes to your container <br>
   `/custom-services.d` and `/custom-cont-init.d` (do not map to the same local folder...) <br> 
   Docker Run Example: <br>
@@ -13,7 +14,7 @@ Version Tag: develop (v4 is required for some of the features)
 5. Optional: Customize the configuration by modifying the following file `/config/extended.conf`
 6. Restart the container
 
-# Updating
+## Updating
 Updating is a bit more combersum. To update, do the following:
 1. Download/update your local `/config/extended.conf` file with the latest options from: [extended.conf](https://github.com/RandomNinjaAtk/arr-scripts/blob/main/sonarr/extended.conf)
 2. Restart the container, wait for it to fully load the application.
