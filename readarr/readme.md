@@ -1,4 +1,4 @@
-# Readarr (Not ready for use!!!)
+# Readarr (Untested... should work...)
 ## Requirements
 Container: https://docs.linuxserver.io/images/docker-readarr<br>
 
