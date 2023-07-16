@@ -1,0 +1,23 @@
+{
+    "MediaManagement": [
+        {
+            "renameBooks": "true",
+            "replaceIllegalCharacters": "true",
+            "standardBookFormat": "{Book Title}{ (Book Disambiguation)}/{Author Name} - {Book Title}{ (PartNumber)}",
+            "authorFolderFormat": "{Author Name}{ (Author Disambiguation)}",
+            "deleteEmptyFolders": "true",
+            "watchLibraryForChanges": "false",
+            "chmodFolder": "777",
+            "fileDate": "bookReleaseDate"
+        }
+    ],
+    "Metadata": [
+        {
+            "writeAudioTags":"sync",
+            "scrubAudioTags": "false",
+            "writeBookTags": "sync",
+            "updateCovers": "true",
+            "embedMetadata":"true"
+        }
+    ]
+}
