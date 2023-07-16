@@ -2,7 +2,7 @@
 echo "************ install and update packages ************"
 apk add -U --update --no-cache \
   jq \
-  py3-pip && \
+  py3-pip
 echo "************ install python packages ************"
 pip install --upgrade --no-cache-dir -U yq
 
