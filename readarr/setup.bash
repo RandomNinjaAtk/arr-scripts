@@ -22,7 +22,7 @@ echo "Done"
 
 if [ ! -f /config/extended.conf ]; then
 	echo "Download Extended config..."
-	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/extended.conf -o /config/extended.conf
+	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/readarr/extended.conf -o /config/extended.conf
 	chmod 777 /config/extended.conf
 	echo "Done"
 fi
