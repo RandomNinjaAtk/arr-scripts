@@ -1,6 +1,6 @@
 # Readarr (Untested... should work...)
 ## Requirements
-Container: https://docs.linuxserver.io/images/docker-readarr<br>
+Container: https://hub.docker.com/r/linuxserver/readarr<br>
 
 ## Installation/setup
 1. Add 2 volumes to your container <br>
