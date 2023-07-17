@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.0"
+scriptVersion="2.1"
 scriptName="Audio"
 
 log () {
@@ -612,7 +612,6 @@ DownloadProcess () {
 			log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Embedding lyrics (lrc) into $file"
 			metaflac --remove-tag=Lyrics "$file"
 			metaflac --set-tag-from-file="Lyrics=$lrcFile" "$file"
-			rm "$lrcFile"
 		fi
 	done
 	
