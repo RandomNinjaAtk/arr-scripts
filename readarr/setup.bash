@@ -24,6 +24,8 @@ echo "Download AutoConfig config..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/readarr/AutoConfig.json -o /config/extended/AutoConfig.json
 echo "Done"
 
+chmod 777 -R /config/extended
+
 if [ ! -f /config/extended.conf ]; then
 	echo "Download Extended config..."
 	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/readarr/extended.conf -o /config/extended.conf
