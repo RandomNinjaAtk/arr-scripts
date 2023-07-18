@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.2"
+scriptVersion="2.3"
 scriptName="Audio"
 
 log () {
@@ -543,8 +543,8 @@ DownloadProcess () {
 
 	# Consolidate files to a single folder
 	log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Consolidating files to single folder"
-	find "$audioPath/incomplete" -type f -exec mv "{}" "$audioPath"/incomplete/ \;
-	find $audioPath/incomplete/ -type d -mindepth 1 -maxdepth 1 -exec rm -rf {} \;
+	find "$audioPath/incomplete" -type f -exec mv "{}" "$audioPath"/incomplete/ \; 2>/dev/null
+	find $audioPath/incomplete/ -type d -mindepth 1 -maxdepth 1 -exec rm -rf {} \; 2>/dev/null
 
 	downloadCount=$(find "$audioPath"/incomplete/ -type f -regex ".*/.*\.\(flac\|m4a\|mp3\)" | wc -l)
 	if [ "$downloadCount" -gt "0" ]; then
@@ -575,19 +575,6 @@ DownloadProcess () {
 	if [ "$2" == "TIDAL" ]; then
 		touch /config/extended/logs/downloaded/tidal/$1
 	fi
-
-	# Correct Artist/albumartist Flac files
-	find "$audioPath/incomplete" -type f -iname "*.flac" -print0 | while IFS= read -r -d '' file; do
-		log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Setting ARTIST/ALBUMARTIST tag to \"$lidarrArtistName\" :: $file"
-		metaflac --remove-tag=ALBUMARTIST "$file"
-		metaflac --remove-tag=ARTIST "$file"
-		metaflac --remove-tag=MUSICBRAINZ_ARTISTID "$file"
-		metaflac --remove-tag=MUSICBRAINZ_ALBUMARTISTID "$file"
-		metaflac --set-tag=ALBUMARTIST="$lidarrArtistName" "$file"
-		metaflac --set-tag=ARTIST="$lidarrArtistName" "$file"
-		metaflac --set-tag=MUSICBRAINZ_ARTISTID="$lidarrArtistForeignArtistId" "$file"
-		metaflac --set-tag=MUSICBRAINZ_ALBUMARTISTID="$lidarrArtistForeignArtistId" "$file"
-	done
 
 	# Tag with beets
 	if [ "$enableBeetsTagging" == "true" ]; then
