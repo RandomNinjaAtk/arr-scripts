@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.4"
+scriptVersion="1.5"
 scriptName="AutoArtistAdder"
 
 log () {
@@ -38,18 +38,41 @@ verifyConfig () {
 
 }
 
-if [ -z "$lidarrUrl" ] || [ -z "$lidarrApiKey" ]; then
-	lidarrUrlBase="$(cat /config/config.xml | xq | jq -r .Config.UrlBase)"
-	if [ "$lidarrUrlBase" == "null" ]; then
-		lidarrUrlBase=""
-	else
-		lidarrUrlBase="/$(echo "$lidarrUrlBase" | sed "s/\///g")"
-	fi
-	lidarrApiKey="$(cat /config/config.xml | xq | jq -r .Config.ApiKey)"
-	lidarrAgentInstanceId="$(echo "$lidarrApiKey" | cut -c1-10)"
-	lidarrPort="$(cat /config/config.xml | xq | jq -r .Config.Port)"
-	lidarrUrl="http://localhost:${lidarrPort}${lidarrUrlBase}"
-fi
+getArrAppInfo () {
+  # Get Arr App information
+  if [ -z "$arrUrl" ] || [ -z "$arrApiKey" ]; then
+    arrUrlBase="$(cat /config/config.xml | xq | jq -r .Config.UrlBase)"
+    if [ "$arrUrlBase" == "null" ]; then
+      arrUrlBase=""
+    else
+      arrUrlBase="/$(echo "$arrUrlBase" | sed "s/\///g")"
+    fi
+    arrName="$(cat /config/config.xml | xq | jq -r .Config.InstanceName)"
+    arrApiKey="$(cat /config/config.xml | xq | jq -r .Config.ApiKey)"
+    arrPort="$(cat /config/config.xml | xq | jq -r .Config.Port)"
+    arrUrl="http://127.0.0.1:${arrPort}${arrUrlBase}"
+  fi
+}
+
+verifyApiAccess () {
+  until false
+  do
+    arrApiTest=""
+    arrApiVersion=""
+    if [ "$arrPort" == "8989" ] || [ "$arrPort" == "7878" ]; then
+      arrApiVersion="v3"
+    elif [ "$arrPort" == "8686" ] || [ "$arrPort" == "8787" ]; then
+      arrApiVersion="v1"
+    fi
+    arrApiTest=$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)
+    if [ "$arrApiTest" == "$arrName" ]; then
+      break
+    else
+      log "$arrName is not ready, sleeping until valid response..."
+      sleep 1
+    fi
+  done
+}
 
 sleepTimer=0.5
 
@@ -90,7 +113,7 @@ AddDeezerTopTrackArtists () {
 }
 
 AddDeezerArtistToLidarr () {
-	lidarrArtistsData="$(curl -s "$lidarrUrl/api/v1/artist?apikey=${lidarrApiKey}")"
+	lidarrArtistsData="$(curl -s "$arrUrl/api/v1/artist?apikey=${arrApiKey}")"
 	lidarrArtistIds="$(echo "${lidarrArtistsData}" | jq -r ".[].foreignArtistId")"
 	deezerArtistsUrl=$(echo "${lidarrArtistsData}" | jq -r ".[].links | .[] | select(.name==\"deezer\") | .url")
 	deezerArtistIds="$(echo "$deezerArtistsUrl" | grep -o '[[:digit:]]*' | sort -u)"
@@ -108,7 +131,7 @@ AddDeezerArtistToLidarr () {
 			log "$currentprocess of $getDeezerArtistsIdsCount :: $deezerArtistName :: $deezerArtistId already in Lidarr..."
 			continue
 		fi
-        lidarrArtistSearchData="$(curl -s "$lidarrUrl/api/v1/search?term=${deezerArtistNameEncoded}&apikey=${lidarrApiKey}")"
+        lidarrArtistSearchData="$(curl -s "$arrUrl/api/v1/search?term=${deezerArtistNameEncoded}&apikey=${arrApiKey}")"
 		lidarrArtistMatchedData=$(echo $lidarrArtistSearchData | jq -r ".[] | select(.artist) | select(.artist.links[].name==\"deezer\") | select(.artist.links[].url | contains (\"artist/$deezerArtistId\"))" 2>/dev/null)
 
 
@@ -118,12 +141,12 @@ AddDeezerArtistToLidarr () {
 			data="$lidarrArtistMatchedData"
 			artistName="$(echo "$data" | jq -r ".artist.artistName")"
 			foreignId="$(echo "$data" | jq -r ".foreignId")"
-			importListExclusionData=$(curl -s "$lidarrUrl/api/v1/importlistexclusion" -H "X-Api-Key: $lidarrApiKey" | jq -r ".[].foreignId")
+			importListExclusionData=$(curl -s "$arrUrl/api/v1/importlistexclusion" -H "X-Api-Key: $arrApiKey" | jq -r ".[].foreignId")
 			if echo "$importListExclusionData" | grep "^${foreignId}$" | read; then
 				log "$currentprocess of $getDeezerArtistsIdsCount :: $deezerArtistName :: ERROR :: Artist is on import exclusion block list, skipping...."
 				continue
 			fi
-			data=$(curl -s "$lidarrUrl/api/v1/rootFolder" -H "X-Api-Key: $lidarrApiKey" | jq -r ".[]")
+			data=$(curl -s "$arrUrl/api/v1/rootFolder" -H "X-Api-Key: $arrApiKey" | jq -r ".[]")
 			path="$(echo "$data" | jq -r ".path")"
 			path=$(echo $path | cut -d' ' -f1)
 			qualityProfileId="$(echo "$data" | jq -r ".defaultQualityProfileId")"
@@ -146,7 +169,7 @@ AddDeezerArtistToLidarr () {
 			fi
 			log "$currentprocess of $getDeezerArtistsIdsCount :: $deezerArtistName :: Adding $artistName to Lidarr ($foreignId)..."
 			LidarrTaskStatusCheck
-			lidarrAddArtist=$(curl -s "$lidarrUrl/api/v1/artist" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $lidarrApiKey" --data-raw "$data")
+			lidarrAddArtist=$(curl -s "$arrUrl/api/v1/artist" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw "$data")
 		else
 			log "$currentprocess of $getDeezerArtistsIdsCount :: $deezerArtistName :: Artist not found in Musicbrainz, please add \"https://deezer.com/artist/${deezerArtistId}\" to the correct artist on Musicbrainz"
 			NotifyWebhook "ArtistError" "Artist not found in Musicbrainz, please add <https://deezer.com/artist/${deezerArtistId}> to the correct artist on Musicbrainz"
@@ -158,7 +181,7 @@ AddDeezerArtistToLidarr () {
 
 AddDeezerRelatedArtists () {
 	log "Begin adding Lidarr related Artists from Deezer..."
-	lidarrArtistsData="$(curl -s "$lidarrUrl/api/v1/artist?apikey=${lidarrApiKey}")"
+	lidarrArtistsData="$(curl -s "$arrUrl/api/v1/artist?apikey=${arrApiKey}")"
 	lidarrArtistTotal=$(echo "${lidarrArtistsData}"| jq -r '.[].sortName' | wc -l)
 	lidarrArtistList=($(echo "${lidarrArtistsData}" | jq -r ".[].foreignArtistId"))
 	lidarrArtistIds="$(echo "${lidarrArtistsData}" | jq -r ".[].foreignArtistId")"
@@ -197,7 +220,7 @@ LidarrTaskStatusCheck () {
 	alerted=no
 	until false
 	do
-		taskCount=$(curl -s "$lidarrUrl/api/v1/command?apikey=${lidarrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | wc -l)
+		taskCount=$(curl -s "$arrUrl/api/v1/command?apikey=${arrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | wc -l)
 		if [ "$taskCount" -ge "1" ]; then
 			if [ "$alerted" == "no" ]; then
 				alerted=yes
@@ -212,7 +235,7 @@ LidarrTaskStatusCheck () {
 
 AddTidalRelatedArtists () {
 	log "Begin adding Lidarr related Artists from Tidal..."
-	lidarrArtistsData="$(curl -s "$lidarrUrl/api/v1/artist?apikey=${lidarrApiKey}")"
+	lidarrArtistsData="$(curl -s "$arrUrl/api/v1/artist?apikey=${arrApiKey}")"
 	lidarrArtistTotal=$(echo "${lidarrArtistsData}"| jq -r '.[].sortName' | wc -l)
 	lidarrArtistList=($(echo "${lidarrArtistsData}" | jq -r ".[].foreignArtistId"))
 	lidarrArtistIds="$(echo "${lidarrArtistsData}" | jq -r ".[].foreignArtistId")"
@@ -262,19 +285,19 @@ AddTidalArtistToLidarr () {
 		fi
 
 		serviceArtistNameEncoded="$(jq -R -r @uri <<<"$serviceArtistName")"
-		lidarrArtistSearchData="$(curl -s "$lidarrUrl/api/v1/search?term=${serviceArtistNameEncoded}&apikey=${lidarrApiKey}")"
+		lidarrArtistSearchData="$(curl -s "$arrUrl/api/v1/search?term=${serviceArtistNameEncoded}&apikey=${arrApiKey}")"
 		lidarrArtistMatchedData=$(echo $lidarrArtistSearchData | jq -r ".[] | select(.artist) | select(.artist.links[].name==\"tidal\") | select(.artist.links[].url | contains (\"artist/$serviceArtistId\"))" 2>/dev/null)
 							
 		if [ ! -z "$lidarrArtistMatchedData" ]; then
 			data="$lidarrArtistMatchedData"		
 			artistName="$(echo "$data" | jq -r ".artist.artistName")"
 			foreignId="$(echo "$data" | jq -r ".foreignId")"
-			importListExclusionData=$(curl -s "$lidarrUrl/api/v1/importlistexclusion" -H "X-Api-Key: $lidarrApiKey" | jq -r ".[].foreignId")
+			importListExclusionData=$(curl -s "$arrUrl/api/v1/importlistexclusion" -H "X-Api-Key: $arrApiKey" | jq -r ".[].foreignId")
 			if echo "$importListExclusionData" | grep "^${foreignId}$" | read; then
 				log "$artistNumber of $lidarrArtistTotal :: $lidarrArtistName :: $currentprocess of $numberOfRelatedArtistsToAddPerArtist :: $serviceArtistName :: ERROR :: Artist is on import exclusion block list, skipping...."
 				continue
 			fi
-			data=$(curl -s "$lidarrUrl/api/v1/rootFolder" -H "X-Api-Key: $lidarrApiKey" | jq -r ".[]")
+			data=$(curl -s "$arrUrl/api/v1/rootFolder" -H "X-Api-Key: $arrApiKey" | jq -r ".[]")
 			path="$(echo "$data" | jq -r ".path")"
 			path=$(echo $path | cut -d' ' -f1)
 			qualityProfileId="$(echo "$data" | jq -r ".defaultQualityProfileId")"
@@ -297,7 +320,7 @@ AddTidalArtistToLidarr () {
 			fi
 			log "$artistNumber of $lidarrArtistTotal :: $lidarrArtistName :: $currentprocess of $numberOfRelatedArtistsToAddPerArtist :: $serviceArtistName :: Adding $artistName to Lidarr ($foreignId)..."
 			LidarrTaskStatusCheck
-			lidarrAddArtist=$(curl -s "$lidarrUrl/api/v1/artist" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $lidarrApiKey" --data-raw "$data")
+			lidarrAddArtist=$(curl -s "$arrUrl/api/v1/artist" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw "$data")
 		else
 			log "$artistNumber of $lidarrArtistTotal :: $lidarrArtistName :: $currentprocess of $numberOfRelatedArtistsToAddPerArtist :: $serviceArtistName :: ERROR :: Artist not found in Musicbrainz, please add \"https://listen.tidal.com/artist/${serviceArtistId}\" to the correct artist on Musicbrainz"
 			NotifyWebhook "ArtistError" "Artist not found in Musicbrainz, please add <https://listen.tidal.com/artist/${serviceArtistId}> to the correct artist on Musicbrainz"
@@ -311,7 +334,10 @@ AddTidalArtistToLidarr () {
 for (( ; ; )); do
   let i++
   logfileSetup
+  log "Script starting..."
   verifyConfig
+  getArrAppInfo
+  verifyApiAccess
   
   if [ -z $lidarrSearchForMissing ]; then
   	lidarrSearchForMissing=true
