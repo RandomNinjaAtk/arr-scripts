@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-scriptVersion="1.3"
+#!/usr/bin/with-contenv bash
+scriptVersion="1.4"
 scriptName="AutoArtistAdder"
 
 log () {
