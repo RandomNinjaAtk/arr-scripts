@@ -1,4 +1,4 @@
-# Readarr (Untested... should work...)
+# Readarr
 ## Requirements
 Container: https://hub.docker.com/r/linuxserver/readarr<br>
 
@@ -12,3 +12,11 @@ Container: https://hub.docker.com/r/linuxserver/readarr<br>
 4. Start your container and wait for the application to load
 5. Optional: Customize the configuration by modifying the following file `/config/extended.conf`
 6. Restart the container
+
+# Updating
+Updating is a bit more combersum. To update, do the following:
+1. Download/update your local `/config/extended.conf` file with the latest options from: [extended.conf](https://github.com/RandomNinjaAtk/arr-scripts/blob/main/readarr/extended.conf)
+2. Restart the container, wait for it to fully load the application.
+3. Restart the container again, for the new scripts to activate.
+
+This configuration does its best to update everything automatically, but with how the core system is designed, the new scripts will not take affect until a second restart is completed because the container copies/uses the previous versions of the script for execution on the first restart.
