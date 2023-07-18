@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.1"
+scriptVersion="2.2"
 scriptName="Audio"
 
 log () {
@@ -103,11 +103,7 @@ Configuration () {
 	if [ ! -d /config/xdg ]; then
 		mkdir -p /config/xdg
 	fi
-	processdownloadid="$(ps -A -o pid,cmd|grep "Audio.sh" | grep -v grep | head -n 1 | awk '{print $1}')"
-	log "To kill script, use the following command:"
-	log "kill -9 $processdownloadid"
-	sleep 2
-	
+ 
 	if [ -z $topLimit ]; then
 		topLimit=10
 	fi
@@ -150,8 +146,9 @@ Configuration () {
 		else
 			audioBitrateText="${audioBitrate}k"
 		fi
-	fi
-
+	else
+		audioBitrateText="$audioBitrate"
+  	fi
 	log "Output bitrate: $audioBitrateText"
 
 	if [ "$requireQuality" == "true" ]; then
