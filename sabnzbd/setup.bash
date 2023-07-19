@@ -95,6 +95,10 @@ if [ -f /config/beets-config.yaml ]; then
   chmod 777 /config/scripts/beets-config.yaml 
 fi 
 
+echo "Download audiobook script..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/audiobook.bash -o /config/scripts/audiobook.bash
+echo "Done"
+
 if [ ! -f /config/extended.conf ]; then
 	echo "Download Extended config..."
 	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/extended.conf -o /config/extended.conf
