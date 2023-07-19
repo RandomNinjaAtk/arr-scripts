@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.4"
+scriptVersion="2.5"
 scriptName="Video"
 
 log () {
@@ -8,15 +8,20 @@ log () {
 }
 
 logfileSetup () {
-	# auto-clean up log file to reduce space usage
-	if [ -f "/config/logs/Video.txt" ]; then
-		find /config/logs -type f -name "Video.txt" -size +5000k -delete
-		sleep 0.01
-	fi
-	exec &> >(tee -a "/config/logs/Video.txt")
-	touch "/config/logs/Video.txt"
-	chmod 666 "/config/logs/Video.txt"
+  # auto-clean up log file to reduce space usage
+  if [ -f "/config/logs/$scriptName.txt" ]; then
+  	find /config/logs -type f -name "$scriptName.txt" -size +1024k -delete
+  fi
+  
+  if [ ! -f "/config/logs/$scriptName.txt" ]; then
+      touch "/config/logs/$scriptName.txt"
+      chmod 666 "/config/logs/$scriptName.txt"
+  fi
 }
+
+# Create Log, start writing...
+logfileSetup
+exec &> >(tee -a "/config/logs/$scriptName.txt")
 
 verifyConfig () {
     #### Import Settings
