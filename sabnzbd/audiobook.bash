@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-ScriptVersion="1.0"
+ScriptVersion="1.1"
 scriptName="Audiobook"
 
 #### Import Settings
@@ -22,8 +22,9 @@ SECONDS=0
 
 
 log "Searching for audiobook (m4b) files in completed download..."
-if [ $(find "$1" -type f -iname "*.m4b" | wc -l) -gt 0 ]; then
-	log "M4B files found, removing non m4b files..."
+m4bCount=$(find "$1" -type f -iname "*.m4b" | wc -l)
+if [ $m4bCount -gt 0 ]; then
+	log "$m4bCount M4B files found, removing non m4b files..."
 	find "$1" -type f -not -iname "*.m4b" -delete
 	find "$1" -mindepth 2 -type f -exec mv "{}" "$1"/ \;
 	find "$1" -mindepth 1 -type d -delete
@@ -32,8 +33,9 @@ else
 fi
 
 log "Searching for audiobook (m4b.mp4) files in completed download..."
-if [ $(find "$1" -type f -iname "*.m4b.mp4" | wc -l) -gt 0 ]; then
-	log "M4B (m4b.mp4) files found, removing non m4b files..."
+mp4Count=$(find "$1" -type f -iname "*.m4b.mp4" | wc -l)
+if [ $mp4Count -gt 0 ]; then
+	log "$mp4Count M4B (m4b.mp4) files found, removing non m4b files..."
 	find "$1" -type f -not -iname "*.m4b.mp4" -delete
 	find "$1" -mindepth 2 -type f -exec mv "{}" "$1"/ \;
 	find "$1" -mindepth 1 -type d -delete
@@ -58,11 +60,11 @@ fi
 log "Searching for audiobook (mp3) files in completed download..."
 mp3Count=$(find "$1" -type f -iname "*.mp3" | wc -l)
 if [ $mp3Count -gt 0 ]; then
-	log "MP3 files found, removing non mp3 files..."
+	log "$mp3Count MP3 files found, removing non mp3 files..."
 	find "$1" -type f -not -iname "*.mp3" -delete
 	find "$1" -mindepth 2 -type f -exec mv "{}" "$1"/ \;
 	find "$1" -mindepth 1 -type d -delete
-	if [ $mp3Count -gt 1 ]; then
+	if [ $mp3Count -ne 1 ]; then
 		log "ERROR: More than 1 MP3 file found, performing cleanup..."
 		find "$1" -type f -iname "*.mp3" -delete
 	fi
