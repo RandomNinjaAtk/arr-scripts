@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.5"
+scriptVersion="1.6"
 scriptName="AutoConfig"
 
 #### Import Settings
@@ -9,6 +9,22 @@ log () {
   m_time=`date "+%F %T"`
   echo $m_time" :: $scriptName :: $scriptVersion :: "$1
 }
+
+logfileSetup () {
+  # auto-clean up log file to reduce space usage
+  if [ -f "/config/logs/$scriptName.txt" ]; then
+  	find /config/logs -type f -name "$scriptName.txt" -size +1024k -delete
+  fi
+  
+  if [ ! -f "/config/logs/$scriptName.txt" ]; then
+      touch "/config/logs/$scriptName.txt"
+      chmod 666 "/config/logs/$scriptName.txt"
+  fi
+}
+
+# Create Log, start writing...
+logfileSetup
+exec &> >(tee -a "/config/logs/$scriptName.txt")
 
 if [ "$enableAutoConfig" != "true" ]; then
 	log "Script is not enabled, enable by setting enableAutoConfig to \"true\" by modifying the \"/config/extended.conf\" config file..."
@@ -54,17 +70,6 @@ verifyApiAccess () {
 
 getArrAppInfo
 verifyApiAccess
-
-# auto-clean up log file to reduce space usage
-if [ -f "/config/logs/AutoConfig.txt" ]; then
-	find /config/logs -type f -name "AutoConfig.txt" -size +1024k -delete
-fi
-
-if [ ! -f "/config/logs/AutoConfig.txt" ]; then
-    touch "/config/logs/AutoConfig.txt"
-    chmod 777 "/config/logs/AutoConfig.txt"
-fi
-exec &> >(tee -a "/config/logs/AutoConfig.txt")
 
 if [ -f /config/extended/naming.json ]; then
 	log "Using custom Naming (/config/extended/naming.json)..."
