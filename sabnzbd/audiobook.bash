@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-ScriptVersion="1.3"
+ScriptVersion="1.4"
 scriptName="Audiobook"
 
 #### Import Settings
@@ -10,6 +10,13 @@ log () {
   echo $m_time" :: $scriptName :: $ScriptVersion :: "$1
 }
 
+if [ -z $allowM4b ]; then
+	allowM4b=true
+fi
+
+if [ -z $allowMp3 ]; then
+	allowMp3=false
+fi
 
 set -e
 set -o pipefail
@@ -91,6 +98,22 @@ if [ "$bookfound" == "false" ]; then
 	else
 		bookfound="true"
 		error="false"
+	fi
+fi
+
+if [ "$allowM4b" != "true" ];
+	if [ $allowM4b -gt 0 ]; then
+ 		log "M4B's disabled via config file, performing cleanup..."
+ 		rm "$1"/*
+ 		error="true"
+	fi
+fi
+
+if [ "$allowMp3" != "true" ];
+	if [ $mp3Count -gt 0 ]; then
+		log "MP3's disabled via config file, performing cleanup..."
+ 		rm "$1"/*
+ 		error="true"
 	fi
 fi
 
