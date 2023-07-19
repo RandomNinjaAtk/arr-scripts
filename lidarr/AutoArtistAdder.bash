@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.6"
+scriptVersion="1.7"
 scriptName="AutoArtistAdder"
 
 log () {
@@ -9,15 +9,19 @@ log () {
 
 logfileSetup () {
   # auto-clean up log file to reduce space usage
-  if [ -f "/config/logs/AutoArtistAdder.txt" ]; then
-  	find /config/logs -type f -name "AutoArtistAdder.txt" -size +1024k -delete
+  if [ -f "/config/logs/$scriptName.txt" ]; then
+  	find /config/logs -type f -name "$scriptName.txt" -size +1024k -delete
   fi
   
-  if [ ! -f "/config/logs/AutoArtistAdder.txt" ]; then
-      touch "/config/logs/AutoArtistAdder.txt"
-      chmod 666 "/config/logs/AutoArtistAdder.txt"
+  if [ ! -f "/config/logs/$scriptName.txt" ]; then
+      touch "/config/logs/$scriptName.txt"
+      chmod 666 "/config/logs/$scriptName.txt"
   fi
 }
+
+# Create Log, start writing...
+logfileSetup
+exec &> >(tee -a "/config/logs/AutoArtistAdder.txt")
 
 verifyConfig () {
   #### Import Settings
@@ -329,9 +333,6 @@ AddTidalArtistToLidarr () {
 }
 
 
-# Loop Script
-logfileSetup
-exec &> >(tee -a "/config/logs/AutoArtistAdder.txt")
 # Loop Script
 for (( ; ; )); do
   let i++
