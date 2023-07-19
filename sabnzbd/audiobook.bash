@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-ScriptVersion="1.4"
+ScriptVersion="1.5"
 scriptName="Audiobook"
 
 #### Import Settings
@@ -101,7 +101,7 @@ if [ "$bookfound" == "false" ]; then
 	fi
 fi
 
-if [ "$allowM4b" != "true" ];
+if [ "$allowM4b" != "true" ]; then
 	if [ $allowM4b -gt 0 ]; then
  		log "M4B's disabled via config file, performing cleanup..."
  		rm "$1"/*
@@ -109,7 +109,7 @@ if [ "$allowM4b" != "true" ];
 	fi
 fi
 
-if [ "$allowMp3" != "true" ];
+if [ "$allowMp3" != "true" ]; then
 	if [ $mp3Count -gt 0 ]; then
 		log "MP3's disabled via config file, performing cleanup..."
  		rm "$1"/*
