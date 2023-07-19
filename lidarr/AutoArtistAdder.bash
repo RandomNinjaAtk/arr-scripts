@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.5"
+scriptVersion="1.6"
 scriptName="AutoArtistAdder"
 
 log () {
@@ -17,7 +17,6 @@ logfileSetup () {
       touch "/config/logs/AutoArtistAdder.txt"
       chmod 666 "/config/logs/AutoArtistAdder.txt"
   fi
-  exec &> >(tee -a "/config/logs/AutoArtistAdder.txt")
 }
 
 verifyConfig () {
@@ -330,6 +329,9 @@ AddTidalArtistToLidarr () {
 }
 
 
+# Loop Script
+logfileSetup
+exec &> >(tee -a "/config/logs/AutoArtistAdder.txt")
 # Loop Script
 for (( ; ; )); do
   let i++
