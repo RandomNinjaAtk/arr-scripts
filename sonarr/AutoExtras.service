@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.4"
+scriptVersion="1.5"
 scriptName="AutoExtras"
 
 log () {
@@ -17,8 +17,11 @@ logfileSetup () {
       touch "/config/logs/$scriptName.txt"
       chmod 666 "/config/logs/$scriptName.txt"
   fi
-  exec &> >(tee -a "/config/logs/$scriptName.txt")
 }
+
+# Create Log, start writing...
+logfileSetup
+exec &> >(tee -a "/config/logs/$scriptName.txt")
 
 verifyConfig () {
   #### Import Settings
