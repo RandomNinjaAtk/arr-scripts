@@ -1,22 +1,30 @@
 #!/usr/bin/env bash
-scriptVersion="2.0"
+scriptVersion="2.1"
+scriptName="AutoConfig"
 
 #### Import Settings
 source /config/extended.conf
 
 log () {
   m_time=`date "+%F %T"`
-  echo $m_time" :: AutoConfig :: $scriptVersion :: "$1
+  echo $m_time" :: $scriptName :: $scriptVersion :: "$1
 }
 
-# auto-clean up log file to reduce space usage
-if [ -f "/config/logs/AutoConfig.txt" ]; then
-	find /config/logs -type f -name "AutoConfig.txt" -size +1024k -delete
-	sleep 0.01
-fi
-exec &> >(tee -a "/config/logs/AutoConfig.txt")
-touch "/config/logs/AutoConfig.txt"
-chmod 666 "/config/logs/AutoConfig.txt"
+logfileSetup () {
+  # auto-clean up log file to reduce space usage
+  if [ -f "/config/logs/$scriptName.txt" ]; then
+  	find /config/logs -type f -name "$scriptName.txt" -size +1024k -delete
+  fi
+  
+  if [ ! -f "/config/logs/$scriptName.txt" ]; then
+      touch "/config/logs/$scriptName.txt"
+      chmod 666 "/config/logs/$scriptName.txt"
+  fi
+}
+
+# Create Log, start writing...
+logfileSetup
+exec &> >(tee -a "/config/logs/$scriptName.txt")
 
 if [ "$enableAutoConfig" != "true" ]; then
 	log "Script is not enabled, enable by setting enableAutoConfig to \"true\" by modifying the \"/config/extended.conf\" config file..."
