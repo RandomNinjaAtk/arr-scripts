@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.0"
+scriptVersion="1.1"
 scriptName="AutoConfig"
 
 log () {
@@ -10,13 +10,18 @@ log () {
 logfileSetup () {
   # auto-clean up log file to reduce space usage
   if [ -f "/config/logs/$scriptName.txt" ]; then
-    find /config/logs -type f -name "$scriptName.txt" -size +5000k -delete
-    sleep 0.01
+  	find /config/logs -type f -name "$scriptName.txt" -size +1024k -delete
   fi
-  touch "/config/logs/$scriptName.txt"
-  exec &> >(tee -a "/config/logs/$scriptName.txt")
-  chmod 666 "/config/logs/$scriptName.txt"
+  
+  if [ ! -f "/config/logs/$scriptName.txt" ]; then
+      touch "/config/logs/$scriptName.txt"
+      chmod 666 "/config/logs/$scriptName.txt"
+  fi
 }
+
+# Create Log, start writing...
+logfileSetup
+exec &> >(tee -a "/config/logs/$scriptName.txt")
 
 verifyConfig () {
   #### Import Settings
