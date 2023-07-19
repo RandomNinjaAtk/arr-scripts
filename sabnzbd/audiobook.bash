@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-ScriptVersion="1.1"
+ScriptVersion="1.3"
 scriptName="Audiobook"
 
 #### Import Settings
@@ -19,8 +19,7 @@ exec &> >(tee -a "/config/scripts/audiobook.txt")
 
 
 SECONDS=0
-
-
+log "Processing $1"
 log "Searching for audiobook (m4b) files in completed download..."
 m4bCount=$(find "$1" -type f -iname "*.m4b" | wc -l)
 if [ $m4bCount -gt 0 ]; then
@@ -75,12 +74,14 @@ fi
 error="false"
 bookfound="false"
 m4bCount=$(find "$1" -type f -iname "*.m4b" | wc -l)
-mp3Count=$(find "$1" -type f -iname "*.m4b" | wc -l)
+mp3Count=$(find "$1" -type f -iname "*.mp3" | wc -l)
+#log "$m4bCount m4bs found :: $mp3Count mp3s found"
 if [ "$bookfound" == "false" ]; then
 	if [ $m4bCount -eq 0 ]; then
 		error="true"
 	else
 		bookfound="true"
+		error="false"
 	fi
 fi
 
@@ -89,6 +90,7 @@ if [ "$bookfound" == "false" ]; then
 		error="true"
 	else
 		bookfound="true"
+		error="false"
 	fi
 fi
 
