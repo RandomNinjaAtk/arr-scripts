@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.5"
+scriptVersion="1.6"
 scriptName="InvalidSeriesAutoCleaner"
 
 log () {
@@ -10,7 +10,9 @@ log () {
 logfileSetup () {
   # auto-clean up log file to reduce space usage
   if [ -f "/config/logs/$scriptName.txt" ]; then
-  	find /config/logs -type f -name "$scriptName.txt" -size +1024k -delete
+  	if find /config/logs -type f -name "$scriptName.txt" -size +1024k | read; then
+		echo "" > /config/logs/$scriptName.txt
+	fi
   fi
   
   if [ ! -f "/config/logs/$scriptName.txt" ]; then
@@ -75,16 +77,6 @@ verifyApiAccess () {
 }
 
 InvalidSeriesAutoCleanerProcess () {
-  # auto-clean up log file to reduce space usage
-  if [ -f "/config/logs/SeriesAutoDelete.txt" ]; then
-  	find /config/logs -type f -name "InvalidSeriesAutoCleaner.txt" -size +1024k -delete
-  fi
-  
-  if [ ! -f "/config/logs/InvalidSeriesAutoCleaner.txt" ]; then
-      touch "/config/logs/InvalidSeriesAutoCleaner.txt"
-      chmod 666 "/config/logs/InvalidSeriesAutoCleaner.txt"
-  fi
-  exec &> >(tee -a "/config/logs/InvalidSeriesAutoCleaner.txt")
   
   # Get invalid series tvdb id's
   seriesTvdbId="$(curl -s --header "X-Api-Key:"$arrApiKey --request GET  "$arrUrl/api/v3/health" | jq -r '.[] | select(.source=="RemovedSeriesCheck") | select(.type=="error")' | grep "message" | grep -o '[[:digit:]]*')"
