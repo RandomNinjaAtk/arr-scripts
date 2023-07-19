@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.5"
+scriptVersion="1.6"
 ytdlpExtraOpts="--user-agent facebookexternalhit/1.1"
 scriptName="YoutubeSeriesDownloader"
 
@@ -11,7 +11,9 @@ log () {
 logfileSetup () {
   # auto-clean up log file to reduce space usage
   if [ -f "/config/logs/$scriptName.txt" ]; then
-  	find /config/logs -type f -name "$scriptName.txt" -size +1024k -delete
+  	if find /config/logs -type f -name "$scriptName.txt" -size +1024k | read; then
+		echo "" > /config/logs/$scriptName.txt
+	fi
   fi
   
   if [ ! -f "/config/logs/$scriptName.txt" ]; then
@@ -74,22 +76,6 @@ verifyApiAccess () {
     fi
   done
 }
-
-# auto-clean up log file to reduce space usage
-if [ -f "/config/logs/YoutubeSeriesDownloader.txt" ]; then
-	find /config/logs -type f -name "YoutubeSeriesDownloader.txt" -size +1024k -delete
-fi
-
-if [ ! -f "/config/logs/YoutubeSeriesDownloader.txt" ]; then
-    touch "/config/logs/YoutubeSeriesDownloader.txt"
-    chmod 666 "/config/logs/YoutubeSeriesDownloader.txt"
-fi
-exec &> >(tee -a "/config/logs/YoutubeSeriesDownloader.txt")
-
-if [ "$arrEventType" == "Test" ]; then
-	log "Tested Successfully"
-	exit 0	
-fi
 
 CookiesCheck () {
     # Check for cookies file
