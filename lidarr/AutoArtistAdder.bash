@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.8"
+scriptVersion="1.9"
 scriptName="AutoArtistAdder"
 
 ### Import Settings
@@ -89,8 +89,8 @@ AddDeezerArtistToLidarr () {
 		if [ ! -z "$lidarrArtistMatchedData" ]; then
 			
 			data="$lidarrArtistMatchedData"
-			artistName="$(echo "$data" | jq -r ".artist.artistName")"
-			foreignId="$(echo "$data" | jq -r ".foreignId")"
+			artistName="$(echo "$data" | jq -r ".artist.artistName" | head -n1)"
+			foreignId="$(echo "$data" | jq -r ".foreignId" | head -n1)"
 			importListExclusionData=$(curl -s "$arrUrl/api/v1/importlistexclusion" -H "X-Api-Key: $arrApiKey" | jq -r ".[].foreignId")
 			if echo "$importListExclusionData" | grep "^${foreignId}$" | read; then
 				log "$currentprocess of $getDeezerArtistsIdsCount :: $deezerArtistName :: ERROR :: Artist is on import exclusion block list, skipping...."
@@ -240,8 +240,8 @@ AddTidalArtistToLidarr () {
 							
 		if [ ! -z "$lidarrArtistMatchedData" ]; then
 			data="$lidarrArtistMatchedData"		
-			artistName="$(echo "$data" | jq -r ".artist.artistName")"
-			foreignId="$(echo "$data" | jq -r ".foreignId")"
+			artistName="$(echo "$data" | jq -r ".artist.artistName" | head -n1)"
+			foreignId="$(echo "$data" | jq -r ".foreignId" | head -n1)"
 			importListExclusionData=$(curl -s "$arrUrl/api/v1/importlistexclusion" -H "X-Api-Key: $arrApiKey" | jq -r ".[].foreignId")
 			if echo "$importListExclusionData" | grep "^${foreignId}$" | read; then
 				log "$artistNumber of $lidarrArtistTotal :: $lidarrArtistName :: $currentprocess of $numberOfRelatedArtistsToAddPerArtist :: $serviceArtistName :: ERROR :: Artist is on import exclusion block list, skipping...."
