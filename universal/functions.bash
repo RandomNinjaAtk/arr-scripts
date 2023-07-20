@@ -1,14 +1,15 @@
 log () {
   m_time=`date "+%F %T"`
   echo $m_time" :: $scriptName :: $scriptVersion :: "$1
+  echo $m_time" :: $scriptName :: $scriptVersion :: "$1 >> /config/logs/$scriptName.txt
 }
 
 logfileSetup () {
   # auto-clean up log file to reduce space usage
   if [ -f "/config/logs/$scriptName.txt" ]; then
-  	if find /config/logs -type f -name "$scriptName.txt" -size +1024k | read; then
-		  echo "" > /config/logs/$scriptName.txt
-	  fi
+    if find /config/logs -type f -name "$scriptName.txt" -size +1024k | read; then
+      echo "" > /config/logs/$scriptName.txt
+    fi
   fi
   
   if [ ! -f "/config/logs/$scriptName.txt" ]; then
