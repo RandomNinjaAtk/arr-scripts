@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.4"
+scriptVersion="1.5"
 arrEventType="$sonarr_eventtype"
 arrItemId=$sonarr_series_id
 tmdbApiKey="3b7751e3179f796565d88fdb2fcdf426"
@@ -8,13 +8,13 @@ updatePlex="false"
 ytdlpExtraOpts="--user-agent facebookexternalhit/1.1"
 scriptName="Extras"
 
+
 #### Import Settings
 source /config/extended.conf
-
-log () {
-  m_time=`date "+%F %T"`
-  echo $m_time" :: $scriptName :: $scriptVersion :: "$1
-}
+#### Import Functions
+source /config/extended/functions
+#### Create Log File
+logfileSetup
 
 if [ "$enableExtras" != "true" ]; then
 	log "Script is not enabled, enable by setting enableExtras to \"true\" by modifying the \"/config/extended.conf\" config file..."
@@ -22,48 +22,20 @@ if [ "$enableExtras" != "true" ]; then
 	sleep infinity
 fi
 
+getArrAppInfo
+verifyApiAccess
+
 if [ ! -z "$1" ]; then
     arrItemId="$1"
     autoScan="true"
 fi
 
 
-if [ -z "$arrUrl" ] || [ -z "$arrApiKey" ]; then
-  arrUrlBase="$(cat /config/config.xml | xq | jq -r .Config.UrlBase)"
-  if [ "$arrUrlBase" == "null" ]; then
-    arrUrlBase=""
-  else
-    arrUrlBase="/$(echo "$arrUrlBase" | sed "s/\///g")"
-  fi
-  arrApiKey="$(cat /config/config.xml | xq | jq -r .Config.ApiKey)"
-  arrPort="$(cat /config/config.xml | xq | jq -r .Config.Port)"
-  arrUrl="http://127.0.0.1:${arrPort}${arrUrlBase}"
-fi
-
-
-# auto-clean up log file to reduce space usage
-if [ -f "/config/logs/Extras.txt" ]; then
-	find /config/logs -type f -name "Extras.txt" -size +1024k -delete
-fi
-
-if [ ! -f "/config/logs/Extras.txt" ]; then
-    touch "/config/logs/Extras.txt"
-    chmod 666 "/config/logs/Extras.txt"
-fi
-exec &> >(tee -a "/config/logs/Extras.txt")
-
 if [ "$arrEventType" == "Test" ]; then
 	log "Tested Successfully"
 	exit 0	
 fi
 
-
-# Check to see if Extras are enabled via ENV
-if [ "$enableExtras" != "true" ]; then
-    log "Script disabled, exiting..."
-    log "Enable by setting enableExtras=true"
-    exit
-fi
 
 # Get series information
 arrItemData=$(curl -s "$arrUrl/api/v3/series/$arrItemId?apikey=$arrApiKey")
