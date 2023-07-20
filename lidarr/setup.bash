@@ -74,6 +74,10 @@ curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/Un
 echo "Done"
 
 mkdir -p /config/extended
+echo "Download Script Functions..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/functions.bash -o /config/extended/functions
+echo "Done"
+
 echo "Download PlexNotify script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/PlexNotify.bash -o /config/extended/PlexNotify.bash 
 echo "Done"
