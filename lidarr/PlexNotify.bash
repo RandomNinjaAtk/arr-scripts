@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
-scriptVersion="1.0.8"
+scriptVersion="1.1"
 scriptName="PlexNotify"
 
 #### Import Settings
 source /config/extended.conf
-
-log () {
-  m_time=`date "+%F %T"`
-  echo $m_time" :: $scriptName :: $scriptVersion :: "$1
-}
+#### Import Functions
+source /config/extended/functions
+#### Create Log File
+logfileSetup
 
 if [ -z "$lidarr_artist_path" ]; then
 	lidarr_artist_path="$1"
@@ -17,15 +16,6 @@ else
 	notfidedBy=Lidarr
 fi
 lidarrRootFolderPath="$(dirname "$lidarr_artist_path")"
-
-# auto-clean up log file to reduce space usage
-if [ -f "/config/logs/PlexNotify.txt" ]; then
-	find /config/logs -type f -name "PlexNotify.txt" -size +1024k -delete
-fi
-
-exec &> >(tee -a "/config/logs/PlexNotify.txt")
-chmod 666 "/config/logs/PlexNotify.txt"
-
 
 
 if [ "$lidarr_eventtype" == "Test" ]; then
@@ -80,7 +70,7 @@ fi
 for key in ${!plexKeys[@]}; do
 	plexKey="${plexKeys[$key]}"
 	plexKeyLibraryData=$(echo "$plexLibraryData" | jq -r "select(.\"@key\"==\"$plexKey\")")
-	if echo "$plexKeyLibraryData" | grep "\"@path\": \"$lidarrRootFolderPath" | read; then
+	if echo "$plexKeyLibraryData" | grep "\"@path\": \"$lidarrRootFolderPath\"" | read; then
 		plexFolderEncoded="$(jq -R -r @uri <<<"$lidarr_artist_path")"
 		curl -s "$plexUrl/library/sections/$plexKey/refresh?path=$plexFolderEncoded&X-Plex-Token=$plexToken"
 		log  "Plex Scan notification sent! ($plexKey :: $lidarr_artist_path)"
