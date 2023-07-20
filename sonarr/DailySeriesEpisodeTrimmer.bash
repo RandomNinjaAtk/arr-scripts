@@ -1,45 +1,22 @@
 #!/usr/bin/env bash
-scriptVersion="1.1"
+scriptVersion="1.2"
 scriptName="DailySeriesEpisodeTrimmer"
 
 #### Import Settings
 source /config/extended.conf
-
-log () {
-  m_time=`date "+%F %T"`
-  echo $m_time" :: $scriptName :: $scriptVersion :: "$1
-}
+#### Import Functions
+source /config/extended/functions
+#### Create Log File
+logfileSetup
+#### Check Arr App
+getArrAppInfo
+verifyApiAccess
 
 if [ "$enableDailySeriesEpisodeTrimmer" != "true" ]; then
 	log "Script is not enabled, enable by setting enableDailySeriesEpisodeTrimmer to \"true\" by modifying the \"/config/extended.conf\" config file..."
 	log "Sleeping (infinity)"
 	sleep infinity
 fi
-
-
-if [ -z "$arrUrl" ] || [ -z "$arrApiKey" ]; then
-  arrUrlBase="$(cat /config/config.xml | xq | jq -r .Config.UrlBase)"
-  if [ "$arrUrlBase" == "null" ]; then
-    arrUrlBase=""
-  else
-    arrUrlBase="/$(echo "$arrUrlBase" | sed "s/\///g")"
-  fi
-  arrApiKey="$(cat /config/config.xml | xq | jq -r .Config.ApiKey)"
-  arrPort="$(cat /config/config.xml | xq | jq -r .Config.Port)"
-  arrUrl="http://127.0.0.1:${arrPort}${arrUrlBase}"
-fi
-
-
-# auto-clean up log file to reduce space usage
-if [ -f "/config/logs/DailySeriesEpisodeTrimmer.txt" ]; then
-	find /config/logs -type f -name "DailySeriesEpisodeTrimmer.txt" -size +1024k -delete
-fi
-
-if [ ! -f "/config/logs/DailySeriesEpisodeTrimmer.txt" ]; then
-    touch "/config/logs/DailySeriesEpisodeTrimmer.txt"
-    chmod 666 "/config/logs/DailySeriesEpisodeTrimmer.txt"
-fi
-exec &> >(tee -a "/config/logs/DailySeriesEpisodeTrimmer.txt")
 
 if [ "$sonarr_eventtype" == "Test" ]; then
 	log "Tested"
