@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.1"
+scriptVersion="1.2"
 scriptName="UnmappedFilesCleaner"
 
 log () {
@@ -10,12 +10,14 @@ log () {
 logfileSetup () {
   # auto-clean up log file to reduce space usage
   if [ -f "/config/logs/$scriptName.txt" ]; then
-  	find /config/logs -type f -name "$scriptName.txt" -size +1024k -delete
+  	if find /config/logs -type f -name "$scriptName.txt" -size +1024k | read; then
+		  echo "" > /config/logs/$scriptName.txt
+	  fi
   fi
   
   if [ ! -f "/config/logs/$scriptName.txt" ]; then
-      touch "/config/logs/$scriptName.txt"
-      chmod 666 "/config/logs/$scriptName.txt"
+    echo "" > /config/logs/$scriptName.txt
+    chmod 666 "/config/logs/$scriptName.txt"
   fi
 }
 
@@ -77,19 +79,25 @@ verifyApiAccess () {
 UnmappedFilesCleanerProcess () {
     log "Finding UnmappedFiles to purge..."
     OLDIFS="$IFS"
-    IFS=$'\n'
-    unamppedFiles="$(curl -s "$arrUrl/api/v1/trackFile?unmapped=true" -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" | jq -r .[].path)"
-    if [ -z "$unamppedFiles" ]; then
+    IFS=$'\n'    
+    unamppedFilesData="$(curl -s "$arrUrl/api/v1/trackFile?unmapped=true" -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" | jq -r .[])"
+    unamppedFileIds="$(curl -s "$arrUrl/api/v1/trackFile?unmapped=true" -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" | jq -r .[].id)"
+
+    if [ -z "$unamppedFileIds" ]; then
       log "No unmapped files to process"
       return
     fi
 
-    for file in $(echo "$unamppedFiles"); do
-        unmappedFileDirectory=$(dirname "$file")
-        if [ -d "$unmappedFileDirectory" ]; then
-            log "Deleting \"$unmappedFileDirectory\""
-            rm -rf "$unmappedFileDirectory"
-        fi
+    for id  in $(echo "$unamppedFileIds"); do 
+      unmappedFilePath=$(echo "$unamppedFilesData" | jq -r ". | select(.id==$id)| .path")
+      unmappedFileName=$(basename "$unmappedFilePath")
+      unmappedFileDirectory=$(dirname "$unmappedFilePath")
+      if [ -d "$unmappedFileDirectory" ]; then
+          log "Deleting \"$unmappedFileDirectory\""
+          rm -rf "$unmappedFileDirectory"
+      fi
+      log "Removing $unmappedFileName ($id) entry from lidarr..."
+      lidarrCommand=$(curl -s "$arrUrl/api/v1/trackFile/$id" -X DELETE  -H "X-Api-Key: $arrApiKey")
     done
 }
 
