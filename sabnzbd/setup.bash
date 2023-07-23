@@ -49,14 +49,15 @@ chmod 777 /config/scripts
 echo "Downloading SMA config: /config/scripts/sma.ini"
 curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/sma.ini" -o /config/sma.ini
 if [ -f /config/sma.ini ]; then
-  if [ -f /config/scripts/sma.ini ]; then
-    echo "Removing /config/scripts/sma.ini"
-    rm /config/scripts/sma.ini 
+  if [ ! -f /config/scripts/sma.ini ]; then
+    echo "Importing /config/sma.ini to /config/scripts/sma.ini"
+    mv /config/sma.ini /config/scripts/sma.ini 
+    chmod 777 /config/scripts/sma.ini 
+  else
+    echo "File /config/scripts/sma.ini already exists. Not overwriting."
   fi
-  echo "Importing /config/sma.ini to /config/scripts/sma.ini"
-  mv /config/sma.ini /config/scripts/sma.ini 
-  chmod 777 /config/scripts/sma.ini 
 fi
+
 
 echo "Downloading Video script: /config/scripts/video.bash"
 curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/video.bash" -o /config/video.bash
