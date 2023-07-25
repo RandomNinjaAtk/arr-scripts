@@ -27,14 +27,10 @@ sonarr:
       
       - trash_ids:
           - c9eafd50846d299b862ca9bb6ea91950 # x265
-        quality_profiles:
-          - name: Any
-            score: 2000
-      - trash_ids:
           - cddfb4e32db826151d97352b8e37c648 # x264
         quality_profiles:
           - name: Any
-            score: 1000
+            score: 2000
       - trash_ids:
           - 290078c8b266272a5cc8e251b5e2eb0b # 1080p
         quality_profiles:
