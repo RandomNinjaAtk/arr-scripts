@@ -25,20 +25,10 @@ radarr:
       # Custom scoring  
       - trash_ids:
           - 2899d84dc9372de3408e6d8cc18e9666 # x264
-        quality_profiles:
-          - name: Any
-            score: 2000
-      - trash_ids:
           - 9170d55c319f4fe40da8711ba9d8050d # x265
         quality_profiles:
           - name: Any
-            score: 1000
-      - trash_ids:
-          - eecf3a857724171f968a66cb5719e152 # IMAX
-          - 9f6cbff8cfe4ebbc1bde14c7b7bec0de # IMAX Enhanced
-        quality_profiles:
-          - name: Any
-            score: 500
+            score: 2000
       - trash_ids:
           - b3b3a6ac74ecbd56bcdbefa4799fb9df # AMZN
           - 40e9380490e748672c2522eaaeb692f7 # ATVP
@@ -53,37 +43,36 @@ radarr:
           - e36a0ba1bc902b26ee40818a1d59b8bd # PMTP
         quality_profiles:
           - name: Any
-            score: 80
+            score: 200
       - trash_ids:
+          - eecf3a857724171f968a66cb5719e152 # IMAX
+          - 9f6cbff8cfe4ebbc1bde14c7b7bec0de # IMAX Enhanced
           - 1af239278386be2919e1bcee0bde047e # DD+ ATMOS
+          - 77ff61788dfe1097194fd8743d7b4524 # 5.1 Surround
+          - 6fd7b090c3f7317502ab3b63cc7f51e3 # 6.1 Surround
           - e77382bcfeba57cb83744c9c5449b401 # 7.1 Surround
           - f2aacebe2c932337fe352fa6e42c1611 # 9.1 Surround
-          - e61e28db95d22bedcadf030b8f156d96 # HDR
-          - dfb86d5941bc9075d6af23b09c2aeecd # HDR10
-          - b974a6cd08c1066250f1f177d7aa1225 # HDR10+
-          - 08d6d8834ad9ec87b1dc7ec8148e7a1f # PQ
           - 820b09bb9acbfde9c35c71e0e565dad8 # 1080p
         quality_profiles:
           - name: Any
-            score: 75
+            score: 100
+      - trash_ids:
+          - 185f1dd7264c4562b9022d963ac37424 # DD+
+        quality_profiles:
+          - name: Any
+            score: 70
       - trash_ids:
           - 2f22d89048b01681dde8afe203bf2e95 # DTS X
           - 496f355514737f7d83bf7aa4d24f8169 # TrueHD ATMOS
           - 417804f7f2c4308c1f4c5d380d4c4475 # ATMOS (undefined)
         quality_profiles:
           - name: Any
-            score: 70
-      - trash_ids:
-          - 8e109e50e0a0b83a5098b056e13bf6db # DTS-HD HRA
-          - dcf3ec6938fa32445f590a4da84256cd # DTS-HD MA
-          - 3cafb66171b47f226146a0770576870f # TrueHD
-        quality_profiles:
-          - name: Any
             score: 60
       - trash_ids:
           - fb392fb0d61a010ae38e49ceaa24a1ef # 2160p
-          - 77ff61788dfe1097194fd8743d7b4524 # 5.1 Surround
-          - 6fd7b090c3f7317502ab3b63cc7f51e3 # 6.1 Surround
+          - 8e109e50e0a0b83a5098b056e13bf6db # DTS-HD HRA
+          - dcf3ec6938fa32445f590a4da84256cd # DTS-HD MA
+          - 3cafb66171b47f226146a0770576870f # TrueHD
         quality_profiles:
           - name: Any
             score: 30
@@ -149,14 +138,11 @@ radarr:
           - eca37840c13c6ef2dd0262b141a5482f # 4K Remaster
           - e0c07d59beb37348e975a930d5e50319 # Criterion Collection
           - 0f12c086e289cf966fa5948eac571f44 # Hybrid
+          - 4b900e171accbfb172729b63323ea8ca # Multi
+          - ff86c4326018682f817830ced463332b # MPEG2
         quality_profiles:
           - name: Any
             score: -50
-      - trash_ids:
-          - 4b900e171accbfb172729b63323ea8ca # Multi
-        quality_profiles:
-          - name: Any
-            score: -100
       - trash_ids:
           - ff86c4326018682f817830ced463332b # MPEG2
           - cae4ca30163749b891686f95532519bd # AV1
@@ -173,6 +159,10 @@ radarr:
           - 9364dd386c9b4a1100dde8264690add7 # HLG
           - b17886cb4158d9fea189859409975758 # HDR10+ Boost
           - b6832f586342ef70d9c128d40c07b872 # Bad Dual Groups   
+          - e61e28db95d22bedcadf030b8f156d96 # HDR
+          - dfb86d5941bc9075d6af23b09c2aeecd # HDR10
+          - b974a6cd08c1066250f1f177d7aa1225 # HDR10+
+          - 08d6d8834ad9ec87b1dc7ec8148e7a1f # PQ
         quality_profiles:
           - name: Any
             score: -100000
