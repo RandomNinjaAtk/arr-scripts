@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bash
 TITLESHORT="APP"
-scriptVersion="1.7"
+scriptVersion="1.8"
 scriptName="Audio"
 
 #### Import Settings
@@ -71,11 +71,11 @@ Main () {
 		log "Audio Quality Match Verification: DISABLED"
 	fi
 	
-	if [ "${DetectNonSplitAlubms}" = TRUE ]; then
-		log "Detect Non Split Alubms: ENABLED"
+	if [ "${DetectNonSplitAlbums}" = TRUE ]; then
+		log "Detect Non Split Albums: ENABLED"
 		log "Max File Size: $MaxFileSize" 
 	else
-		log "DetectNonSplitAlubms: DISABLED"
+		log "DetectNonSplitAlbums: DISABLED"
 	fi
 
 	log "Processing: $1" 
@@ -269,7 +269,9 @@ Main () {
 
 	settings "$1"
 	clean "$1"
-	detectsinglefilealbums "$1"
+	if [ "${DetectNonSplitAlbums}" = TRUE ]; then
+		detectsinglefilealbums "$1"
+	fi
 
 	if [ "${AudioVerification}" = TRUE ]; then
 		verify "$1"
