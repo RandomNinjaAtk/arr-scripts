@@ -1,22 +1,35 @@
 #!/usr/bin/with-contenv bash
 TITLESHORT="APP"
-ScriptVersion="1.5"
+ScriptVersion="1.6"
 scriptName="Audio"
 
 #### Import Settings
 source /config/extended.conf
 
+
 log () {
   m_time=`date "+%F %T"`
   echo $m_time" :: $scriptName :: $scriptVersion :: "$1
+  echo $m_time" :: $scriptName :: $scriptVersion :: "$1 >> /config/logs/$scriptName.txt
 }
 
+logfileSetup () {
+  # auto-clean up log file to reduce space usage
+  if [ -f "/config/logs/$scriptName.txt" ]; then
+    if find /config/logs -type f -name "$scriptName.txt" -size +1024k | read; then
+      echo "" > /config/logs/$scriptName.txt
+    fi
+  fi
+  
+  if [ ! -f "/config/logs/$scriptName.txt" ]; then
+    echo "" > /config/logs/$scriptName.txt
+    chmod 666 "/config/logs/$scriptName.txt"
+  fi
+}
 
 set -e
 set -o pipefail
 
-touch "/config/scripts/audio.txt"
-exec &> >(tee -a "/config/scripts/audio.txt")
 
 Main () {
 
@@ -24,25 +37,25 @@ Main () {
 
 	settings () {
 
-	echo "Configuration:"
-	echo "Script Version: $ScriptVersion"
-	echo "Remove Non Audio Files: ENABLED"
-	echo "Duplicate File CleanUp: ENABLED"
+	log "Configuration:"
+	log "Script Version: $ScriptVersion"
+	log "Remove Non Audio Files: ENABLED"
+	log "Duplicate File CleanUp: ENABLED"
 	if [ "${AudioVerification}" = TRUE ]; then
-		echo "Audio Verification: ENABLED"
+		log "Audio Verification: ENABLED"
 	else
-		echo "Audio Verification: DISABLED"
+		log "Audio Verification: DISABLED"
 	fi
-	echo "Format: $ConversionFormat"
+	log "Format: $ConversionFormat"
 	if [ "${ConversionFormat}" = FLAC ]; then
-		echo "Bitrate: lossless"
-		echo "Replaygain Tagging: ENABLED"
+		log "Bitrate: lossless"
+		log "Replaygain Tagging: ENABLED"
 		AudioFileExtension="flac"
 	elif [ "${ConversionFormat}" = ALAC ]; then
-		echo "Bitrate: lossless"
+		log "Bitrate: lossless"
 		AudioFileExtension="m4a"
 	else
-		echo "Conversion Bitrate: ${ConversionBitrate}k"
+		log "Conversion Bitrate: ${ConversionBitrate}k"
 		if [ "${ConversionFormat}" = MP3 ]; then
 			AudioFileExtension="mp3"
 		elif [ "${ConversionFormat}" = AAC ]; then
@@ -53,19 +66,19 @@ Main () {
 	fi
 	
 	if [ "$RequireAudioQualityMatch" = "true" ]; then
-		echo "Audio Quality Match Verification: ENABLED (.$AudioFileExtension)"
+		log "Audio Quality Match Verification: ENABLED (.$AudioFileExtension)"
 	else
-		echo "Audio Quality Match Verification: DISABLED"
+		log "Audio Quality Match Verification: DISABLED"
 	fi
 	
 	if [ "${DetectNonSplitAlubms}" = TRUE ]; then
-		echo "Detect Non Split Alubms: ENABLED"
-		echo "Max File Size: $MaxFileSize" 
+		log "Detect Non Split Alubms: ENABLED"
+		log "Max File Size: $MaxFileSize" 
 	else
-		echo "DetectNonSplitAlubms: DISABLED"
+		log "DetectNonSplitAlubms: DISABLED"
 	fi
 
-	echo "Processing: $1" 
+	log "Processing: $1" 
 
 	}
 	
@@ -74,10 +87,10 @@ Main () {
 		if [ "$RequireAudioQualityMatch" == "true" ]; then
 			find "$1" -type f -not -iname "*.$AudioFileExtension" -delete
 			if [ $(find "$1" -type f -iname "*.$AudioFileExtension" | wc -l) -gt 0 ]; then
-				echo "Verifying Audio Quality Match: PASSED (.$AudioFileExtension)"
+				log "Verifying Audio Quality Match: PASSED (.$AudioFileExtension)"
 			else
-				echo "Verifying Audio Quality Match"
-				echo "ERROR: Audio Qualty Check Failed, missing required file extention (.$AudioFileExtension)"
+				log "Verifying Audio Quality Match"
+				log "ERROR: Audio Qualty Check Failed, missing required file extention (.$AudioFileExtension)"
 				exit 1
 			fi
 		fi
@@ -89,13 +102,30 @@ Main () {
 			find "$1" -mindepth 2 -type f -exec mv "{}" "$1"/ \;
 			find "$1" -mindepth 1 -type d -delete
 		else
-			echo "ERROR: NO AUDIO FILES FOUND" && exit 1
+			log "ERROR: NO AUDIO FILES FOUND" && exit 1
 		fi
+		flacDownloaded="false"
+  		mp3Downloaded="false"
+  		if [ $(find "$1" -type f -iname "*.flac" | wc -l) -gt 0 ]; then
+    			log "FLAC files found"
+       			flacDownloaded="true"
+       	        fi
+		if [ $(find "$1" -type f -iname "*.mp3" | wc -l) -gt 0 ]; then
+    			log "MP3 files found"
+       			mp3Downloaded="true"
+       	        fi
+
+  		if [ "$flacDownloaded" == "true" ]; then
+			if [ "$mp3Downloaded" == "true" ]; then
+   				log "Deleting duplicate MP3 files.."
+   				find "$1" -type f -iname "*.mp3" -delete
+       			fi
+    		fi
 	}
 
 	detectsinglefilealbums () {
 		if [ $(find "$1" -type f -regex ".*/.*\.\(flac\|mp3\|m4a\|alac\|ogg\|opus\)" -size +${MaxFileSize} | wc -l) -gt 0 ]; then
-			echo "ERROR: Non split album detected"
+			log "ERROR: Non split album detected"
 			exit 1
 		fi
 	}
@@ -103,16 +133,16 @@ Main () {
 	verify () {
 		if [ $(find "$1" -iname "*.flac" | wc -l) -gt 0 ]; then
 			verifytrackcount=$(find  "$1"/ -iname "*.flac" | wc -l)
-			echo "Verifying: $verifytrackcount Tracks"
+			log "Verifying: $verifytrackcount Tracks"
 			if ! [ -x "$(command -v flac)" ]; then
-				echo "ERROR: FLAC verification utility not installed (ubuntu: apt-get install -y flac)"
+				log "ERROR: FLAC verification utility not installed (ubuntu: apt-get install -y flac)"
 			else
 				for fname in "$1"/*.flac; do
 					filename="$(basename "$fname")"
 					if flac -t --totally-silent "$fname"; then
-						echo "Verified Track: $filename"
+						log "Verified Track: $filename"
 					else
-						echo "ERROR: Track Verification Failed: \"$filename\""
+						log "ERROR: Track Verification Failed: \"$filename\""
 						rm -rf "$1"/*
 						sleep 0.1
 						exit 1
@@ -156,12 +186,12 @@ Main () {
 			if [ "${ConversionFormat}" = FLAC ]; then
 				sleep 0.1
 			elif [ $(find "$1"/ -name "*.flac" | wc -l) -gt 0 ]; then
-				echo "Converting: $converttrackcount Tracks (Target Format: $targetformat (${targetbitrate}))"
+				log "Converting: $converttrackcount Tracks (Target Format: $targetformat (${targetbitrate}))"
 				for fname in "$1"/*.flac; do
 					filename="$(basename "${fname%.flac}")"
 					if [ "${ConversionFormat}" = OPUS ]; then
 						opusenc --bitrate ${bitrate} --vbr --music "$fname" "${fname%.flac}.temp.$extension";
-						echo "Converted: $filename"
+						log "Converted: $filename"
 						if [ -f "${fname%.flac}.temp.$extension" ]; then
 							rm "$fname"
 							sleep 0.1
@@ -169,21 +199,21 @@ Main () {
 						fi
 						continue
 					else
-						echo "Conversion failed: $filename, performing cleanup..."
+						log "Conversion failed: $filename, performing cleanup..."
 						rm -rf "$1"/*
 						sleep 0.1
 						exit 1
 					fi
 
 					if ffmpeg -loglevel warning -hide_banner -nostats -i "$fname" -n -vn $options "${fname%.flac}.temp.$extension"; then
-						echo "Converted: $filename"
+						log "Converted: $filename"
 						if [ -f "${fname%.flac}.temp.$extension" ]; then
 							rm "$fname"
 							sleep 0.1
 							mv "${fname%.flac}.temp.$extension" "${fname%.flac}.$extension"
 						fi
 					else
-						echo "Conversion failed: $filename, performing cleanup..."
+						log "Conversion failed: $filename, performing cleanup..."
 						rm -rf "$1"/*
 						sleep 0.1
 						exit 1
@@ -191,21 +221,20 @@ Main () {
 				done
 			fi
 		else
-			echo "ERROR: ffmpeg not installed, please install ffmpeg to use this conversion feature"
+			log "ERROR: ffmpeg not installed, please install ffmpeg to use this conversion feature"
 			sleep 5
 		fi
 	}
 
 	replaygain () {	
 		replaygaintrackcount=$(find  "$1"/ -type f -regex ".*/.*\.\(flac\|mp3\|m4a\|alac\|ogg\|opus\)" | wc -l)
-		echo "Replaygain: Calculating $replaygaintrackcount Tracks"
+		log "Replaygain: Calculating $replaygaintrackcount Tracks"
 		r128gain -r -a "$1" &>/dev/null
 	}
 	
 	beets () {
-		echo ""
 		trackcount=$(find "$1" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | wc -l)
-		echo "Matching $trackcount tracks with Beets"
+		log "Matching $trackcount tracks with Beets"
 		if [ -f /config/scripts/library.blb ]; then
 			rm /config/scripts/library.blb
 			sleep 0.1
@@ -221,10 +250,10 @@ Main () {
 		if [ $(find "$1" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | wc -l) -gt 0 ]; then
 			beet -c /config/scripts/beets-config.yaml -l /config/scripts/library.blb -d "$1" import -q "$1"
 			if [ $(find "$1" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -newer "/config/scripts/beets-match" | wc -l) -gt 0 ]; then
-				echo "SUCCESS: Matched with beets!"
+				log "SUCCESS: Matched with beets!"
 			else
 				rm -rf "$1"/* 
-				echo "ERROR: Unable to match using beets to a musicbrainz release, marking download as failed..."
+				log "ERROR: Unable to match using beets to a musicbrainz release, marking download as failed..."
 				exit 1
 			fi	
 		fi
