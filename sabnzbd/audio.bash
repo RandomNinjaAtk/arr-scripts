@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bash
 TITLESHORT="APP"
-ScriptVersion="1.6"
+scriptVersion="1.7"
 scriptName="Audio"
 
 #### Import Settings
@@ -38,7 +38,7 @@ Main () {
 	settings () {
 
 	log "Configuration:"
-	log "Script Version: $ScriptVersion"
+	log "Script Version: $scriptVersion"
 	log "Remove Non Audio Files: ENABLED"
 	log "Duplicate File CleanUp: ENABLED"
 	if [ "${AudioVerification}" = TRUE ]; then
