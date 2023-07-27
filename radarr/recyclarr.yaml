@@ -43,7 +43,7 @@ radarr:
           - e36a0ba1bc902b26ee40818a1d59b8bd # PMTP
         quality_profiles:
           - name: Any
-            score: 200
+            score: 1000
       - trash_ids:
           - eecf3a857724171f968a66cb5719e152 # IMAX
           - 9f6cbff8cfe4ebbc1bde14c7b7bec0de # IMAX Enhanced
