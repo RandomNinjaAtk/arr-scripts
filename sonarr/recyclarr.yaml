@@ -59,7 +59,7 @@ sonarr:
           - 5d2317d99af813b6529c7ebf01c83533 # VDL
         quality_profiles:
           - name: Any
-            score: 200
+            score: 1000
       - trash_ids:
           - 290078c8b266272a5cc8e251b5e2eb0b # 1080p
           # Audio Channels
