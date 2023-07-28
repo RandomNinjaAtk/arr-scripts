@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.7"
+scriptVersion="2.8"
 scriptName="Audio"
 
 ### Import Settings
@@ -472,9 +472,9 @@ DownloadProcess () {
 				if [ -z $arlToken ]; then
     					rm -rf "$audioPath"/incomplete/*
 					log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: All $failedDownloadAttemptThreshold Download Attempts failed, skipping..."
-     				else
+     			else
 	    				DeezerClientTest
-	       				if [ "$deezerClientTest" == "success" ];
+	       			if [ "$deezerClientTest" == "success" ]; then
 		   				log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType ::  All $failedDownloadAttemptThreshold Download Attempts failed, skipping..."
 					fi
 				fi
@@ -499,7 +499,7 @@ DownloadProcess () {
 			# If download failes X times, exit with error...
 			if [ $tidaldlFail -eq $failedDownloadAttemptThreshold ]; then
    				TidalClientTest
-       				if [ "$tidalClientTest" == "success" ];
+       				if [ "$tidalClientTest" == "success" ]; then
 	   				log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: All $failedDownloadAttemptThreshold Download Attempts failed, skipping..."
 				fi
 			fi
