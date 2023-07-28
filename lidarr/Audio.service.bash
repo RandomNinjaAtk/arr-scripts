@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.5"
+scriptVersion="2.6"
 scriptName="Audio"
 
 ### Import Settings
@@ -23,6 +23,9 @@ verifyConfig () {
     downloadPath="/config/extended/downloads"
   fi
 
+  if [ -z "$failedDownloadAttemptThreshold" ]; then
+  	failedDownloadAttemptThreshold="6"
+  fi
   audioPath="$downloadPath/audio"
 }
 
@@ -132,6 +135,8 @@ Configuration () {
 	else
 		log "Beets Tagging Disabled"
 	fi
+
+ 	log "Failed Download Attempt Theshold: $failedDownloadAttemptThreshold"
 	
 }
 
@@ -419,8 +424,8 @@ DownloadProcess () {
 				deemixFail=0
 			fi
 			
-			# If download failes 6 times, exit with error...
-			if [ $deemixFail -eq 6 ]; then
+			# If download failes X times, exit with error...
+			if [ $deemixFail -eq $failedDownloadAttemptThreshold ]; then
 				log "DEEZER :: ERROR :: Download failed"
 				log "DEEZER :: ERROR :: Please review log for errors in client"
 				log "DEEZER :: ERROR :: Try updating your ARL Token to possibly resolve the issue..."
@@ -446,8 +451,8 @@ DownloadProcess () {
 				tidaldlFail=0
 			fi
 			
-			# If download failes 6 times, exit with error...
-			if [ $tidaldlFail -eq 6 ]; then
+			# If download failes X times, exit with error...
+			if [ $tidaldlFail -eq $failedDownloadAttemptThreshold ]; then
 				if [ -f /config/xdg/.tidal-dl.token.json ]; then
 					rm /config/xdg/.tidal-dl.token.json
 				fi
