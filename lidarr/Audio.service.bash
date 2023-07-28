@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.9"
+scriptVersion="2.10"
 scriptName="Audio"
 
 ### Import Settings
@@ -12,7 +12,7 @@ verifyConfig () {
   if [ "$enableAudio" != "true" ]; then
     log "Script is not enabled, enable by setting enableAudio to \"true\" by modifying the \"/config/extended.conf\" config file..."
     log "Sleeping (infinity)"
-    sleep infinity
+    #sleep infinity
   fi
 
   if [ -z "$audioScriptInterval" ]; then
@@ -262,7 +262,7 @@ TidalClientSetup () {
 	fi
 	
 	TidaldlStatusCheck
-	tidal-dl -o "$audioPath"/incomplete
+	tidal-dl -o "$audioPath"/incomplete 2>&1 | tee -a /config/logs/$scriptName.txt
 	DownloadFormat
 
 	if [ ! -f /config/xdg/.tidal-dl.token.json ]; then
@@ -318,7 +318,7 @@ TidalClientTest () {
 	while [ $i -lt 3 ]; do
 		i=$(( $i + 1 ))
   		TidaldlStatusCheck
-		tidal-dl -q Normal -o "$audioPath"/incomplete -l "$tidalClientTestDownloadId" &>/dev/null
+		tidal-dl -q Normal -o "$audioPath"/incomplete -l "$tidalClientTestDownloadId" 2>&1 | tee -a /config/logs/$scriptName.txt
 		downloadCount=$(find "$audioPath"/incomplete -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | wc -l)
 		if [ $downloadCount -le 0 ]; then
 			continue
@@ -450,7 +450,7 @@ DownloadProcess () {
 			if [ -z $arlToken ]; then
 				DownloadClientFreyr $1
 			else
-				deemix -b $deemixQuality -p "$audioPath"/incomplete "https://www.deezer.com/album/$1"
+				deemix -b $deemixQuality -p "$audioPath"/incomplete "https://www.deezer.com/album/$1" 2>&1 | tee -a /config/logs/$scriptName.txt
 			fi
 			
 			if [ -d "/tmp/deemix-imgs" ]; then
@@ -484,7 +484,7 @@ DownloadProcess () {
 		if [ "$2" == "TIDAL" ]; then
 			TidaldlStatusCheck
 
-			tidal-dl -q $tidalQuality -o "$audioPath/incomplete" -l "$1"
+			tidal-dl -q $tidalQuality -o "$audioPath/incomplete" -l "$1"  2>&1 | tee -a /config/logs/$scriptName.txt
 
 			# Verify Client Works...
 			clientTestDlCount=$(find "$audioPath"/incomplete/ -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | wc -l)
@@ -932,7 +932,7 @@ DeemixClientSetup () {
 DeezerClientTest () {
 	log "DEEZER :: deemix client setup verification..."
 
-	deemix -b 128 -p $audioPath/incomplete "https://www.deezer.com/album/$deezerClientTestDownloadId" &>/dev/null
+	deemix -b 128 -p $audioPath/incomplete "https://www.deezer.com/album/$deezerClientTestDownloadId"  2>&1 | tee -a /config/logs/$scriptName.txt
 	if [ -d "/tmp/deemix-imgs" ]; then
 		rm -rf /tmp/deemix-imgs
 	fi
