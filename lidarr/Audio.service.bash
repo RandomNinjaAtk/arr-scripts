@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.6"
+scriptVersion="2.7"
 scriptName="Audio"
 
 ### Import Settings
@@ -26,7 +26,17 @@ verifyConfig () {
   if [ -z "$failedDownloadAttemptThreshold" ]; then
   	failedDownloadAttemptThreshold="6"
   fi
+
+  if [ -z "$tidalClientTestDownloadId" ]; then
+  	tidalClientTestDownloadId="166356219"
+  fi
+
+  if [ -z "$deezerClientTestDownloadId" ]; then
+  	deezerClientTestDownloadId="197472472"
+  fi
+
   audioPath="$downloadPath/audio"
+
 }
 
 Configuration () {
@@ -302,6 +312,39 @@ TidaldlStatusCheck () {
 	done
 }
 
+TidalClientTest () { 
+	log "TIDAL :: tidal-dl client setup verification..."
+	i=0
+	while [ $i -lt 3 ]; do
+		i=$(( $i + 1 ))
+  		TidaldlStatusCheck
+		tidal-dl -q Normal -o "$audioPath"/incomplete -l "$tidalClientTestDownloadId" &>/dev/null
+		downloadCount=$(find "$audioPath"/incomplete -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | wc -l)
+		if [ $downloadCount -le 0 ]; then
+			continue
+		else
+			break
+		fi
+	done
+ 	tidalClientTest="unknown"
+	if [ $downloadCount -le 0 ]; then
+		if [ -f /config/xdg/.tidal-dl.token.json ]; then
+			rm /config/xdg/.tidal-dl.token.json
+		fi
+		log "TIDAL :: ERROR :: Download failed"
+		log "TIDAL :: ERROR :: You will need to re-authenticate on next script run..."
+		log "TIDAL :: ERROR :: Exiting..."
+		rm -rf "$"/incomplete/*
+		NotifyWebhook "Error" "TIDAL not authenticated but configured"
+  		tidalClientTest="failed"
+		exit
+	else
+		rm -rf "$"/incomplete/*
+		log "TIDAL :: Successfully Verified"
+  		tidalClientTest="success"
+	fi
+}
+
 DownloadProcess () {
 
 	# Required Input Data
@@ -426,13 +469,15 @@ DownloadProcess () {
 			
 			# If download failes X times, exit with error...
 			if [ $deemixFail -eq $failedDownloadAttemptThreshold ]; then
-				log "DEEZER :: ERROR :: Download failed"
-				log "DEEZER :: ERROR :: Please review log for errors in client"
-				log "DEEZER :: ERROR :: Try updating your ARL Token to possibly resolve the issue..."
-				log "DEEZER :: ERROR :: Exiting..."
-				rm -rf "$audioPath"/incomplete/*
-				NotifyWebhook "FatalError" "DEEZER not authenticated but configured"
-				exit
+				if [ -z $arlToken ]; then
+    					rm -rf "$audioPath"/incomplete/*
+					log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: All $failedDownloadAttemptThreshold Download Attempts failed, skipping..."
+     				else
+	    				DeezerClientTest
+	       				if [ "$deezerClientTest" == "success" ];
+		   				log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType ::  All $failedDownloadAttemptThreshold Download Attempts failed, skipping..."
+					fi
+				fi
 			fi
 		fi
 
@@ -453,15 +498,10 @@ DownloadProcess () {
 			
 			# If download failes X times, exit with error...
 			if [ $tidaldlFail -eq $failedDownloadAttemptThreshold ]; then
-				if [ -f /config/xdg/.tidal-dl.token.json ]; then
-					rm /config/xdg/.tidal-dl.token.json
+   				TidalClientTest
+       				if [ "$tidalClientTest" == "success" ];
+	   				log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: All $failedDownloadAttemptThreshold Download Attempts failed, skipping..."
 				fi
-				log "TIDAL :: ERROR :: Download failed"
-				log "TIDAL :: ERROR :: You will need to re-authenticate on next script run..."
-				log "TIDAL :: ERROR :: Exiting..."
-				rm -rf "$audioPath"/incomplete/*
-				NotifyWebhook "FatalError" "TIDAL not authenticated but configured"
-				exit
 			fi
 		fi
 
@@ -886,6 +926,32 @@ DeemixClientSetup () {
 
 	#log "DEEZER :: Upgrade deemix to the latest..."
 	#pip install deemix --upgrade &>/dev/null
+
+}
+
+DeezerClientTest () {
+	log "DEEZER :: deemix client setup verification..."
+
+	deemix -b 128 -p $audioPath/incomplete "https://www.deezer.com/album/$deezerClientTestDownloadId" &>/dev/null
+	if [ -d "/tmp/deemix-imgs" ]; then
+		rm -rf /tmp/deemix-imgs
+	fi
+ 	deezerClientTest="unknown"
+	downloadCount=$(find $audioPath/incomplete/ -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | wc -l)
+	if [ $downloadCount -le 0 ]; then
+		log "DEEZER :: ERROR :: Download failed"
+		log "DEEZER :: ERROR :: Please review log for errors in client"
+		log "DEEZER :: ERROR :: Try updating your ARL Token to possibly resolve the issue..."
+		log "DEEZER :: ERROR :: Exiting..."
+		rm -rf $audioPath/incomplete/*
+		NotifyWebhook "Error" "DEEZER not authenticated but configured"
+  		deezerClientTest="fail"
+		exit
+	else
+		rm -rf $audioPath/incomplete/*
+		log "DEEZER :: Successfully Verified"
+  		deezerClientTest="success"
+	fi
 
 }
 
