@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.8"
+scriptVersion="2.9"
 scriptName="Audio"
 
 ### Import Settings
@@ -334,12 +334,12 @@ TidalClientTest () {
 		log "TIDAL :: ERROR :: Download failed"
 		log "TIDAL :: ERROR :: You will need to re-authenticate on next script run..."
 		log "TIDAL :: ERROR :: Exiting..."
-		rm -rf "$"/incomplete/*
+		rm -rf "$audioPath"/incomplete/*
 		NotifyWebhook "Error" "TIDAL not authenticated but configured"
   		tidalClientTest="failed"
 		exit
 	else
-		rm -rf "$"/incomplete/*
+		rm -rf "$audioPath"/incomplete/*
 		log "TIDAL :: Successfully Verified"
   		tidalClientTest="success"
 	fi
