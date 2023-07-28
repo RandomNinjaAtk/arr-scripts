@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.10"
+scriptVersion="2.11"
 scriptName="Audio"
 
 ### Import Settings
@@ -12,7 +12,7 @@ verifyConfig () {
   if [ "$enableAudio" != "true" ]; then
     log "Script is not enabled, enable by setting enableAudio to \"true\" by modifying the \"/config/extended.conf\" config file..."
     log "Sleeping (infinity)"
-    #sleep infinity
+    sleep infinity
   fi
 
   if [ -z "$audioScriptInterval" ]; then
