@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=1.0.014
+version=1.1
 if [ -z "$lidarrUrl" ] || [ -z "$lidarrApiKey" ]; then
 	lidarrUrlBase="$(cat /config/config.xml | xq | jq -r .Config.UrlBase)"
 	if [ "$lidarrUrlBase" == "null" ]; then
@@ -70,7 +70,7 @@ ProcessWithBeets () {
 	sleep 0.5
 
     log "$1 :: Being matching with beets!"
-	beet -c /config/extended/scripts/beets-config.yaml -l /config/library-postprocessor.blb -d "$1" import -qC "$1"
+	beet -c /config/extended/beets-config.yaml -l /config/library-postprocessor.blb -d "$1" import -qC "$1"
 	if [ $(find "$1" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -newer "/config/beets-postprocessor-match" | wc -l) -gt 0 ]; then
 		log "$1 :: SUCCESS :: Matched with beets!"
 		
@@ -100,21 +100,6 @@ ProcessWithBeets () {
 				metaflac --set-tag=ARTIST="$getAlbumArtist" "$file"
 			fi
 		done
-
-		# Fix opus tags
-		fixed=0
-		find "$1" -type f -iname "*.opus" -print0 | while IFS= read -r -d '' file; do
-			if [ $fixed == 0 ]; then
-				fixed=$(( $fixed + 1 ))
-				log "$1 :: Fixing OPUS Tags..."
-			fi
-        		getArtistCredit="$(ffprobe -loglevel 0 -print_format json -show_format -show_streams "$file" | jq -r ".streams[].tags.ARTIST_CREDIT" 2>/dev/null | sed "s/null//g" | sed "/^$/d")"
-			if [ ! -z "$getArtistCredit" ]; then
-				python3 "/config/extended/scripts/tag_opus.py" --file "$file" --songartist "$getArtistCredit" --songalbumartist "$getAlbumArtist"
-			else
-				python3 "/config/extended/scripts/tag_opus.py" --file "$file" --songartist "$getAlbumArtist" --songalbumartist "$getAlbumArtist"
-			fi
-		done
 		
 		log "$1 :: Fixing Tags Complete!"		
 	else
@@ -142,7 +127,7 @@ ProcessWithBeets () {
 MetadataPostProcess () {
 	# Process item with PlexNotify.bash if plexToken is configured
 	log "Using MetadataPostProcess.bash to extract embedded lyrics & artwork...."
-	bash /config/extended/scripts/MetadataPostProcess.bash "$1"
+	bash /config/extended/MetadataPostProcess.bash "$1"
 
 }
 
@@ -151,7 +136,7 @@ NotifyPlex () {
 	if [ ! -z "$plexToken" ]; then
 		# update plex
 		log "$1 :: Using PlexNotify.bash to update Plex...."
-		bash /config/extended/scripts/PlexNotify.bash "$2"
+		bash /config/extended/PlexNotify.bash "$2"
 	fi
 }
 
