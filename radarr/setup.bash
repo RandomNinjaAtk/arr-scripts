@@ -66,9 +66,12 @@ echo "Download Script Functions..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/functions.bash -o /config/extended/functions
 echo "Done"
 
-echo "Download Naming script..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/naming.json -o /config/extended/naming.json 
-echo "Done"
+
+if [ ! -f /config/extended/naming.json ]; then
+	echo "Download Naming script..."
+	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/naming.json -o /config/extended/naming.json 
+	echo "Done"
+fi
 
 mkdir -p /config/extended
 echo "Download PlexNotify script..."
