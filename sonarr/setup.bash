@@ -66,9 +66,11 @@ curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/Yo
 echo "Done"
 
 mkdir -p /config/extended
-echo "Download Naming script..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/naming.json -o /config/extended/naming.json 
-echo "Done"
+if [ ! -f /config/extended/naming.json ]; then
+	echo "Download Naming script..."
+	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/naming.json -o /config/extended/naming.json 
+	echo "Done"
+fi
 
 mkdir -p /config/extended
 echo "Download Script Functions..."
