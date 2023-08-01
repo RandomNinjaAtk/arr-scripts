@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.8"
+scriptVersion="2.9"
 scriptName="Video"
 
 ### Import Settings
@@ -101,14 +101,37 @@ ImvdbCache () {
         log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Recording Artist Slug into cache"
         echo -n "$lidarrArtistName" > /config/extended/cache/imvdb/$artistImvdbSlug
     fi
-    artistImvdbVideoUrls=$(wget "https://imvdb.com/n/$artistImvdbSlug" -O - | grep "$artistImvdbSlug" | grep -Eoi '<a [^>]+>' |  grep -Eo 'href="[^\"]+"' | grep -Eo '(http|https)://[^"]+' |  grep -i ".com/video/$artistImvdbSlug/" | sed "s%/[0-9]$%%g" | sort -u)
+
+    count=0
+    attemptError="false"
+    until false; do
+      count=$(( $count + 1 ))
+      artistImvdbVideoUrls=$(wget "https://imvdb.com/n/$artistImvdbSlug" -O - | grep "$artistImvdbSlug" | grep -Eoi '<a [^>]+>' |  grep -Eo 'href="[^\"]+"' | grep -Eo '(http|https)://[^"]+' |  grep -i ".com/video/$artistImvdbSlug/" | sed "s%/[0-9]$%%g" | sort -u)
+      if echo "$artistImvdbVideoUrls" | grep -i "imvdb.com" | read; then
+        break
+      else
+        log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ERROR :: Cannot connect to imvdb, retrying..."
+        sleep 0.5
+      fi 
+      if [ $count == 10 ]; then
+        log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${artistImvdbVideoUrlsCount} :: ERROR :: All attempts at connecting failed, skipping..."
+        attemptError="true"
+        break
+      fi
+    done
+
+    if [ "$attemptError" == "true" ]; then
+      return
+    fi
+
     artistImvdbVideoUrlsCount=$(echo "$artistImvdbVideoUrls" | wc -l)
     cachedArtistImvdbVideoUrlsCount=$(ls /config/extended/cache/imvdb/$lidarrArtistMusicbrainzId--* 2>/dev/null | wc -l)
 
-    if [ "$artistImvdbVideoUrlsCount" ==  "$cachedArtistImvdbVideoUrlsCount" ]; then
-        log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Chache is already up-to-date, skipping..."
+    if [ "$artistImvdbVideoUrlsCount" == "$cachedArtistImvdbVideoUrlsCount" ]; then
+        log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Chache is already up-to-date ($artistImvdbVideoUrlsCount==$cachedArtistImvdbVideoUrlsCount), skipping..."
         return
     else 
+        log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Chache needs updating ($artistImvdbVideoUrlsCount==$cachedArtistImvdbVideoUrlsCount)..."
     	if [ -f "/config/extended/logs/video/complete/$lidarrArtistMusicbrainzId" ]; then
 		    log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Removing Artist completed log file to allow artist re-processing..."
 		    rm "/config/extended/logs/video/complete/$lidarrArtistMusicbrainzId"
