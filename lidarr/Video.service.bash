@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.7"
+scriptVersion="2.8"
 scriptName="Video"
 
 ### Import Settings
@@ -101,7 +101,7 @@ ImvdbCache () {
         log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Recording Artist Slug into cache"
         echo -n "$lidarrArtistName" > /config/extended/cache/imvdb/$artistImvdbSlug
     fi
-    artistImvdbVideoUrls=$(curl -s "https://imvdb.com/n/$artistImvdbSlug" | grep "$artistImvdbSlug" | grep -Eoi '<a [^>]+>' |  grep -Eo 'href="[^\"]+"' | grep -Eo '(http|https)://[^"]+' |  grep -i ".com/video/$artistImvdbSlug/" | sed "s%/[0-9]$%%g" | sort -u)
+    artistImvdbVideoUrls=$(wget "https://imvdb.com/n/$artistImvdbSlug" -O - | grep "$artistImvdbSlug" | grep -Eoi '<a [^>]+>' |  grep -Eo 'href="[^\"]+"' | grep -Eo '(http|https)://[^"]+' |  grep -i ".com/video/$artistImvdbSlug/" | sed "s%/[0-9]$%%g" | sort -u)
     artistImvdbVideoUrlsCount=$(echo "$artistImvdbVideoUrls" | wc -l)
     cachedArtistImvdbVideoUrlsCount=$(ls /config/extended/cache/imvdb/$lidarrArtistMusicbrainzId--* 2>/dev/null | wc -l)
 
@@ -144,7 +144,7 @@ ImvdbCache () {
                 count=$(( $count + 1 ))
                 #echo "$count"
                 if [ ! -f "$imvdbVideoData" ]; then
-                    imvdbVideoId=$(curl -s "$imvdbVideoUrl" | grep "<p>ID:" | grep -o "[[:digit:]]*")
+                    imvdbVideoId=$(wget "$imvdbVideoUrl" -O - | grep "<p>ID:" | grep -o "[[:digit:]]*")
                     imvdbVideoJsonUrl="https://imvdb.com/api/v1/video/$imvdbVideoId?include=sources,countries,featured,credits,bts,popularity"
                     log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${artistImvdbVideoUrlsCount} ::  Downloading Video data"
                     wget "$imvdbVideoJsonUrl" -O "$imvdbVideoData"
