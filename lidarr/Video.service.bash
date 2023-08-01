@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="3.1"
+scriptVersion="3.2"
 scriptName="Video"
 
 ### Import Settings
@@ -538,6 +538,8 @@ VideoProcess () {
             if [[ $(find "/config/extended/logs/video/complete/$lidarrArtistMusicbrainzId" -mtime +7 -print) ]]; then
                 ImvdbCache
             fi
+        else
+          ImvdbCache
         fi
       else
         # Always run cache process if completed log folder does not exist
