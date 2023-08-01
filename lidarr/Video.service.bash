@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.6"
+scriptVersion="2.7"
 scriptName="Video"
 
 ### Import Settings
@@ -90,15 +90,15 @@ ImvdbCache () {
         return
     fi
     if [ ! -d "/config/extended/cache/imvdb" ]; then
-        log "$processCount of $lidarrArtistIdsCount :: IMVDB :: $lidarrArtistName :: Creating Cache Folder..."
+        log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Creating Cache Folder..."
         mkdir -p "/config/extended/cache/imvdb"
         chmod 777 "/config/extended/cache/imvdb"
     fi
     
-    log "$processCount of $lidarrArtistIdsCount :: IMVDB :: $lidarrArtistName :: Caching Records..."
+    log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Caching Records..."
 
     if [ ! -f /config/extended/cache/imvdb/$artistImvdbSlug ]; then
-        log "$processCount of $lidarrArtistIdsCount :: IMVDB :: $lidarrArtistName :: Recording Artist Slug into cache"
+        log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Recording Artist Slug into cache"
         echo -n "$lidarrArtistName" > /config/extended/cache/imvdb/$artistImvdbSlug
     fi
     artistImvdbVideoUrls=$(curl -s "https://imvdb.com/n/$artistImvdbSlug" | grep "$artistImvdbSlug" | grep -Eoi '<a [^>]+>' |  grep -Eo 'href="[^\"]+"' | grep -Eo '(http|https)://[^"]+' |  grep -i ".com/video/$artistImvdbSlug/" | sed "s%/[0-9]$%%g" | sort -u)
@@ -106,11 +106,11 @@ ImvdbCache () {
     cachedArtistImvdbVideoUrlsCount=$(ls /config/extended/cache/imvdb/$lidarrArtistMusicbrainzId--* 2>/dev/null | wc -l)
 
     if [ "$artistImvdbVideoUrlsCount" ==  "$cachedArtistImvdbVideoUrlsCount" ]; then
-        log "$processCount of $lidarrArtistIdsCount :: IMVDB :: $lidarrArtistName :: Chache is already up-to-date, skipping..."
+        log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Chache is already up-to-date, skipping..."
         return
     else 
     	if [ -f "/config/extended/logs/video/complete/$lidarrArtistMusicbrainzId" ]; then
-		    log "$processCount of $lidarrArtistIdsCount :: IMVDB :: $lidarrArtistName :: Removing Artist completed log file to allow artist re-processing..."
+		    log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Removing Artist completed log file to allow artist re-processing..."
 		    rm "/config/extended/logs/video/complete/$lidarrArtistMusicbrainzId"
 	    fi
     fi
@@ -124,7 +124,7 @@ ImvdbCache () {
         imvdbVideoData="/config/extended/cache/imvdb/$lidarrArtistMusicbrainzId--$imvdbVideoUrlSlug.json"
         #echo "$imvdbVideoUrl :: $imvdbVideoUrlSlug :: $imvdbVideoId"
         
-        log "$processCount of $lidarrArtistIdsCount :: IMVDB :: $lidarrArtistName :: $imvdbProcessCount of $artistImvdbVideoUrlsCount :: Caching video data..."
+        log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${artistImvdbVideoUrlsCount} :: Caching video data..."
         if [ -f "$imvdbVideoData" ]; then
             if [ ! -s "$imvdbVideoData"  ]; then # if empty, delete file
                 rm "$imvdbVideoData"
@@ -133,7 +133,7 @@ ImvdbCache () {
 
         if [ -f "$imvdbVideoData" ]; then 
             if jq -e . >/dev/null 2>&1 <<<"$(cat "$imvdbVideoData")"; then # verify file is valid json
-                log "$processCount of $lidarrArtistIdsCount :: IMVDB :: $lidarrArtistName :: $imvdbProcessCount of $artistImvdbVideoUrlsCount :: Video Data already downloaded"
+                log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${artistImvdbVideoUrlsCount} :: Video Data already downloaded"
                 continue
             fi
         fi
@@ -146,22 +146,25 @@ ImvdbCache () {
                 if [ ! -f "$imvdbVideoData" ]; then
                     imvdbVideoId=$(curl -s "$imvdbVideoUrl" | grep "<p>ID:" | grep -o "[[:digit:]]*")
                     imvdbVideoJsonUrl="https://imvdb.com/api/v1/video/$imvdbVideoId?include=sources,countries,featured,credits,bts,popularity"
-                    log "$processCount of $lidarrArtistIdsCount :: IMVDB :: $lidarrArtistName :: $imvdbProcessCount of $artistImvdbVideoUrlsCount ::  Downloading Video data"
-                    curl -s "$imvdbVideoJsonUrl" -o "$imvdbVideoData"
+                    log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${artistImvdbVideoUrlsCount} ::  Downloading Video data"
+                    wget "$imvdbVideoJsonUrl" -O "$imvdbVideoData"
                     sleep 0.5
                 fi
                 if [ -f "$imvdbVideoData" ]; then
-                    if [ ! -s "$imvdbVideoData"  ]; then
-                        rm "$imvdbVideoData"
-                        if [ $count = 2 ]; then
-                            log "$processCount of $lidarrArtistIdsCount :: IMVDB :: $lidarrArtistName :: $imvdbProcessCount of $artistImvdbVideoUrlsCount :: Download Failed, skipping..."
-                            break
-                        fi
-                    elif jq -e . >/dev/null 2>&1 <<<"$(cat "$imvdbVideoData")"; then
-                        log "$processCount of $lidarrArtistIdsCount :: IMVDB :: $lidarrArtistName :: $imvdbProcessCount of $artistImvdbVideoUrlsCount :: Download Complete"
+                    if jq -e . >/dev/null 2>&1 <<<"$(cat "$imvdbVideoData")"; then
+                        log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${artistImvdbVideoUrlsCount} :: Download Complete"
                         break
                     else
                         rm "$imvdbVideoData"
+                        if [ $count = 2 ]; then
+                            log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${artistImvdbVideoUrlsCount} :: Download Failed, skipping..."
+                            break
+                        fi
+                    fi
+                else
+                    if [ $count = 2 ]; then
+                        log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${artistImvdbVideoUrlsCount} :: Download Failed, skipping..."
+                        break
                     fi
                 fi
             done
@@ -208,28 +211,6 @@ DownloadVideo () {
         fi
     fi
     
-    if echo "$1" | grep -i "tidal" | read; then
-        TidalClientTest
-        sleep 1
-        TidaldlStatusCheck
-        tidal-dl -o "$videoDownloadPath/incomplete" -l "$1"
-        find "$videoDownloadPath/incomplete" -type f -exec mv "{}" "$videoDownloadPath/incomplete"/ \;
-        find "$videoDownloadPath/incomplete" -mindepth 1 -type d -exec rm -rf "{}" \; &>/dev/null
-        find "$videoDownloadPath/incomplete" -type f -regex ".*/.*\.\(mkv\|mp4\)"  -print0 | while IFS= read -r -d '' video; do
-            file="${video}"
-            filenoext="${file%.*}"
-            filename="$(basename "$video")"
-            extension="${filename##*.}"
-            filenamenoext="${filename%.*}"
-            mv "$file" "$videoDownloadPath/incomplete/${2}${3}.mp4"
-        done
-        if [ -f "$videoDownloadPath/incomplete/${2}${3}.mp4" ]; then
-            chmod 666 "$videoDownloadPath/incomplete/${2}${3}.mp4"
-            downloadFailed=false
-        else
-            downloadFailed=true
-        fi
-    fi
 
 }
 
@@ -254,22 +235,22 @@ VideoProcessWithSMA () {
 
             if python3 /usr/local/sma/manual.py --config "/config/extended/sma.ini" -i "$file" -nt &>/dev/null; then
                 sleep 0.01
-                log "$processCount of $lidarrArtistIdsCount :: $1 :: $lidarrArtistName :: $2 :: Processed with SMA..."
+                log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${imvdbArtistVideoCount} :: $2 :: Processed with SMA..."
                 rm  /usr/local/sma/config/*log*
             else
-                log "$processCount of $lidarrArtistIdsCount :: $1 :: $lidarrArtistName :: $2 :: ERROR: SMA Processing Error"
+                log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${imvdbArtistVideoCount} :: $2 :: ERROR: SMA Processing Error"
                 rm "$video"
-                log "$processCount of $lidarrArtistIdsCount :: $1 :: $lidarrArtistName :: $2 :: INFO: deleted: $filename"
+                log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${imvdbArtistVideoCount} :: $2 :: INFO: deleted: $filename"
             fi
         else
                 if python3 /usr/local/sma/manual.py --config "/config/extended/sma-mp4.ini" -i "$file" -nt &>/dev/null; then
                 sleep 0.01
-                log "$processCount of $lidarrArtistIdsCount :: $1 :: $lidarrArtistName :: $2 :: Processed with SMA..."
+                log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${imvdbArtistVideoCount} :: $2 :: Processed with SMA..."
                 rm  /usr/local/sma/config/*log*
             else
-                log "$processCount of $lidarrArtistIdsCount :: $1 :: $lidarrArtistName :: $2 :: ERROR: SMA Processing Error"
+                log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${imvdbArtistVideoCount} :: $2 :: ERROR: SMA Processing Error"
                 rm "$video"
-                log "$processCount of $lidarrArtistIdsCount :: $1 :: $lidarrArtistName :: $2 :: INFO: deleted: $filename"
+                log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${imvdbArtistVideoCount} :: $2 :: INFO: deleted: $filename"
             fi
         fi
     done
@@ -302,7 +283,7 @@ VideoTagProcess () {
 
         if [[ $filenoext.$videoContainer == *.mkv ]]; then
 		mv "$filenoext.$videoContainer" "$filenoext-temp.$videoContainer"
-		log "$processCount of $lidarrArtistIdsCount :: $4 :: $lidarrArtistName :: ${1}${2} $3 :: Tagging file"
+		log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${imvdbArtistVideoCount} :: ${1}${2} $3 :: Tagging file"
 		ffmpeg -y \
 			-i "$filenoext-temp.$videoContainer" \
 			-c copy \
@@ -320,7 +301,7 @@ VideoTagProcess () {
 		chmod 666 "$filenoext.$videoContainer"
         else
 		mv "$filenoext.$videoContainer" "$filenoext-temp.$videoContainer"
-		log "$processCount of $lidarrArtistIdsCount :: $4 :: $lidarrArtistName :: ${1}${2} $3 :: Tagging file"
+		log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${imvdbArtistVideoCount} :: ${1}${2} $3 :: Tagging file"
 		ffmpeg -y \
 			-i "$filenoext-temp.$videoContainer" \
 		 	-i "$videoDownloadPath/incomplete/${1}${2}.jpg" \
@@ -342,7 +323,7 @@ VideoTagProcess () {
 }
 
 VideoNfoWriter () {
-    log "$processCount of $lidarrArtistIdsCount :: $7 :: $lidarrArtistName :: ${3} :: Writing NFO"
+    log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${imvdbArtistVideoCount} :: ${3} :: Writing NFO"
     nfo="$videoDownloadPath/incomplete/${1}${2}.nfo"
     if [ -f "$nfo" ]; then
         rm "$nfo"
@@ -509,7 +490,7 @@ VideoProcess () {
   	lidarrArtistMusicbrainzId=$(echo $lidarrArtistData | jq -r .foreignArtistId)
       
       if  [ "$lidarrArtistName" == "Various Artists" ]; then
-          log "$processCount of $lidarrArtistIdsCount :: $lidarrArtistName :: Skipping, not processed by design..."
+          log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: Skipping, not processed by design..."
           continue
       fi
   
@@ -517,14 +498,14 @@ VideoProcess () {
       lidarrArtistFolder="$(basename "${lidarrArtistPath}")"
       lidarrArtistFolderNoDisambig="$(echo "$lidarrArtistFolder" | sed "s/ (.*)$//g" | sed "s/\.$//g")" # Plex Sanitization, remove disambiguation
       lidarrArtistNameSanitized="$(echo "$lidarrArtistFolderNoDisambig" | sed 's% (.*)$%%g')"
-      log "$processCount of $lidarrArtistIdsCount :: $lidarrArtistName :: Checking for IMVDB Slug"
+      log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: Checking for IMVDB Slug"
       artistImvdbUrl=$(echo $lidarrArtistData | jq -r '.links[] | select(.name=="imvdb") | .url')
       artistImvdbSlug=$(basename "$artistImvdbUrl")
   
       if [ ! -z "$artistImvdbSlug" ]; then
-          log "$processCount of $lidarrArtistIdsCount :: $lidarrArtistName :: IMVDB Slug :: $artistImvdbSlug"
+          log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB Slug :: $artistImvdbSlug"
       else
-      	log "$processCount of $lidarrArtistIdsCount :: $lidarrArtistName :: IMVDB Slug Not Found..."
+      	log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB Slug Not Found..."
   	continue
       fi
       
@@ -532,7 +513,7 @@ VideoProcess () {
       
       if [ -d /config/extended/logs/video/complete ]; then
           if [ -f "/config/extended/logs/video/complete/$lidarrArtistMusicbrainzId" ]; then
-              log "$processCount of $lidarrArtistIdsCount :: $lidarrArtistName :: Music Videos previously downloaded, skipping..."
+              log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: Music Videos previously downloaded, skipping..."
               continue            
           fi
       fi
@@ -540,7 +521,7 @@ VideoProcess () {
       
   
       if [ -z "$artistImvdbSlug" ]; then
-          log "$processCount of $lidarrArtistIdsCount :: IMVDB :: $lidarrArtistName :: No IMVDB artist link found, skipping..."
+          log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: No IMVDB artist link found, skipping..."
           # Create log of missing IMVDB url...
           if [ ! -d "/config/extended/logs/video/imvdb-link-missing" ]; then
               mkdir -p "/config/extended/logs/video/imvdb-link-missing"
@@ -548,7 +529,7 @@ VideoProcess () {
               chmod 777 "/config/extended/logs/video/imvdb-link-missing"
           fi
           if [ -d "/config/extended/logs/video/imvdb-link-missing" ]; then
-              log "$processCount of $lidarrArtistIdsCount :: IMVDB :: $lidarrArtistName :: Logging missing IMVDB artist in folder: /config/extended/logs/video/imvdb-link-missing"
+              log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Logging missing IMVDB artist in folder: /config/extended/logs/video/imvdb-link-missing"
               touch "/config/extended/logs/video/imvdb-link-missing/${lidarrArtistFolderNoDisambig}--mbid-${lidarrArtistMusicbrainzId}"
           fi       
       else
@@ -559,11 +540,11 @@ VideoProcess () {
   	
           imvdbArtistVideoCount=$(ls /config/extended/cache/imvdb/$lidarrArtistMusicbrainzId--*.json 2>/dev/null | wc -l)
           if [ $imvdbArtistVideoCount = 0 ]; then
-              log "$processCount of $lidarrArtistIdsCount :: IMVDB :: $lidarrArtistName :: No videos found, skipping..."
+              log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: No videos found, skipping..."
               
           else
   
-              log "$processCount of $lidarrArtistIdsCount :: IMVDB :: $lidarrArtistName :: Processing $imvdbArtistVideoCount Videos!"
+              log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Processing $imvdbArtistVideoCount Videos!"
               find /config/extended/cache/imvdb -type f -empty -delete # delete empty files
               
               imvdbProcessCount=0
@@ -572,7 +553,7 @@ VideoProcess () {
                   imvdbVideoTitle="$(cat "$imvdbVideoData" | jq -r .song_title)"
                   videoTitleClean="$(echo "$imvdbVideoTitle" | sed -e "s/[^[:alpha:][:digit:]$^&_+=()'%;{},.@#]/ /g" -e "s/  */ /g" | sed 's/^[.]*//' | sed  's/[.]*$//g' | sed  's/^ *//g' | sed 's/ *$//g')"
                   imvdbVideoYear=""
-  		imvdbVideoYear="$(cat "$imvdbVideoData" | jq -r .year)"
+  		          imvdbVideoYear="$(cat "$imvdbVideoData" | jq -r .year)"
                   imvdbVideoImage="$(cat "$imvdbVideoData" | jq -r .image.o)"
                   imvdbVideoArtistsSlug="$(cat "$imvdbVideoData" | jq -r .artists[].slug)"
                   echo "$lidarrArtistName" > /config/extended/cache/imvdb/$imvdbVideoArtistsSlug
@@ -598,7 +579,7 @@ VideoProcess () {
                           fi
                       fi
                       if [[ -n $(find "$videoPath/$lidarrArtistFolderNoDisambig" -maxdepth 1 -iname "${videoTitleClean}${plexVideoType}.mkv") ]] || [[ -n $(find "$videoPath/$lidarrArtistFolderNoDisambig" -maxdepth 1 -iname "${videoTitleClean}${plexVideoType}.mp4") ]]; then
-                          log "$processCount of $lidarrArtistIdsCount :: IMVDB :: $lidarrArtistName :: ${imvdbVideoTitle} :: Previously Downloaded, skipping..."
+                          log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${imvdbArtistVideoCount} :: ${imvdbVideoTitle} :: Previously Downloaded, skipping..."
                           continue
                       fi
                   fi
@@ -632,10 +613,10 @@ VideoProcess () {
   		fi
   		videoSource="youtube"
                   
-                  log "$processCount of $lidarrArtistIdsCount :: IMVDB :: $lidarrArtistName :: ${imvdbVideoTitle} :: $videoDownloadUrl..."
+                  log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${imvdbArtistVideoCount} :: ${imvdbVideoTitle} :: $videoDownloadUrl..."
                   DownloadVideo "$videoDownloadUrl" "$videoTitleClean" "$plexVideoType" "IMVDB"
                   if [ "$downloadFailed" = "true" ]; then
-                      log "$processCount of $lidarrArtistIdsCount :: IMVDB :: $lidarrArtistName :: ${imvdbVideoTitle} :: Download failed, skipping..."
+                      log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${imvdbArtistVideoCount} :: ${imvdbVideoTitle} :: Download failed, skipping..."
                       continue
                   fi
                   DownloadThumb "$imvdbVideoImage" "$videoTitleClean" "$plexVideoType" "IMVDB"
@@ -672,7 +653,7 @@ VideoProcess () {
           if [ -d "$videoPath/$lidarrArtistFolderNoDisambig" ]; then
               if [ -f "$lidarrArtistPath/artist.nfo" ]; then
                   if [ ! -f "$videoPath/$lidarrArtistFolderNoDisambig/artist.nfo" ]; then
-                      log "$processCount of $lidarrArtistIdsCount :: Copying Artist NFO to music-video artist directory"
+                      log "${processCount}/${lidarrArtistIdsCount} :: Copying Artist NFO to music-video artist directory"
                       cp "$lidarrArtistPath/artist.nfo" "$videoPath/$lidarrArtistFolderNoDisambig/artist.nfo"
                       chmod 666 "$videoPath/$lidarrArtistFolderNoDisambig/artist.nfo"
                   fi
