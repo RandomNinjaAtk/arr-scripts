@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="3.2"
+scriptVersion="3.3"
 scriptName="Video"
 
 ### Import Settings
@@ -185,7 +185,7 @@ ImvdbCache () {
                         fi
                     fi
                 else
-                    if [ $count = 2 ]; then
+                    if [ $count = 5 ]; then
                         log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${artistImvdbVideoUrlsCount} :: Download Failed, skipping..."
                         break
                     fi
