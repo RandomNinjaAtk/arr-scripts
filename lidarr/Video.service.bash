@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.9"
+scriptVersion="3.0"
 scriptName="Video"
 
 ### Import Settings
@@ -131,7 +131,7 @@ ImvdbCache () {
         log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Chache is already up-to-date ($artistImvdbVideoUrlsCount==$cachedArtistImvdbVideoUrlsCount), skipping..."
         return
     else 
-        log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Chache needs updating ($artistImvdbVideoUrlsCount==$cachedArtistImvdbVideoUrlsCount)..."
+        log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Chache needs updating (${artistImvdbVideoUrlsCount}!=${cachedArtistImvdbVideoUrlsCount})..."
     	if [ -f "/config/extended/logs/video/complete/$lidarrArtistMusicbrainzId" ]; then
 		    log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Removing Artist completed log file to allow artist re-processing..."
 		    rm "/config/extended/logs/video/complete/$lidarrArtistMusicbrainzId"
