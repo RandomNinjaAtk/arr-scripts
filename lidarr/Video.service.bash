@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="3.0"
+scriptVersion="3.1"
 scriptName="Video"
 
 ### Import Settings
@@ -526,22 +526,31 @@ VideoProcess () {
       artistImvdbSlug=$(basename "$artistImvdbUrl")
   
       if [ ! -z "$artistImvdbSlug" ]; then
-          log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB Slug :: $artistImvdbSlug"
+        log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Slug :: $artistImvdbSlug"
       else
-      	log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB Slug Not Found..."
+      	log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ERROR :: Slug Not Found, skipping..."
   	continue
       fi
-      
-      ImvdbCache
+
+      if [ -d /config/extended/logs/video/complete ]; then
+        if [ -f "/config/extended/logs/video/complete/$lidarrArtistMusicbrainzId" ]; then
+            # Only update cache for artist if the completed log file is older than 7 days...
+            if [[ $(find "/config/extended/logs/video/complete/$lidarrArtistMusicbrainzId" -mtime +7 -print) ]]; then
+                ImvdbCache
+            fi
+        fi
+      else
+        # Always run cache process if completed log folder does not exist
+        ImvdbCache
+      fi
       
       if [ -d /config/extended/logs/video/complete ]; then
+          # If completed log file found for artist, end processing and skip...
           if [ -f "/config/extended/logs/video/complete/$lidarrArtistMusicbrainzId" ]; then
               log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: Music Videos previously downloaded, skipping..."
               continue            
           fi
       fi
-  
-      
   
       if [ -z "$artistImvdbSlug" ]; then
           log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: No IMVDB artist link found, skipping..."
