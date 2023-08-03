@@ -1,5 +1,4 @@
 # This script is for dev purposes
-sleep infinity
 UrlDecode () { : "${*//+/ }"; echo -e "${_//%/\\x}"; }
 
 url="https://archive.org/download/retroachievements_collection_v5/SNES/Super%20Mario%20Kart/Super%20Mario%20Kart%20%28U%29%20%5B%21%5D.zip"
