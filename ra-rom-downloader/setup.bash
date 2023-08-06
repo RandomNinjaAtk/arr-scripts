@@ -14,8 +14,8 @@ apt-get install -y \
 	unrar \
 	axel \
 	zip \
-  python3-pip
-
+ 	wget \
+  	python3-pip
 echo "************ RAHasher installation ************"
 mkdir -p ${RAHASHER_PATH}
 wget "https://github.com/RetroAchievements/RALibretro/releases/download/1.4.0/RAHasher-x64-Linux-1.6.0.zip" -O "${RAHASHER_PATH}/rahasher.zip"
