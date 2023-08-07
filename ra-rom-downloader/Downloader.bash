@@ -108,7 +108,7 @@ PlatformN64 () {
   compressRom="false"
 }
 
-PlatformN64 () {
+PlatformMegaduck () {
   platformName="Mega Duck"
   platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Mega%20Duck/"
   platformFolder="megaduck"
@@ -117,6 +117,37 @@ PlatformN64 () {
   uncompressRom="false"
   compressRom="false"
 }
+
+PlatformPokemini () {
+  platformName="Pokemon Mini"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Pokemon%20Mini/"
+  platformFolder="pokemini"
+  consoleRomFileExt=".min, .zip, .7z"
+  raConsoleId="24"
+  uncompressRom="false"
+  compressRom="false"
+}
+
+PlatformVirtualboy () {
+  platformName="Virtual Boy"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Virtual%20Boy/"
+  platformFolder="virtualboy"
+  consoleRomFileExt=".vb, .zip, .7z"
+  raConsoleId="28"
+  uncompressRom="false"
+  compressRom="false"
+}
+
+PlatformNes () {
+  platformName="Nintendo Entertainment System"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_NES/NES/"
+  platformFolder="nes"
+  consoleRomFileExt=".nes, .unif, .unf, .zip, .7z"
+  raConsoleId="7"
+  uncompressRom="false"
+  compressRom="false"
+}
+
 
 platformsToProcessNumber=0
 IFS=',' read -r -a filters <<< "$platforms"
@@ -137,6 +168,14 @@ do
     PlatformMegadrive
   elif [ $platform == "n64" ]; then
     PlatformN64
+  elif [ $platform == "megaduck" ]; then
+    PlatformMegaduck
+  elif [ $platform == "pokemini" ]; then
+    PlatformPokemini
+  elif [ $platform == "virtualboy" ]; then
+    PlatformVirtualboy
+  elif [ $platform == "nes" ]; then
+    PlatformNes
   else
     log "ERROR :: No Platforms Selected, exiting..."
     exit
