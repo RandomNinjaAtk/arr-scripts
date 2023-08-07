@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.0.2"
+scriptVersion="1.1"
 notfidedBy="Sonarr"
 arrRootFolderPath="$(dirname "$sonarr_series_path")"
 arrFolderPath="$sonarr_series_path"
@@ -83,7 +83,7 @@ if echo "$plexLibraryData" | grep "\"@path\": \"$arrRootFolderPath" | read; then
 	sleep 0.01
 else
 	log "$notfidedBy :: ERROR: No Plex Library found containing path \"$arrRootFolderPath\""
-	log "$notfidedBy :: ERROR: Add \"$arrRootFolderPath\" as a folder to a Plex Movie Library"
+	log "$notfidedBy :: ERROR: Add \"$arrRootFolderPath\" as a folder to a Plex TV Library"
 	exit 1
 fi
 
