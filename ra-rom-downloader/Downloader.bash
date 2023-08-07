@@ -148,6 +148,75 @@ PlatformNes () {
   compressRom="false"
 }
 
+Platform3do () {
+  platformName="3DO Interactive Multiplayer"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/3DO%20Interactive%20Multiplayer/"
+  platformFolder="3do"
+  consoleRomFileExt=".iso, .chd, .cue"
+  raConsoleId="43"
+  uncompressRom="false"
+  compressRom="false"
+}
+
+PlatformArduboy () {
+  platformName="Arduboy"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Arduboy/"
+  platformFolder="arduboy"
+  consoleRomFileExt=".hex, .zip, .7z"
+  raConsoleId="71"
+  uncompressRom="false"
+  compressRom="false"
+}
+
+PlatformSega32x () {
+  platformName="Sega 32X"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/32X/"
+  platformFolder="sega32x"
+  consoleRomFileExt=".32x, .smd, .bin, .md, .zip, .7z"
+  raConsoleId="10"
+  uncompressRom="false"
+  compressRom="false"
+}
+
+PlatformMastersystem () {
+  platformName="Sega Master System"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Master%20System/"
+  platformFolder="mastersystem"
+  consoleRomFileExt=".bin, .sms, .zip, .7z"
+  raConsoleId="11"
+  uncompressRom="false"
+  compressRom="false"
+}
+
+PlatformSg1000 () {
+  platformName="SG-1000"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/SG-1000/"
+  platformFolder="sg1000"
+  consoleRomFileExt=".bin, .sg, .zip, .7z"
+  raConsoleId="33"
+  uncompressRom="false"
+  compressRom="false"
+}
+
+PlatformAtarilynx () {
+  platformName="Atari Lynx"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Atari%20Lynx/"
+  platformFolder="atarilynx"
+  consoleRomFileExt=".lnx, .zip, .7z"
+  raConsoleId="13"
+  uncompressRom="false"
+  compressRom="false"
+}
+
+PlatformJaguar () {
+  platformName="Atari Jaguar"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Atari%20Jaguar/"
+  platformFolder="jaguar"
+  consoleRomFileExt=".cue, .j64, .jag, .cof, .abs, .cdi, .rom, .zip, .7z"
+  raConsoleId="17"
+  uncompressRom="false"
+  compressRom="false"
+}
 
 platformsToProcessNumber=0
 IFS=',' read -r -a filters <<< "$platforms"
@@ -176,10 +245,23 @@ do
     PlatformVirtualboy
   elif [ $platform == "nes" ]; then
     PlatformNes
+  elif [ $platform == "arduboy" ]; then
+    PlatformArduboy
+  elif [ $platform == "sega32x" ]; then
+    PlatformSega32x
+  elif [ $platform == "mastersystem" ]; then
+    PlatformMastersystem
+  elif [ $platform == "sg1000" ]; then
+    PlatformSg1000
+  elif [ $platform == "atarilynx" ]; then
+    PlatformAtarilynx
+  elif [ $platform == "jaguar" ]; then
+    PlatformJaguar
   else
     log "ERROR :: No Platforms Selected, exiting..."
     exit
   fi
+
   log "$processNumber/$platformToProcessNumber :: $platformName :: Finding ROMS..."
   CreatePlatformRomList "$platformArchiveContentsUrl"
   outputdir="$romPath/$platformFolder"
