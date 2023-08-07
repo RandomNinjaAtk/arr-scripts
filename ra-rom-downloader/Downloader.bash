@@ -108,6 +108,16 @@ PlatformN64 () {
   compressRom="false"
 }
 
+PlatformN64 () {
+  platformName="Mega Duck"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Mega%20Duck/"
+  platformFolder="megaduck"
+  consoleRomFileExt=".bin, .zip, .7z"
+  raConsoleId="69"
+  uncompressRom="false"
+  compressRom="false"
+}
+
 platformsToProcessNumber=0
 IFS=',' read -r -a filters <<< "$platforms"
 for platform in "${filters[@]}"
@@ -168,12 +178,18 @@ do
     filteredUsa2Romscount="$(echo "$romfiles" | grep -i "%20%28USA%29" | head -n 1 | wc -l)"
     filteredUsa3Roms="$(echo "$romfiles" | grep -i "%20%28UE%29" | head -n 1)"
     filteredUsa3Romscount="$(echo "$romfiles" | grep -i "%20%28UE%29" | head -n 1 | wc -l)"
-    filteredEuropRoms="$(echo "$romfiles" | grep -i "%20%28E%29" | head -n 1)"
-    filteredEuropRomscount="$(echo "$romfiles" | grep -i "%20%28E%29" | head -n 1 | wc -l)"
+    filteredEuropeRoms="$(echo "$romfiles" | grep -i "%20%28E%29" | head -n 1)"
+    filteredEuropeRomscount="$(echo "$romfiles" | grep -i "%20%28E%29" | head -n 1 | wc -l)"
+    filteredEurope2Roms="$(echo "$romfiles" | grep -i "%20%28E%29" | head -n 1)"
+    filteredEurope2Romscount="$(echo "$romfiles" | grep -i "%20%28Europe%29" | head -n 1 | wc -l)"
     filteredWorldRoms="$(echo "$romfiles" | grep -i "%20%28W%29" | head -n 1)"
     filteredWorldRomscount="$(echo "$romfiles" | grep -i "%20%28W%29" | head -n 1 | wc -l)"
+    filteredWorld2Roms="$(echo "$romfiles" | grep -i "%20%28World%29" | head -n 1)"
+    filteredWorld2Romscount="$(echo "$romfiles" | grep -i "%20%28World%29" | head -n 1 | wc -l)"
     filteredJapanRoms="$(echo "$romfiles" | grep -i "%20%28J%29" | head -n 1)"
     filteredJapanRomscount="$(echo "$romfiles" | grep -i "%20%28J%29" | head -n 1 | wc -l)"
+    filteredJapan2Roms="$(echo "$romfiles" | grep -i "%20%28Japan%29" | head -n 1)"
+    filteredJapan2Romscount="$(echo "$romfiles" | grep -i "%20%28Japan%29" | head -n 1 | wc -l)"
     filteredOtherRoms="$(echo "$romfiles" | head -n 1)"
     filteredOtherRomscount="$(echo "$romfiles" | head -n 1 | wc -l)"
     filteredOtherRomsDecoded="$(UrlDecode "$filteredOtherRoms")"
@@ -209,21 +225,36 @@ do
         fileName="$(basename "$filteredUsa3Roms")"
         fileName="$(UrlDecode "$fileName")"
         romUrl="$filteredUsa3Roms"
-    elif [ $filteredEuropRomscount -eq 1 ]; then
+    elif [ $filteredEuropeRomscount -eq 1 ]; then
         log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: EUROPE ROM FOUND"
-        fileName="$(basename "$filteredEuropRoms")"
+        fileName="$(basename "$filteredEuropeRoms")"
         fileName="$(UrlDecode "$fileName")"
-        romUrl="$filteredEuropRoms"        
+        romUrl="$filteredEuropeRoms"
+    elif [ $filteredEurope2Romscount -eq 1 ]; then
+        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: EUROPE ROM FOUND"
+        fileName="$(basename "$filteredEurope2Roms")"
+        fileName="$(UrlDecode "$fileName")"
+        romUrl="$filteredEurope2Roms"
     elif [ $filteredWorldRomscount -eq 1 ]; then
         log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: WORLD ROM FOUND"
         fileName="$(basename "$filteredWorldRoms")"
         fileName="$(UrlDecode "$fileName")"
-        romUrl="$filteredWorldRoms"        
+        romUrl="$filteredWorldRoms"
+    elif [ $filteredWorld2Romscount -eq 1 ]; then
+        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: WORLD ROM FOUND"
+        fileName="$(basename "$filteredWorld2Roms")"
+        fileName="$(UrlDecode "$fileName")"
+        romUrl="$filteredWorld2Roms"
     elif [ $filteredJapanRomscount -eq 1 ]; then
         log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: JAPAN ROM FOUND"
         fileName="$(basename "$filteredJapanRoms")"
         fileName="$(UrlDecode "$fileName")"
-        romUrl="$filteredJapanRoms"        
+        romUrl="$filteredJapanRoms"
+    elif [ $filteredJapan2Romscount -eq 1 ]; then
+        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: JAPAN ROM FOUND"
+        fileName="$(basename "$filteredJapan2Roms")"
+        fileName="$(UrlDecode "$fileName")"
+        romUrl="$filteredJapan2Roms"       
     elif [ $filteredOtherRomscount -eq 1 ]; then
         log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: OTHER ROM FOUND"
         fileName="$(basename "$filteredOtherRoms")"
@@ -234,6 +265,7 @@ do
         continue
     fi
 
+    # download file
     if [ ! -f "${outputdir}${subFolder}${fileName}" ]; then
         log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: ${fileName} :: ROM downloading to \"${outputdir}${subFolder}\"..."
         #wget "$romUrl" -O "${outputdir}${subFolder}${fileName}"
@@ -242,8 +274,13 @@ do
         log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: ${fileName} :: ROM previously downloaded..." 
     fi
 
+    # verify download
     if [ -f "${outputdir}${subFolder}${fileName}" ]; then
         DownloadFileVerification "${outputdir}${subFolder}${fileName}"
+    fi
+
+    # set permisions
+    if [ -f "${outputdir}${subFolder}${fileName}" ]; then
         log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: ${fileName} ::  Setting Permissions to 666"
         chmod 666 "${outputdir}${subFolder}${fileName}"
     fi
