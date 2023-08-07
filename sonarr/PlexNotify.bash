@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.1"
+scriptVersion="1.2"
 notfidedBy="Sonarr"
 arrRootFolderPath="$(dirname "$sonarr_series_path")"
 arrFolderPath="$sonarr_series_path"
@@ -79,7 +79,7 @@ else
 	plexKeys=($(echo "$plexLibraries" | xq ".MediaContainer.Directory" | jq -r '."@key"'))
 fi
 
-if echo "$plexLibraryData" | grep "\"@path\": \"$arrRootFolderPath" | read; then
+if echo "$plexLibraryData" | grep "path" | grep "$arrRootFolderPath" | read; then
 	sleep 0.01
 else
 	log "$notfidedBy :: ERROR: No Plex Library found containing path \"$arrRootFolderPath\""
