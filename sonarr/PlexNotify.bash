@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.2"
+scriptVersion="1.3"
 notfidedBy="Sonarr"
 arrRootFolderPath="$(dirname "$sonarr_series_path")"
 arrFolderPath="$sonarr_series_path"
@@ -90,7 +90,7 @@ fi
 for key in ${!plexKeys[@]}; do
 	plexKey="${plexKeys[$key]}"
 	plexKeyData="$(echo "$plexLibraryData" | jq -r "select(.\"@key\"==\"$plexKey\")")"
-	if echo "$plexKeyData" | grep "\"@path\": \"$arrRootFolderPath" | read; then
+	if echo "$plexKeyData" | grep "path" | grep "$arrRootFolderPath" | read; then
 		plexFolderEncoded="$(jq -R -r @uri <<<"$arrFolderPath")"
 		curl -s "$plexUrl/library/sections/$plexKey/refresh?path=$plexFolderEncoded&X-Plex-Token=$plexToken"
 		log  "$notfidedBy :: Plex Scan notification sent! ($arrFolderPath)"
