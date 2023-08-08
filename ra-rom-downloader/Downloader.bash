@@ -218,6 +218,47 @@ PlatformJaguar () {
   compressRom="false"
 }
 
+PlatformGameBoy () {
+  platformName="Game Boy"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Game%20Boy/"
+  platformFolder="gb"
+  consoleRomFileExt=".gb, .zip, .7z"
+  raConsoleId="4"
+  uncompressRom="false"
+  compressRom="false"
+}
+
+PlatformGameBoyColor () {
+  platformName="Game Boy Color"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Game%20Boy%20Color/"
+  platformFolder="gbc"
+  consoleRomFileExt=".gbc, .zip, .7z"
+  raConsoleId="6"
+  uncompressRom="false"
+  compressRom="false"
+}
+
+PlatformGameBoyAdvance () {
+  platformName="Game Boy Advance"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Game%20Boy%20Advance/"
+  platformFolder="gba"
+  consoleRomFileExt=".gba, .zip, .7z"
+  raConsoleId="5"
+  uncompressRom="false"
+  compressRom="false"
+}
+
+PlatformGameGear () {
+  platformName="Game Gear"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Game%20Gear/"
+  platformFolder="gamegear"
+  consoleRomFileExt=".bin, .gg, .zip, .7z"
+  raConsoleId="15"
+  uncompressRom="false"
+  compressRom="false"
+}
+
+
 platformsToProcessNumber=0
 IFS=',' read -r -a filters <<< "$platforms"
 for platform in "${filters[@]}"
@@ -230,7 +271,6 @@ IFS=',' read -r -a filters <<< "$platforms"
 for platform in "${filters[@]}"
 do
   processNumber=$(( $processNumber + 1 ))
-  log "$processNumber/$platformToProcessNumber :: $platform"
   if [ $platform == "snes" ]; then
     PlatformSnes
   elif [ $platform == "megadrive" ]; then
@@ -257,11 +297,20 @@ do
     PlatformAtarilynx
   elif [ $platform == "jaguar" ]; then
     PlatformJaguar
+  elif [ $platform == "gb" ]; then
+    PlatformGameBoy
+  elif [ $platform == "gbc" ]; then
+    PlatformGameBoyColor
+  elif [ $platform == "gba" ]; then
+    PlatformGameBoyAdvance
+  elif [ $platform == "gamegear" ]; then
+    PlatformGameGear
   else
     log "ERROR :: No Platforms Selected, exiting..."
     exit
   fi
 
+  log "$processNumber/$platformToProcessNumber :: $platformName :: Starting..."
   log "$processNumber/$platformToProcessNumber :: $platformName :: Finding ROMS..."
   CreatePlatformRomList "$platformArchiveContentsUrl"
   outputdir="$romPath/$platformFolder"
