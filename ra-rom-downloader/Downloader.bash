@@ -44,7 +44,7 @@ DownloadFile () {
   axel -n $3 --output="$2" "$1" | awk -W interactive '$0~/\[/{printf "%s'$'\r''", $0}'
   #wget -q --show-progress --progress=bar:force 2>&1 "$1" -O "$2"
   if [ ! -f "$2" ]; then
-    log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: ${fileName} :: Download Failed"
+    log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: ${fileName} :: Download Failed ($1)"
   fi
 }
 
@@ -77,6 +77,70 @@ DownloadFileVerification () {
   fi
 }
 
+PlatformSelection () {
+  if [ $platform == "snes" ]; then
+    PlatformSnes
+  elif [ $platform == "megadrive" ]; then
+    PlatformMegadrive
+  elif [ $platform == "n64" ]; then
+    PlatformN64
+  elif [ $platform == "megaduck" ]; then
+    PlatformMegaduck
+  elif [ $platform == "pokemini" ]; then
+    PlatformPokemini
+  elif [ $platform == "virtualboy" ]; then
+    PlatformVirtualboy
+  elif [ $platform == "nes" ]; then
+    PlatformNes
+  elif [ $platform == "arduboy" ]; then
+    PlatformArduboy
+  elif [ $platform == "sega32x" ]; then
+    PlatformSega32x
+  elif [ $platform == "mastersystem" ]; then
+    PlatformMastersystem
+  elif [ $platform == "sg1000" ]; then
+    PlatformSg1000
+  elif [ $platform == "atarilynx" ]; then
+    PlatformAtarilynx
+  elif [ $platform == "jaguar" ]; then
+    PlatformJaguar
+  elif [ $platform == "gb" ]; then
+    PlatformGameBoy
+  elif [ $platform == "gbc" ]; then
+    PlatformGameBoyColor
+  elif [ $platform == "gba" ]; then
+    PlatformGameBoyAdvance
+  elif [ $platform == "gamegear" ]; then
+    PlatformGameGear
+  elif [ $platform == "atari2600" ]; then
+    PlatformAtari2600
+  elif [ $platform == "atari7800" ]; then
+    PlatformAtari7800
+  elif [ $platform == "nds" ]; then
+    PlatformNintendoDS
+  elif [ $platform == "colecovision" ]; then
+    PlatformColecoVision
+  elif [ $platform == "intellivision" ]; then
+    PlatformIntellivision
+  else
+    log "ERROR :: No Platforms Selected, exiting..."
+    exit
+  fi
+}
+
+DownloadRomCountSummary () {
+  log "Summarizing ROM counts..."
+  romCount=$(find "$romPath" -type f | wc -l)
+  platformCount=$(find "/$romPath" -maxdepth 1 -mindepth 1 -type d | wc -l)
+  log "$romCount ROMS downloaded on $platformCount different platforms!!!"
+  log "Platform breakdown:"
+  for romfolder in $(find "/$romPath" -maxdepth 1 -mindepth 1 -type d); do
+    platform="$(basename "$romfolder")"
+    PlatformSelection
+    romCount=$(find "$romPath/$platformFolder" -type f | wc -l)
+    log "$platformName - $romCount"
+  done
+}
 #### Platforms
 PlatformSnes () {
   platformName="Super Nintentdo"
@@ -278,6 +342,45 @@ PlatformAtari7800 () {
   compressRom="false"
 }
 
+PlatformNintendoDS () {
+  platformName="Nintendo DS"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Nintendo%20DS/"
+  downloadExtension="zip"
+  platformFolder="nds"
+  consoleRomFileExt=".nds, .bin, .zip, .7z"
+  raConsoleId="18"
+  uncompressRom="false"
+  compressRom="false"
+}
+
+PlatformColecoVision () {
+  platformName="ColecoVision"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/ColecoVision/"
+  downloadExtension="zip"
+  platformFolder="colecovision"
+  consoleRomFileExt=".bin, .col, .rom, .zip, .7z"
+  raConsoleId="44"
+  uncompressRom="false"
+  compressRom="false"
+}
+
+PlatformIntellivision () {
+  platformName="Intellivision"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Intellivision/"
+  downloadExtension="zip"
+  platformFolder="intellivision"
+  consoleRomFileExt=".int, .bin, .rom, .zip, .7z"
+  raConsoleId="45"
+  uncompressRom="false"
+  compressRom="false"
+}
+
+
+
+DownloadRomCountSummary
+log "######################################"
+log "Processing platforms..."
+
 platformsToProcessNumber=0
 IFS=',' read -r -a filters <<< "$platforms"
 for platform in "${filters[@]}"
@@ -290,48 +393,7 @@ IFS=',' read -r -a filters <<< "$platforms"
 for platform in "${filters[@]}"
 do
   processNumber=$(( $processNumber + 1 ))
-  if [ $platform == "snes" ]; then
-    PlatformSnes
-  elif [ $platform == "megadrive" ]; then
-    PlatformMegadrive
-  elif [ $platform == "n64" ]; then
-    PlatformN64
-  elif [ $platform == "megaduck" ]; then
-    PlatformMegaduck
-  elif [ $platform == "pokemini" ]; then
-    PlatformPokemini
-  elif [ $platform == "virtualboy" ]; then
-    PlatformVirtualboy
-  elif [ $platform == "nes" ]; then
-    PlatformNes
-  elif [ $platform == "arduboy" ]; then
-    PlatformArduboy
-  elif [ $platform == "sega32x" ]; then
-    PlatformSega32x
-  elif [ $platform == "mastersystem" ]; then
-    PlatformMastersystem
-  elif [ $platform == "sg1000" ]; then
-    PlatformSg1000
-  elif [ $platform == "atarilynx" ]; then
-    PlatformAtarilynx
-  elif [ $platform == "jaguar" ]; then
-    PlatformJaguar
-  elif [ $platform == "gb" ]; then
-    PlatformGameBoy
-  elif [ $platform == "gbc" ]; then
-    PlatformGameBoyColor
-  elif [ $platform == "gba" ]; then
-    PlatformGameBoyAdvance
-  elif [ $platform == "gamegear" ]; then
-    PlatformGameGear
-  elif [ $platform == "atari2600" ]; then
-    PlatformAtari2600
-  elif [ $platform == "atari7800" ]; then
-    PlatformAtari7800
-  else
-    log "ERROR :: No Platforms Selected, exiting..."
-    exit
-  fi
+  PlatformSelection
 
   log "$processNumber/$platformToProcessNumber :: $platformName :: Starting..."
   log "$processNumber/$platformToProcessNumber :: $platformName :: Finding ROMS..."
@@ -346,10 +408,12 @@ do
 
     romProcessNumber=$(( $romProcessNumber + 1 ))
     archiveContentsUrl="$rom/"
+    #echo "$rom"
     archiveUrl="$(wget -qO- "$archiveContentsUrl" | grep -i ".zip" |  grep -io '<a href=['"'"'"][^"'"'"']*['"'"'"]' |   sed -e 's/^<a href=["'"'"']//i' -e 's/["'"'"']$//i' | sed 's/\///g' | sort -u | sed "s|^|$archiveContentsUrl|")"
     echo "$archiveUrl" >> /config/romfilelist
     romfiles="$(cat /config/romfilelist | awk '{ print length, $0 }' | sort -n | cut -d" " -f2-)"
-
+    #echo $romfiles
+    
     # debugging
     #echo "original list: "
     #cat romfilelist
@@ -373,7 +437,7 @@ do
     filteredUsa3Romscount="$(echo "$romfiles" | grep -i "%20%28UE%29" | head -n 1 | wc -l)"
     filteredEuropeRoms="$(echo "$romfiles" | grep -i "%20%28E%29" | head -n 1)"
     filteredEuropeRomscount="$(echo "$romfiles" | grep -i "%20%28E%29" | head -n 1 | wc -l)"
-    filteredEurope2Roms="$(echo "$romfiles" | grep -i "%20%28E%29" | head -n 1)"
+    filteredEurope2Roms="$(echo "$romfiles" | grep -i "%20%28Europe%29" | head -n 1)"
     filteredEurope2Romscount="$(echo "$romfiles" | grep -i "%20%28Europe%29" | head -n 1 | wc -l)"
     filteredWorldRoms="$(echo "$romfiles" | grep -i "%20%28W%29" | head -n 1)"
     filteredWorldRomscount="$(echo "$romfiles" | grep -i "%20%28W%29" | head -n 1 | wc -l)"
@@ -404,58 +468,63 @@ do
     log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: Searching Archive URL ROM Folder"
 
     if [ $filteredUsaRomscount -eq 1 ]; then
-        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: USA (U) ROM FOUND"
         fileName="$(basename "$filteredUsaRoms")"
         fileName="$(UrlDecode "$fileName")"
         romUrl="$filteredUsaRoms"
+        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: USA (U) ROM FOUND ($fileName)"
     elif [ $filteredUsa2Romscount -eq 1 ]; then
-        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: USA (USA) ROM FOUND"
         fileName="$(basename "$filteredUsa2Roms")"
         fileName="$(UrlDecode "$fileName")"
         romUrl="$filteredUsa2Roms"
+        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: USA (USA) ROM FOUND ($fileName)"
     elif [ $filteredUsa3Romscount -eq 1 ]; then
-        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: USA (USA) ROM FOUND"
         fileName="$(basename "$filteredUsa3Roms")"
         fileName="$(UrlDecode "$fileName")"
         romUrl="$filteredUsa3Roms"
+        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: USA (USA) ROM FOUND ($fileName)"
     elif [ $filteredEuropeRomscount -eq 1 ]; then
-        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: EUROPE ROM FOUND"
         fileName="$(basename "$filteredEuropeRoms")"
         fileName="$(UrlDecode "$fileName")"
         romUrl="$filteredEuropeRoms"
+        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: EUROPE ROM FOUND ($fileName)"
     elif [ $filteredEurope2Romscount -eq 1 ]; then
-        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: EUROPE ROM FOUND"
         fileName="$(basename "$filteredEurope2Roms")"
         fileName="$(UrlDecode "$fileName")"
         romUrl="$filteredEurope2Roms"
+        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: EUROPE ROM FOUND ($fileName)"
     elif [ $filteredWorldRomscount -eq 1 ]; then
-        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: WORLD ROM FOUND"
         fileName="$(basename "$filteredWorldRoms")"
         fileName="$(UrlDecode "$fileName")"
         romUrl="$filteredWorldRoms"
+        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: WORLD ROM FOUND ($fileName)"
     elif [ $filteredWorld2Romscount -eq 1 ]; then
-        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: WORLD ROM FOUND"
         fileName="$(basename "$filteredWorld2Roms")"
         fileName="$(UrlDecode "$fileName")"
         romUrl="$filteredWorld2Roms"
+        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: WORLD ROM FOUND ($fileName)"
     elif [ $filteredJapanRomscount -eq 1 ]; then
-        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: JAPAN ROM FOUND"
         fileName="$(basename "$filteredJapanRoms")"
         fileName="$(UrlDecode "$fileName")"
         romUrl="$filteredJapanRoms"
+        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: JAPAN ROM FOUND ($fileName)"
     elif [ $filteredJapan2Romscount -eq 1 ]; then
-        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: JAPAN ROM FOUND"
         fileName="$(basename "$filteredJapan2Roms")"
         fileName="$(UrlDecode "$fileName")"
-        romUrl="$filteredJapan2Roms"       
+        romUrl="$filteredJapan2Roms"
+        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: JAPAN ROM FOUND ($fileName)"
     elif [ $filteredOtherRomscount -eq 1 ]; then
-        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: OTHER ROM FOUND"
         fileName="$(basename "$filteredOtherRoms")"
         fileName="$(UrlDecode "$fileName")"
         romUrl="$filteredOtherRoms"
+        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: OTHER ROM FOUND ($fileName)"
     else
         log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: ERROR :: No Filtered Roms Found..."
         continue
+    fi
+
+    # verify download
+    if [ -f "${outputdir}${subFolder}${fileName}" ]; then
+        DownloadFileVerification "${outputdir}${subFolder}${fileName}"
     fi
 
     # download file
@@ -463,13 +532,13 @@ do
         log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: ${fileName} :: ROM downloading to \"${outputdir}${subFolder}\"..."
         #wget "$romUrl" -O "${outputdir}${subFolder}${fileName}"
         DownloadFile "$romUrl" "${outputdir}${subFolder}${fileName}" "$concurrentConnectionCount"
+
+        # verify download
+      if [ -f "${outputdir}${subFolder}${fileName}" ]; then
+          DownloadFileVerification "${outputdir}${subFolder}${fileName}"
+      fi
     else
         log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: ${fileName} :: ROM previously downloaded..." 
-    fi
-
-    # verify download
-    if [ -f "${outputdir}${subFolder}${fileName}" ]; then
-        DownloadFileVerification "${outputdir}${subFolder}${fileName}"
     fi
 
     # set permisions
@@ -485,5 +554,7 @@ do
   downloadedRomCount=$(find "$outputdir" -type f | wc -l)
   log "$processNumber/$platformToProcessNumber :: $platformName :: $downloadedRomCount ROMS Successfully Downloaded!!"
 done
+
+DownloadRomCountSummary
 
 exit
