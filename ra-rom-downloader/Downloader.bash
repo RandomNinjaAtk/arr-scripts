@@ -133,14 +133,21 @@ DownloadRomCountSummary () {
   romCount=$(find "$romPath" -type f | wc -l)
   platformCount=$(find "/$romPath" -maxdepth 1 -mindepth 1 -type d | wc -l)
   log "$romCount ROMS downloaded on $platformCount different platforms!!!"
-  log "Platform breakdown:"
+  log "Platform breakdown...."
+  echo "Platform;Total;Released;Hack/Homebrew/Proto/Unlicensed" > temp
   for romfolder in $(find "/$romPath" -maxdepth 1 -mindepth 1 -type d); do
     platform="$(basename "$romfolder")"
     PlatformSelection
     romCount=$(find "$romPath/$platformFolder" -type f | wc -l)
-    log "$platformName - $romCount"
+    romSubCount=$(find "$romPath/$platformFolder" -mindepth 2 -type f | wc -l)
+    romMainCount=$(( $romCount - $romSubCount ))
+    echo "$platformName;$romCount;$romMainCount;$romSubCount" >> temp
   done
+  data=$(cat temp | column -s";" -t)
+  echo "$data"
+  rm temp
 }
+
 #### Platforms
 PlatformSnes () {
   platformName="Super Nintentdo"
