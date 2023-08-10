@@ -258,6 +258,25 @@ PlatformGameGear () {
   compressRom="false"
 }
 
+PlatformAtari2600 () {
+  platformName="Atari 2600"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Atari%202600/"
+  platformFolder="atari2600"
+  consoleRomFileExt=".a26, .bin, .zip, .7z"
+  raConsoleId="25"
+  uncompressRom="false"
+  compressRom="false"
+}
+
+PlatformAtari7800 () {
+  platformName="Atari 7800"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Atari%207800/"
+  platformFolder="atari7800"
+  consoleRomFileExt=".a78, .bin, .zip, .7z"
+  raConsoleId="51"
+  uncompressRom="false"
+  compressRom="false"
+}
 
 platformsToProcessNumber=0
 IFS=',' read -r -a filters <<< "$platforms"
@@ -305,6 +324,10 @@ do
     PlatformGameBoyAdvance
   elif [ $platform == "gamegear" ]; then
     PlatformGameGear
+  elif [ $platform == "atari2600" ]; then
+    PlatformAtari2600
+  elif [ $platform == "atari7800" ]; then
+    PlatformAtari7800
   else
     log "ERROR :: No Platforms Selected, exiting..."
     exit
