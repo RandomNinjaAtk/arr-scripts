@@ -523,10 +523,17 @@ do
         fileName="$(basename "$filteredOtherRoms")"
         fileName="$(UrlDecode "$fileName")"
         romUrl="$filteredOtherRoms"
-        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: OTHER ROM FOUND ($fileName)"
+        if [ ! -z "$fileName" ]; then
+          log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: OTHER ROM FOUND ($fileName)"
+        fi
     else
         log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: ERROR :: No Filtered Roms Found..."
         continue
+    fi
+
+    if [ -z "$fileName" ]; then
+      log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: ERROR :: No Filtered Roms Found ($archiveContentsUrl)..."
+      continue
     fi
 
     # verify download
