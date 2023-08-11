@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.8"
+scriptVersion="1.9"
 ytdlpExtraOpts="--user-agent facebookexternalhit/1.1"
 scriptName="YoutubeSeriesDownloader"
 
@@ -113,10 +113,8 @@ YoutubeSeriesDownloaderProcess () {
 	        log "$loopCount/$sonarrSeriesTotal :: $currentLoopIteration/$seriesEpisodeTvdbIdsCount :: $seriesTitle :: S${episodeSeasonNumber}E${episodeNumber} :: Downloading via yt-dlp ($videoFormat)..."
 	        if [ ! -z "$cookiesFile" ]; then
 	            yt-dlp -f "$videoFormat" --no-video-multistreams --cookies "$cookiesFile" -o "$downloadLocation/$fileName" --write-sub --sub-lang $videoLanguages --embed-subs --merge-output-format mkv --no-mtime --geo-bypass $ytdlpExtraOpts "$downloadUrl"  2>&1 | tee -a /config/logs/$scriptName.txt
-			fi
 	        else
 	            yt-dlp -f "$videoFormat" --no-video-multistreams -o "$downloadLocation/$fileName" --write-sub --sub-lang $videoLanguages --embed-subs --merge-output-format mkv --no-mtime --geo-bypass $ytdlpExtraOpts "$downloadUrl"  2>&1 | tee -a /config/logs/$scriptName.txt
-			fi
 	        fi
 	
 	        if python3 /usr/local/sma/manual.py --config "/config/extended/sma.ini" -i "$downloadLocation/$fileName.mkv" -nt; then
