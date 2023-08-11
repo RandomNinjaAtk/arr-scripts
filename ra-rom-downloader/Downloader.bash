@@ -138,6 +138,8 @@ PlatformSelection () {
     PlatformO2em
   elif [ $platform == "arcadia" ]; then
     PlatformArcadia
+  elif [ $platform == "supervision" ]; then
+    PlatformSupervision
   else
     log "ERROR :: No Platforms Selected, exiting..."
     exit
@@ -168,6 +170,26 @@ DownloadRomCountSummary () {
 }
 
 #### Platforms
+PlatformSupervision () {
+  platformName="WonWatara Supervision"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Watara%20Supervision/"
+  platformFolder="supervision"
+  consoleRomFileExt=".sv, .zip, .7z"
+  raConsoleId="63"
+  uncompressRom="false"
+  compressRom="false"
+}
+
+PlatformWonderSwan () {
+  platformName="WonderSwan"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/WonderSwan/"
+  platformFolder="wswan"
+  consoleRomFileExt=".ws, .zip, .7z"
+  raConsoleId="53"
+  uncompressRom="false"
+  compressRom="false"
+}
+
 PlatformApple2 () {
   platformName="Apple II"
   platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Apple%20II/"
