@@ -35,6 +35,8 @@ CreatePlatformRomList () {
   fi
   archiveUrl="$(wget -qO- "$1" | grep -io '<a href=['"'"'"][^"'"'"']*['"'"'"]' |   sed -e 's/^<a href=["'"'"']//i' -e 's/["'"'"']$//i' | sed 's/\///g' | sort -u | sed "s|^|$1|")"
   echo "$archiveUrl" | grep -v "\.\." | sort >> /config/romlist
+  sed -i '/#maincontent/d' /config/romlist
+  sed -i '/blog.archive.org/d' /config/romlist
 }
 
 DownloadFile () {
@@ -80,6 +82,8 @@ DownloadFileVerification () {
 PlatformSelection () {
   if [ $platform == "snes" ]; then
     PlatformSnes
+  elif [ $platform == "apple2" ]; then
+    PlatformApple2
   elif [ $platform == "megadrive" ]; then
     PlatformMegadrive
   elif [ $platform == "n64" ]; then
@@ -122,6 +126,18 @@ PlatformSelection () {
     PlatformColecoVision
   elif [ $platform == "intellivision" ]; then
     PlatformIntellivision
+  elif [ $platform == "ngp" ]; then
+    PlatformNeoGeoPocket
+  elif [ $platform == "ndsi" ]; then
+    PlatformNintendoDSi
+  elif [ $platform == "wasm4" ]; then
+    PlatformNintendoWASM-4
+  elif [ $platform == "channelf" ]; then
+    PlatformNintendoChannelF
+  elif [ $platform == "o2em" ]; then
+    PlatformO2em
+  elif [ $platform == "arcadia" ]; then
+    PlatformArcadia
   else
     log "ERROR :: No Platforms Selected, exiting..."
     exit
@@ -134,21 +150,54 @@ DownloadRomCountSummary () {
   platformCount=$(find "/$romPath" -maxdepth 1 -mindepth 1 -type d | wc -l)
   log "$romCount ROMS downloaded on $platformCount different platforms!!!"
   log "Platform breakdown...."
-  echo "Platform;Total;Released;Hack/Homebrew/Proto/Unlicensed" > temp
+  echo "Platforms ($platformCount):;Total:;Released:;Hack/Homebrew/Proto/Unlicensed:" > temp
   for romfolder in $(find "/$romPath" -maxdepth 1 -mindepth 1 -type d); do
     platform="$(basename "$romfolder")"
     PlatformSelection
-    romCount=$(find "$romPath/$platformFolder" -type f | wc -l)
-    romSubCount=$(find "$romPath/$platformFolder" -mindepth 2 -type f | wc -l)
-    romMainCount=$(( $romCount - $romSubCount ))
-    echo "$platformName;$romCount;$romMainCount;$romSubCount" >> temp
+    platformRomCount=$(find "$romPath/$platformFolder" -type f | wc -l)
+    platformRomSubCount=$(find "$romPath/$platformFolder" -mindepth 2 -type f | wc -l)
+    platformMainRomCount=$(( $platformRomCount - $platformRomSubCount ))
+    echo "$platformName;$platformRomCount;$platformMainRomCount;$platformRomSubCount" >> temp
   done
+  platformRomSubCount=$(find "$romPath" -mindepth 3 -type f | wc -l)
+  platformMainRomCount=$(( $romCount - $platformRomSubCount ))
+  echo "Totals:;$romCount;$platformMainRomCount;$platformRomSubCount" >> temp
   data=$(cat temp | column -s";" -t)
   echo "$data"
   rm temp
 }
 
 #### Platforms
+PlatformApple2 () {
+  platformName="Apple II"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Apple%20II/"
+  platformFolder="apple2"
+  consoleRomFileExt=".nib, .do, .po, .dsk, .mfi, .dfi, .rti, .edd, .woz, .wav, .zip, .7z"
+  raConsoleId="38"
+  uncompressRom="false"
+  compressRom="false"
+}
+
+PlatformArcadia () {
+  platformName="Arcadia 2001"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Arcadia%202001/"
+  platformFolder="arcadia"
+  consoleRomFileExt=".bin, .zip, .7z"
+  raConsoleId="73"
+  uncompressRom="false"
+  compressRom="false"
+}
+
+PlatformO2em () {
+  platformName="Magnavox Odyssey 2"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Magnavox%20Odyssey%202/"
+  platformFolder="o2em"
+  consoleRomFileExt=".bin, .zip, .7z"
+  raConsoleId="23"
+  uncompressRom="false"
+  compressRom="false"
+}
+
 PlatformSnes () {
   platformName="Super Nintentdo"
   platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_SNES/SNES/"
@@ -360,6 +409,17 @@ PlatformNintendoDS () {
   compressRom="false"
 }
 
+PlatformNintendoDSi () {
+  platformName="Nintendo DSi"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Nintendo%20DSi/"
+  downloadExtension="zip"
+  platformFolder="ndsi"
+  consoleRomFileExt=".nds, .bin, .zip, .7z"
+  raConsoleId="78"
+  uncompressRom="false"
+  compressRom="false"
+}
+
 PlatformColecoVision () {
   platformName="ColecoVision"
   platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/ColecoVision/"
@@ -382,7 +442,38 @@ PlatformIntellivision () {
   compressRom="false"
 }
 
+PlatformNeoGeoPocket () {
+  platformName="Neo Geo Pocket"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Neo%20Geo%20Pocket/"
+  downloadExtension="zip"
+  platformFolder="ngp"
+  consoleRomFileExt=".ngp, .zip, .7z"
+  raConsoleId="14"
+  uncompressRom="false"
+  compressRom="false"
+}
 
+PlatformNintendoWASM-4 () {
+  platformName="WASM-4"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/WASM-4/"
+  downloadExtension="zip"
+  platformFolder="wasm4"
+  consoleRomFileExt=".wasm"
+  raConsoleId="72"
+  uncompressRom="false"
+  compressRom="false"
+}
+
+PlatformNintendoChannelF () {
+  platformName="Fairchild Channel F"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Fairchild%20Channel%20F/"
+  downloadExtension="zip"
+  platformFolder="channelf"
+  consoleRomFileExt=".zip, .rom, .bin, .chf"
+  raConsoleId="57"
+  uncompressRom="false"
+  compressRom="false"
+}
 
 DownloadRomCountSummary
 log "######################################"
@@ -417,7 +508,7 @@ do
     archiveContentsUrl="$rom/"
     #echo "$rom"
     archiveUrl="$(wget -qO- "$archiveContentsUrl" | grep -i ".zip" |  grep -io '<a href=['"'"'"][^"'"'"']*['"'"'"]' |   sed -e 's/^<a href=["'"'"']//i' -e 's/["'"'"']$//i' | sed 's/\///g' | sort -u | sed "s|^|$archiveContentsUrl|")"
-    echo "$archiveUrl" >> /config/romfilelist
+    echo "$archiveUrl" > /config/romfilelist
     romfiles="$(cat /config/romfilelist | awk '{ print length, $0 }' | sort -n | cut -d" " -f2-)"
     #echo $romfiles
     
@@ -526,9 +617,6 @@ do
         if [ ! -z "$fileName" ]; then
           log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: OTHER ROM FOUND ($fileName)"
         fi
-    else
-        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: ERROR :: No Filtered Roms Found..."
-        continue
     fi
 
     if [ -z "$fileName" ]; then
