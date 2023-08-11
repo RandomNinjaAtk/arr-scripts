@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.8"
+scriptVersion="1.9"
 arrEventType="$sonarr_eventtype"
 arrItemId=$sonarr_series_id
 tmdbApiKey="3b7751e3179f796565d88fdb2fcdf426"
@@ -150,7 +150,7 @@ DownloadExtras () {
                 continue
             fi
 
-            if python3 /config/extended/sma/manual.py --config "/config/extended/sma.ini" -i "$finalPath/$finalFileName.mkv" -nt &>/dev/null; then
+            if python3 /config/extended/sma/manual.py --config "/config/extended/sma.ini" -i "$finalPath/$finalFileName.mkv" -nt; then
                 log "$itemTitle :: $i of $tmdbVideosListDataIdsCount :: $tmdbExtraType :: $tmdbExtraTitle :: Processed with SMA..."
                 rm  /config/extended/sma/config/*log*
             else
