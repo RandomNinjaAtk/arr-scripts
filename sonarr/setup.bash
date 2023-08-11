@@ -23,7 +23,7 @@ echo "************ setup SMA ************"
 echo "************ setup directory ************"
 mkdir -p /config/extended/sma
 echo "************ download repo ************"
-git clone https://github.com/mdhiggins/sickbeard_mp4_automator.git /config/scripts/sma
+git clone https://github.com/mdhiggins/sickbeard_mp4_automator.git /config/extended/sma
 mkdir -p /config/extended/sma/config
 echo "************ create logging file ************"
 mkdir -p /config/extended/sma/config
