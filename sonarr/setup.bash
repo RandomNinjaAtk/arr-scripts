@@ -21,6 +21,9 @@ pip install --upgrade --no-cache-dir -U \
 	yq
 echo "************ setup SMA ************"
 echo "************ setup directory ************"
+if [ -d /config/extended/sma ]; then
+	rm -rf /config/extended/sma
+fi
 mkdir -p /config/extended/sma
 echo "************ download repo ************"
 git clone https://github.com/mdhiggins/sickbeard_mp4_automator.git /config/extended/sma
