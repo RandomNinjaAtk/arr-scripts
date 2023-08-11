@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # This script is for dev purposes
-scriptVersion="1.0"
+scriptVersion="1.1"
 scriptName="RA-ROM-Downloader"
 
 #### Import Settings
@@ -80,66 +80,70 @@ DownloadFileVerification () {
 }
 
 PlatformSelection () {
-  if [ $platform == "snes" ]; then
+  if [ "$platform" == "snes" ]; then
     PlatformSnes
-  elif [ $platform == "apple2" ]; then
+  elif [ "$platform" == "apple2" ]; then
     PlatformApple2
-  elif [ $platform == "megadrive" ]; then
+  elif [ "$platform" == "megadrive" ]; then
     PlatformMegadrive
-  elif [ $platform == "n64" ]; then
+  elif [ "$platform" == "n64" ]; then
     PlatformN64
-  elif [ $platform == "megaduck" ]; then
+  elif [ "$platform" == "megaduck" ]; then
     PlatformMegaduck
-  elif [ $platform == "pokemini" ]; then
+  elif [ "$platform" == "pokemini" ]; then
     PlatformPokemini
-  elif [ $platform == "virtualboy" ]; then
+  elif [ "$platform" == "virtualboy" ]; then
     PlatformVirtualboy
-  elif [ $platform == "nes" ]; then
+  elif [ "$platform" == "nes" ]; then
     PlatformNes
-  elif [ $platform == "arduboy" ]; then
+  elif [ "$platform" == "arduboy" ]; then
     PlatformArduboy
-  elif [ $platform == "sega32x" ]; then
+  elif [ "$platform" == "sega32x" ]; then
     PlatformSega32x
-  elif [ $platform == "mastersystem" ]; then
+  elif [ "$platform" == "mastersystem" ]; then
     PlatformMastersystem
-  elif [ $platform == "sg1000" ]; then
+  elif [ "$platform" == "sg1000" ]; then
     PlatformSg1000
-  elif [ $platform == "atarilynx" ]; then
+  elif [ "$platform" == "atarilynx" ]; then
     PlatformAtarilynx
-  elif [ $platform == "jaguar" ]; then
+  elif [ "$platform" == "jaguar" ]; then
     PlatformJaguar
-  elif [ $platform == "gb" ]; then
+  elif [ "$platform" == "gb" ]; then
     PlatformGameBoy
-  elif [ $platform == "gbc" ]; then
+  elif [ "$platform" == "gbc" ]; then
     PlatformGameBoyColor
-  elif [ $platform == "gba" ]; then
+  elif [ "$platform" == "gba" ]; then
     PlatformGameBoyAdvance
-  elif [ $platform == "gamegear" ]; then
+  elif [ "$platform" == "gamegear" ]; then
     PlatformGameGear
-  elif [ $platform == "atari2600" ]; then
+  elif [ "$platform" == "atari2600" ]; then
     PlatformAtari2600
-  elif [ $platform == "atari7800" ]; then
+  elif [ "$platform" == "atari7800" ]; then
     PlatformAtari7800
-  elif [ $platform == "nds" ]; then
+  elif [ "$platform" == "nds" ]; then
     PlatformNintendoDS
-  elif [ $platform == "colecovision" ]; then
+  elif [ "$platform" == "colecovision" ]; then
     PlatformColecoVision
-  elif [ $platform == "intellivision" ]; then
+  elif [ "$platform" == "intellivision" ]; then
     PlatformIntellivision
-  elif [ $platform == "ngp" ]; then
+  elif [ "$platform" == "ngp" ]; then
     PlatformNeoGeoPocket
-  elif [ $platform == "ndsi" ]; then
+  elif [ "$platform" == "ndsi" ]; then
     PlatformNintendoDSi
-  elif [ $platform == "wasm4" ]; then
+  elif [ "$platform" == "wasm4" ]; then
     PlatformNintendoWASM-4
-  elif [ $platform == "channelf" ]; then
+  elif [ "$platform" == "channelf" ]; then
     PlatformNintendoChannelF
-  elif [ $platform == "o2em" ]; then
+  elif [ "$platform" == "o2em" ]; then
     PlatformO2em
-  elif [ $platform == "arcadia" ]; then
+  elif [ "$platform" == "arcadia" ]; then
     PlatformArcadia
-  elif [ $platform == "supervision" ]; then
+  elif [ "$platform" == "supervision" ]; then
     PlatformSupervision
+  elif [ "$platform" == "wswan" ]; then
+    PlatformWonderSwan
+  elif [ "$platform" == "vectrex" ]; then
+    PlatformVectrex
   else
     log "ERROR :: No Platforms Selected, exiting..."
     exit
@@ -152,26 +156,35 @@ DownloadRomCountSummary () {
   platformCount=$(find "/$romPath" -maxdepth 1 -mindepth 1 -type d | wc -l)
   log "$romCount ROMS downloaded on $platformCount different platforms!!!"
   log "Platform breakdown...."
-  echo "Platforms ($platformCount):;Total:;Released:;Hack/Homebrew/Proto/Unlicensed:" > temp
+  echo "Platforms ($platformCount):;Total:;Released:;Hack/Homebrew/Proto/Unlicensed:" > /config/temp
   for romfolder in $(find "/$romPath" -maxdepth 1 -mindepth 1 -type d); do
     platform="$(basename "$romfolder")"
     PlatformSelection
     platformRomCount=$(find "$romPath/$platformFolder" -type f | wc -l)
     platformRomSubCount=$(find "$romPath/$platformFolder" -mindepth 2 -type f | wc -l)
     platformMainRomCount=$(( $platformRomCount - $platformRomSubCount ))
-    echo "$platformName;$platformRomCount;$platformMainRomCount;$platformRomSubCount" >> temp
+    echo "$platformName;$platformRomCount;$platformMainRomCount;$platformRomSubCount" >> /config/temp
   done
   platformRomSubCount=$(find "$romPath" -mindepth 3 -type f | wc -l)
   platformMainRomCount=$(( $romCount - $platformRomSubCount ))
-  echo "Totals:;$romCount;$platformMainRomCount;$platformRomSubCount" >> temp
-  data=$(cat temp | column -s";" -t)
+  echo "Totals:;$romCount;$platformMainRomCount;$platformRomSubCount" >> /config/temp
+  data=$(cat /config/temp | column -s";" -t)
   echo "$data"
-  rm temp
 }
 
 #### Platforms
+PlatformVectrex () {
+  platformName="Vectrex"
+  platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Vectrex/"
+  platformFolder="vectrex"
+  consoleRomFileExt=".bin, .gam, .vec, .zip, .7z"
+  raConsoleId="46"
+  uncompressRom="false"
+  compressRom="false"
+}
+
 PlatformSupervision () {
-  platformName="WonWatara Supervision"
+  platformName="Watara Supervision"
   platformArchiveContentsUrl="https://archive.org/download/retroachievements_collection_v5/Watara%20Supervision/"
   platformFolder="supervision"
   consoleRomFileExt=".sv, .zip, .7z"
@@ -500,7 +513,7 @@ PlatformNintendoChannelF () {
 DownloadRomCountSummary
 log "######################################"
 log "Processing platforms..."
-
+platform=""
 platformsToProcessNumber=0
 IFS=',' read -r -a filters <<< "$platforms"
 for platform in "${filters[@]}"
@@ -508,13 +521,13 @@ do
   platformToProcessNumber=$(( $platformToProcessNumber + 1 ))
 done
 
+platform=""
 processNumber=0
 IFS=',' read -r -a filters <<< "$platforms"
 for platform in "${filters[@]}"
 do
   processNumber=$(( $processNumber + 1 ))
   PlatformSelection
-
   log "$processNumber/$platformToProcessNumber :: $platformName :: Starting..."
   log "$processNumber/$platformToProcessNumber :: $platformName :: Finding ROMS..."
   CreatePlatformRomList "$platformArchiveContentsUrl"
