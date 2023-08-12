@@ -10,6 +10,9 @@ assignees: ''
 **Application**
 Radarr or Sonarr or Lidarr or SABnzbd
 
+**Host platform**
+Unraid/synology and etc... If using PORTAINER, do not open an issue, that is your problem....
+
 **Script**
 Please identify which script your having a problem with...
 
