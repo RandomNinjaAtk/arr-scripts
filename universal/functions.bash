@@ -52,3 +52,19 @@ verifyApiAccess () {
     fi
   done
 }
+
+ConfValidationCheck () {
+  logfileSetup
+  if [ ! -f "/config/extended.conf" ]; then
+    log "ERROR :: \"extended.conf\" file is missing..."
+    log "ERROR :: Download the extended.conf config file and place it into \"/config\" folder..."
+    log "ERROR :: Exiting..."
+    exit
+  fi
+  if [ -z "$enableAutoConfig" ]; then
+    log "ERROR :: \"extended.conf\" file is unreadable..."
+    log "ERROR :: Likely caused by editing with a non unix/linux compatible editor, to fix, replace the file with a valid one or correct the line endings..."
+    log "ERROR :: Exiting..."
+    exit
+  fi
+}
