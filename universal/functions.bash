@@ -54,7 +54,6 @@ verifyApiAccess () {
 }
 
 ConfValidationCheck () {
-  logfileSetup
   if [ ! -f "/config/extended.conf" ]; then
     log "ERROR :: \"extended.conf\" file is missing..."
     log "ERROR :: Download the extended.conf config file and place it into \"/config\" folder..."
@@ -68,3 +67,6 @@ ConfValidationCheck () {
     exit
   fi
 }
+
+logfileSetup
+ConfValidationCheck
