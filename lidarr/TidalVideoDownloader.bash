@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-scriptVersion="1.3"
+#!/usr/bin/with-contenv bash
+scriptVersion="1.4"
 scriptName="TidalVideoDownloader"
 
 #### Import Settings
@@ -333,7 +333,7 @@ VideoProcess () {
 			downloadFailed=false
 			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Downloading..."
 			TidaldlStatusCheck
-			tidal-dl -q HiFi -o "$videoDownloadPath/incomplete" -l "$videoUrl" 2>&1 | tee -a /config/logs/$scriptName.txt
+			tidal-dl -r P1080 -o "$videoDownloadPath/incomplete" -l "$videoUrl" 2>&1 | tee -a /config/logs/$scriptName.txt
 			find "$videoDownloadPath/incomplete" -type f -exec mv "{}" "$videoDownloadPath/incomplete"/ \;
 			find "$videoDownloadPath/incomplete" -mindepth 1 -type d -exec rm -rf "{}" \; &>/dev/null
 			find "$videoDownloadPath/incomplete" -type f -regex ".*/.*\.\(mkv\|mp4\)"  -print0 | while IFS= read -r -d '' video; do
