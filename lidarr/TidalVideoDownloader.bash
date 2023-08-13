@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.2"
+scriptVersion="1.3"
 scriptName="TidalVideoDownloader"
 
 #### Import Settings
@@ -43,6 +43,13 @@ verifyConfig () {
 
 TidalClientSetup () {
 	log "TIDAL :: Verifying tidal-dl configuration"
+	if [ ! -f /config/xdg/.tidal-dl.json ]; then
+		log "TIDAL :: No default config found, importing default config \"tidal.json\""
+		if [ -f /config/extended/tidal-dl.json ]; then
+			cp /config/extended/tidal-dl.json /config/xdg/.tidal-dl.json
+			chmod 777 -R /config/xdg/
+		fi
+	fi
 	
 	tidal-dl -o "$videoDownloadPath"/incomplete 2>&1 | tee -a /config/logs/$scriptName.txt
 	tidalQuality=HiFi
@@ -52,7 +59,7 @@ TidalClientSetup () {
 		#pip3 install tidal-dl==2022.3.4.2 --no-cache-dir &>/dev/null
 		log "TIDAL :: ERROR :: Loading client for required authentication, please authenticate, then exit the client..."
 		NotifyWebhook "FatalError" "TIDAL requires authentication, please authenticate now (check logs)"
-		tidal-dl
+		tidal-dl 2>&1 | tee -a /config/logs/$scriptName.txt
 	fi
 	
 	if [ ! -d "$videoDownloadPath/incomplete" ]; then
@@ -87,7 +94,7 @@ TidalClientTest () {
 	while [ $i -lt 3 ]; do
 		i=$(( $i + 1 ))
   		TidaldlStatusCheck
-		tidal-dl -q Normal -o "$videoDownloadPath"/incomplete -l "$tidalClientTestDownloadId" 2>&1 | tee -a /config/logs/$scriptName.txt
+		tidal-dl -q Normal -o "$videoDownloadPath"/incomplete -l "$tidalClientTestDownloadId" 2>&1 | tee -a /config/logs/$scriptName.txt 
 		downloadCount=$(find "$videoDownloadPath"/incomplete -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | wc -l)
 		if [ $downloadCount -le 0 ]; then
 			continue
@@ -323,8 +330,10 @@ VideoProcess () {
 				mkdir -p "$videoDownloadPath/incomplete"
 			fi
 
+			downloadFailed=false
 			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Downloading..."
-			tidal-dl -q HiFi -o "$videoDownloadPath/incomplete" -l "$videoUrl"
+			TidaldlStatusCheck
+			tidal-dl -q HiFi -o "$videoDownloadPath/incomplete" -l "$videoUrl" 2>&1 | tee -a /config/logs/$scriptName.txt
 			find "$videoDownloadPath/incomplete" -type f -exec mv "{}" "$videoDownloadPath/incomplete"/ \;
 			find "$videoDownloadPath/incomplete" -mindepth 1 -type d -exec rm -rf "{}" \; &>/dev/null
 			find "$videoDownloadPath/incomplete" -type f -regex ".*/.*\.\(mkv\|mp4\)"  -print0 | while IFS= read -r -d '' video; do
@@ -337,10 +346,13 @@ VideoProcess () {
 			
 
 				if [ -f "$videoDownloadPath/$filename" ]; then
+					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Download Complete!"
 					chmod 666 "$videoDownloadPath/$filename"
 					downloadFailed=false
 				else
-					continue 2
+					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: ERROR :: Download failed!"
+					downloadFailed=true
+					break
 				fi
 
 				if [ "$videoDownloadPath/incomplete" ]; then
@@ -372,7 +384,7 @@ VideoProcess () {
 						-metadata ALBUMARTIST="$lidarrArtistName" \
 						-metadata ENCODED_BY="lidarr-extended" \
 						-attach "$videoDownloadPath/poster.jpg" -metadata:s:t mimetype=image/jpeg \
-						"$videoDownloadPath/$videoFileName"
+						"$videoDownloadPath/$videoFileName"  2>&1 | tee -a /config/logs/$scriptName.txt
 					chmod 666 "$videoDownloadPath/$videoFileName"
 				fi
 				if [ -f "$videoDownloadPath/$videoFileName" ]; then
@@ -381,6 +393,11 @@ VideoProcess () {
 					fi
 				fi
 			done
+
+			if [ "$downloadFailed" == "true" ]; then
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Skipping due to failed download..."
+				continue
+			fi
 
 			downloadedFileSize=$(stat -c "%s" "$videoDownloadPath/$videoFileName")
 
@@ -487,7 +504,7 @@ for (( ; ; )); do
 	verifyApiAccess
 	TidalClientSetup
 	AddFeaturedVideoArtists
-	VideoProcess
+	VideoProcess 
 	log "Script sleeping for $videoScriptInterval..."
 	sleep $videoScriptInterval
 done
