@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.5"
+scriptVersion="1.6"
 scriptName="TidalVideoDownloader"
 
 #### Import Settings
@@ -259,28 +259,28 @@ VideoProcess () {
 			videoArtists="$(echo "$videoData" | jq -r ".artists[]")"
 			videoArtistsIds="$(echo "$videoArtists" | jq -r ".id")"
 			videoType=""
-			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Processing..."
+			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Processing..."
 
 			if echo "$videoTitle" | grep -i "official" | grep -i "video" | read; then
-				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Official Music Video Match Found!"
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Official Music Video Match Found!"
 				videoType="-video"
 			elif echo "$videoTitle" | grep -i "official" | grep -i "lyric" | read; then
-				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Official Lyric Video Match Found!"
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Official Lyric Video Match Found!"
 				videoType="-lyrics"
 			elif echo "$videoTitle" | grep -i "video" | grep -i "lyric" | read; then
-				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Official Lyric Video Match Found!"
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Official Lyric Video Match Found!"
 				videoType="-lyrics"
 			elif echo "$videoTitle" | grep -i "4k upgrade" | read; then
-				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: 4K Upgrade Found!"
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: 4K Upgrade Found!"
 				videoType="-video" 
 			elif echo "$videoTitle" | grep -i "\(.*live.*\)" | read; then
-				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Live Video Found!"
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Live Video Found!"
 				videoType="-live"
 			elif echo $lidarrArtistTrackData | grep -i "$videoTitle" | read; then
-				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Music Video Track Name Match Found!"
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Music Video Track Name Match Found!"
 				videoType="-video" 
 			else
-				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: ERROR :: Unable to match!"
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: ERROR :: Unable to match!"
 				continue
 			fi
 
@@ -297,13 +297,13 @@ VideoProcess () {
 				existingFileSize=$(stat -c "%s" "$existingFile")
 			fi
 
-			if [ -f /config/extended/logs/tidal-video/$id ]; then
-				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Previously Downloaded" 
+			if [ -f "/config/extended/logs/tidal-video/$id" ]; then
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Previously Downloaded" 
 				if [ -f "$existingFile" ]; then
-					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Previously Downloaded, skipping..."
+					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Previously Downloaded, skipping..."
 					continue
 				else
-					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Previously Downloaded file missing, re-downloading..."
+					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Previously Downloaded file missing, re-downloading..."
 				fi
 			fi
 
@@ -331,7 +331,7 @@ VideoProcess () {
 			fi
 
 			downloadFailed=false
-			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Downloading..."
+			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Downloading..."
 			tidal-dl -r P1080 -o "$videoDownloadPath/incomplete" -l "$videoUrl" 2>&1 | tee -a /config/logs/$scriptName.txt
 			find "$videoDownloadPath/incomplete" -type f -exec mv "{}" "$videoDownloadPath/incomplete"/ \;
 			find "$videoDownloadPath/incomplete" -mindepth 1 -type d -exec rm -rf "{}" \; &>/dev/null
@@ -345,11 +345,11 @@ VideoProcess () {
 			
 
 				if [ -f "$videoDownloadPath/$filename" ]; then
-					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Download Complete!"
+					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Download Complete!"
 					chmod 666 "$videoDownloadPath/$filename"
 					downloadFailed=false
 				else
-					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: ERROR :: Download failed!"
+					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: ERROR :: Download failed!"
 					downloadFailed=true
 					break
 				fi
@@ -360,17 +360,17 @@ VideoProcess () {
 
 				if python3 /usr/local/sma/manual.py --config "/config/extended/sma.ini" -i "$videoDownloadPath/$filename" -nt; then
 					sleep 0.01
-					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Processed with SMA..."
+					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Processed with SMA..."
 					rm  /usr/local/sma/config/*log*
 				else
-					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: ERROR: SMA Processing Error"
+					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: ERROR: SMA Processing Error"
 					rm "$videoDownloadPath/$filename"
-					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: INFO: deleted: $filename"
+					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: INFO: deleted: $filename"
 				fi
 
 				if [ -f "$videoDownloadPath/${filenamenoext}.mkv" ]; then
 					curl -s "$videoThumbnailUrl" -o "$videoDownloadPath/poster.jpg"
-					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Tagging file"
+					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Tagging file"
 					ffmpeg -y \
 						-i "$videoDownloadPath/${filenamenoext}.mkv" \
 						-c copy \
@@ -394,30 +394,34 @@ VideoProcess () {
 			done
 
 			if [ "$downloadFailed" == "true" ]; then
-				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Skipping due to failed download..."
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Skipping due to failed download..."
 				continue
 			fi
 
 			downloadedFileSize=$(stat -c "%s" "$videoDownloadPath/$videoFileName")
 
 			if [ -f "$existingFile" ]; then
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Logging completed download $id to: /config/extended/logs/tidal-video/$id"
+				touch /config/extended/logs/tidal-video/$id
+				chmod 666 "/config/extended/logs/tidal-video/$id"
 				if [ $downloadedFileSize -lt $existingFileSize ]; then
-					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Downloaded file is smaller than existing file ($downloadedFileSize -lt $existingFileSize), skipping..."
+					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Downloaded file is smaller than existing file ($downloadedFileSize -lt $existingFileSize), skipping..."
 					rm -rf "$videoDownloadPath"/*
 					continue
 				fi
 				if [ $downloadedFileSize == $existingFileSize ]; then 
-					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Existing File is the same size as the download ($downloadedFileSize = $existingFileSize), skipping..."
+					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Existing File is the same size as the download ($downloadedFileSize = $existingFileSize), skipping..."
 					rm -rf "$videoDownloadPath"/*
 					continue
 				fi
 				if [ $downloadedFileSize -gt $existingFileSize  ]; then
-					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Downloaded File is bigger than existing file ($downloadedFileSize -gt $existingFileSize), removing existing file to import the new file..."
+					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Downloaded File is bigger than existing file ($downloadedFileSize -gt $existingFileSize), removing existing file to import the new file..."
 					rm "$existingFile"
+
 				fi
 			fi
 
-			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Writing NFO"
+			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Writing NFO"
 			nfo="$videoDownloadPath/${videoTitleClean}${videoType}.nfo"
 			if [ -f "$nfo" ]; then
 				rm "$nfo"
@@ -454,31 +458,31 @@ VideoProcess () {
 
 
 			if [ -f "$videoDownloadPath/$videoFileName" ]; then
-				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Moving Download to final destination"
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Moving Download to final destination"
 				if [ ! -d "$videoPath/$lidarrArtistFolderNoDisambig" ]; then
-					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Creating Destination Directory \"$videoPath/$lidarrArtistFolderNoDisambig\""
+					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Creating Destination Directory \"$videoPath/$lidarrArtistFolderNoDisambig\""
 					mkdir -p "$videoPath/$lidarrArtistFolderNoDisambig"
 					chmod 777 "$videoPath/$lidarrArtistFolderNoDisambig"
 				fi
 				mv "$videoDownloadPath/$videoFileName" "$videoPath/$lidarrArtistFolderNoDisambig/${videoFileName}"
-				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Setting permissions"
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Setting permissions"
 				chmod 666 "$videoPath/$lidarrArtistFolderNoDisambig/${videoFileName}"
 				if [ -f "$nfo" ]; then
 					if [ -f "$existingFileNfo" ]; then
-						log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Deleting existing video nfo"
+						log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Deleting existing video nfo"
 						rm "$existingFileNfo"
 					fi
-					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Moving video nfo to final destination"
+					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Moving video nfo to final destination"
 					mv "$nfo" "$videoPath/$lidarrArtistFolderNoDisambig/${videoTitleClean}${videoType}.nfo"
 					chmod 666 "$videoPath/$lidarrArtistFolderNoDisambig/${videoTitleClean}${videoType}.nfo"
 				fi
 
 				if [ -f "$videoDownloadPath/poster.jpg" ]; then
 					if [ -f "$existingFileJpg" ]; then
-						log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Deleting existing video jpg"
+						log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Deleting existing video jpg"
 						rm "$existingFileJpg"
 					fi
-					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Moving video poster to final destination"
+					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Moving video poster to final destination"
 					mv "$videoDownloadPath/poster.jpg" "$videoPath/$lidarrArtistFolderNoDisambig/${videoTitleClean}${videoType}.jpg"
 					chmod 666 "$videoPath/$lidarrArtistFolderNoDisambig/${videoTitleClean}${videoType}.jpg"
 				fi
@@ -488,7 +492,7 @@ VideoProcess () {
 				mkdir -p /config/extended/logs/tidal-video 
 				chmod 777 /config/extended/logs/tidal-video 
 			fi
-			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Logging completed download $id to: /config/extended/logs/tidal-video/$id"
+			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Logging completed download $id to: /config/extended/logs/tidal-video/$id"
 			touch /config/extended/logs/tidal-video/$id
 			chmod 666 "/config/extended/logs/tidal-video/$id"
 		done
