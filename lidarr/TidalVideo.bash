@@ -89,8 +89,74 @@ TidalClientTest () {
 	fi
 }
 
-TidalClientSetup
+AddFeaturedVideoArtists () {
+    if [ "$addFeaturedVideoArtists" != "true" ]; then
+        log "-----------------------------------------------------------------------------"
+        log "Add Featured Music Video Artists to Lidarr :: DISABLED"    
+        log "-----------------------------------------------------------------------------"
+        return
+    fi
+    log "-----------------------------------------------------------------------------"
+    log "Add Featured Music Video Artists to Lidarr :: ENABLED"    
+    log "-----------------------------------------------------------------------------"
+    lidarrArtistsData="$(curl -s "$arrUrl/api/v1/artist?apikey=${arrApiKey}" | jq -r ".[]")"
+    artistTidalUrl=$(echo $lidarrArtistsData | jq -r '.links[] | select(.name=="tidal") | .url')
+    videoArtists=$(ls /config/extended/cache/tidal-videos/)
+    videoArtistsCount=$(ls /config/extended/cache/tidal-videos/ | wc -l)
+    if [ "$videoArtistsCount" == "0" ]; then
+        log "$videoArtistsCount Artists found for processing, skipping..."
+        return
+    fi
+    loopCount=0
+    for slug in $(echo $videoArtists); do
+        loopCount=$(( $loopCount + 1))
+        artistName="$(cat /config/extended/cache/tidal-videos/$slug)"
+        if echo "$artistTidalUrl" | grep -i "tidal.com/artist/${slug}$" | read; then
+            log "$loopCount of $videoArtistsCount :: $artistName :: Already added to Lidarr, skipping..."
+            continue
+        fi
+        log "$loopCount of $videoArtistsCount :: $artistName :: Processing url :: https://tidal.com/artist/${slug}"
 
+		artistNameEncoded="$(jq -R -r @uri <<<"$artistName")"
+		lidarrArtistSearchData="$(curl -s "$arrUrl/api/v1/search?term=${artistNameEncoded}&apikey=${arrApiKey}")"
+		lidarrArtistMatchedData=$(echo $lidarrArtistSearchData | jq -r ".[] | select(.artist) | select(.artist.links[].url | contains (\"tidal.com/artist/${slug}\"))" 2>/dev/null)
+							
+		if [ ! -z "$lidarrArtistMatchedData" ]; then
+	        data="$lidarrArtistMatchedData"		
+			artistName="$(echo "$data" | jq -r ".artist.artistName")"
+			foreignId="$(echo "$data" | jq -r ".foreignId")"
+        else
+            log "$loopCount of $videoArtistsCount :: $artistName :: ERROR : Musicbrainz ID Not Found, skipping..."
+            continue
+        fi
+		data=$(curl -s "$arrUrl/api/v1/rootFolder" -H "X-Api-Key: $arrApiKey" | jq -r ".[]")
+		path="$(echo "$data" | jq -r ".path")"
+		qualityProfileId="$(echo "$data" | jq -r ".defaultQualityProfileId")"
+		metadataProfileId="$(echo "$data" | jq -r ".defaultMetadataProfileId")"
+		data="{
+			\"artistName\": \"$artistName\",
+			\"foreignArtistId\": \"$foreignId\",
+			\"qualityProfileId\": $qualityProfileId,
+			\"metadataProfileId\": $metadataProfileId,
+			\"monitored\":true,
+			\"monitor\":\"all\",
+			\"rootFolderPath\": \"$path\",
+			\"addOptions\":{\"searchForMissingAlbums\":false}
+			}"
+
+		if echo "$lidarrArtistIds" | grep "^${foreignId}$" | read; then
+			log "$loopCount of $videoArtistsCount :: $artistName :: Already in Lidarr ($foreignId), skipping..."
+			continue
+		fi
+		log "$loopCount of $videoArtistsCount :: $artistName :: Adding $artistName to Lidarr ($foreignId)..."
+		LidarrTaskStatusCheck
+		lidarrAddArtist=$(curl -s "$arrUrl/api/v1/artist" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw "$data")
+    done
+
+}
+
+TidalClientSetup
+AddFeaturedVideoArtists
 
 lidarrArtists=$(wget --timeout=0 -q -O - "$arrUrl/api/v1/artist?apikey=$arrApiKey" | jq -r .[])
 lidarrArtistIds=$(echo $lidarrArtists | jq -r .id)
@@ -145,11 +211,43 @@ for lidarrArtistId in $(echo $lidarrArtistIds); do
 		videoSource="tidal"
 		videoArtists="$(echo "$videoData" | jq -r ".artists[]")"
 		videoArtistsIds="$(echo "$videoArtists" | jq -r ".id")"
+		videoFileName="${videoTitleClean}${videoType}.mkv"
+		existingFileSize=""
+		existingFile=""
+		if [ -d "$videoPath/$lidarrArtistFolderNoDisambig" ]; then 
+			existingFile="$(find "$videoPath/$lidarrArtistFolderNoDisambig" -type f -iname "${videoFileName}")"
+			existingFileNfo="$(find "$videoPath/$lidarrArtistFolderNoDisambig" -type f -iname "${videoTitleClean}${videoType}.nfo")"
+			existingFileJpg="$(find "$videoPath/$lidarrArtistFolderNoDisambig" -type f -iname "${videoTitleClean}${videoType}.jpg")"
+		fi
+		if [ -f "$existingFile" ]; then
+			existingFileSize=$(stat -c "%s" "$existingFile")
+		fi
+
+		if [ -f /config/extended/logs/tidal-video/$id ]; then
+			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Previously Downloaded" 
+			if [ -f "$existingFile" ]; then
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Previously Downloaded, skipping..."
+				continue
+			else
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Previously Downloaded file missing, re-downloading..."
+			fi
+		fi
+
+		if [ ! -d "/config/extended/cache/tidal-videos" ]; then
+			mkdir -p "/config/extended/cache/tidal-videos"
+			chmod 777 "/config/extended/cache/tidal-videos"
+		fi
+		if [ ! -f "/config/extended/cache/tidal-videos/$tidalArtistIds" ]; then
+			echo  -n "$lidarrArtistName" > "/config/extended/cache/tidal-videos/$tidalArtistIds"
+		fi
 
 		for videoArtistId in $(echo "$videoArtistsIds"); do
 			videoArtistData=$(echo "$videoArtists" | jq -r "select(.id==$videoArtistId)")
 			videoArtistName=$(echo "$videoArtistData" | jq -r .name)
 			videoArtistType=$(echo "$videoArtistData" | jq -r .type)
+			if [ ! -f "/config/extended/cache/tidal-videos/$videoArtistId" ]; then
+				echo  -n "$videoArtistName" > "/config/extended/cache/tidal-videos/$videoArtistId"
+			fi
 		done
 		log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle"
 
@@ -175,15 +273,6 @@ for lidarrArtistId in $(echo $lidarrArtistIds); do
             log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: ERROR :: Unable to match!"
             continue
         fi
-
-		videoFileName="${videoTitleClean}${videoType}.mkv"
-
-		if [ -f "$videoPath/$lidarrArtistFolderNoDisambig/${videoFileName}" ]; then
-			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Already Downloaded, skipping..."
-			continue
-		fi
-
-
 
 		if [ ! -d "$videoDownloadPath/incomplete" ]; then
 			mkdir -p "$videoDownloadPath/incomplete"
@@ -240,9 +329,6 @@ for lidarrArtistId in $(echo $lidarrArtistIds); do
 					-attach "$videoDownloadPath/poster.jpg" -metadata:s:t mimetype=image/jpeg \
 					"$videoDownloadPath/$videoFileName"
 				chmod 666 "$videoDownloadPath/$videoFileName"
-				if [ -f "$videoDownloadPath/poster.jpg" ]; then
-					rm "$videoDownloadPath/poster.jpg"
-				fi
 			fi
 			if [ -f "$videoDownloadPath/$videoFileName" ]; then
 				if [ -f "$videoDownloadPath/${filenamenoext}.mkv" ]; then
@@ -251,10 +337,99 @@ for lidarrArtistId in $(echo $lidarrArtistIds); do
 			fi
 		done
 
-		if [ -f "$videoDownloadPath/$videoFileName" ]; then
-			mv "$videoDownloadPath/$videoFileName" "$videoPath/$lidarrArtistFolderNoDisambig/${videoFileName}"
-			chmod 666 "$videoPath/$lidarrArtistFolderNoDisambig/${videoFileName}"
+		downloadedFileSize=$(stat -c "%s" "$videoDownloadPath/$videoFileName")
+
+		if [ -f "$existingFile" ]; then
+			if [ $downloadedFileSize -lt $existingFileSize ]; then
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Downloaded file is smaller than existing file ($downloadedFileSize -lt $existingFileSize), skipping..."
+				rm -rf "$videoDownloadPath"/*
+				continue
+			fi
+			if [ $downloadedFileSize == $existingFileSize ]; then 
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Existing File is the same size as the download ($downloadedFileSize = $existingFileSize), skipping..."
+				rm -rf "$videoDownloadPath"/*
+				continue
+			fi
+			if [ $downloadedFileSize -gt $existingFileSize  ]; then
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Downloaded File is bigger than existing file ($downloadedFileSize -gt $existingFileSize), removing existing file to import the new file..."
+				rm "$existingFile"
+			fi
 		fi
+
+		log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Writing NFO"
+		nfo="$videoDownloadPath/${videoTitleClean}${videoType}.nfo"
+		if [ -f "$nfo" ]; then
+			rm "$nfo"
+		fi
+		echo "<musicvideo>" >> "$nfo"
+		echo "	<title>${videoTitle}</title>" >> "$nfo"
+		echo "	<userrating/>" >> "$nfo"
+		echo "	<track/>" >> "$nfo"
+		echo "	<studio/>" >> "$nfo"
+		if [ ! -z "$artistGenres" ]; then
+			for genre in ${!artistGenres[@]}; do
+				artistGenre="${artistGenres[$genre]}"
+				echo "	<genre>$artistGenre</genre>" >> "$nfo"
+			done
+		fi
+		echo "	<premiered/>" >> "$nfo"
+		echo "	<year>$videoYear</year>" >> "$nfo"
+		for videoArtistId in $(echo "$videoArtistsIds"); do
+			videoArtistData=$(echo "$videoArtists" | jq -r "select(.id==$videoArtistId)")
+			videoArtistName=$(echo "$videoArtistData" | jq -r .name)
+			videoArtistType=$(echo "$videoArtistData" | jq -r .type)
+			echo "	<artist>$videoArtistName</artist>" >> "$nfo"
+		done
+		echo "	<albumArtistCredits>" >> "$nfo"
+		echo "		<artist>$lidarrArtistName</artist>" >> "$nfo"
+		echo "		<musicBrainzArtistID>$lidarrArtistMusicbrainzId</musicBrainzArtistID>" >> "$nfo"
+		echo "	</albumArtistCredits>" >> "$nfo"
+		echo "	<thumb>${videoTitleClean}${videoType}.jpg</thumb>" >> "$nfo"
+		echo "	<source>tidal</source>" >> "$nfo"
+		echo "</musicvideo>" >> "$nfo"
+		tidy -w 2000 -i -m -xml "$nfo" &>/dev/null
+		chmod 666 "$nfo"
+
+
+
+		if [ -f "$videoDownloadPath/$videoFileName" ]; then
+			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Moving Download to final destination"
+			if [ ! -d "$videoPath/$lidarrArtistFolderNoDisambig" ]; then
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Creating Destination Directory \"$videoPath/$lidarrArtistFolderNoDisambig\""
+				mkdir -p "$videoPath/$lidarrArtistFolderNoDisambig"
+				chmod 777 "$videoPath/$lidarrArtistFolderNoDisambig"
+			fi
+			mv "$videoDownloadPath/$videoFileName" "$videoPath/$lidarrArtistFolderNoDisambig/${videoFileName}"
+			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Setting permissions"
+			chmod 666 "$videoPath/$lidarrArtistFolderNoDisambig/${videoFileName}"
+			if [ -f "$nfo" ]; then
+				if [ -f "$existingFileNfo" ]; then
+					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Deleting existing video nfo"
+					rm "$existingFileNfo"
+				fi
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Moving video nfo to final destination"
+				mv "$nfo" "$videoPath/$lidarrArtistFolderNoDisambig/${videoTitleClean}${videoType}.nfo"
+				chmod 666 "$videoPath/$lidarrArtistFolderNoDisambig/${videoTitleClean}${videoType}.nfo"
+			fi
+
+			if [ -f "$videoDownloadPath/poster.jpg" ]; then
+				if [ -f "$existingFileJpg" ]; then
+					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Deleting existing video jpg"
+					rm "$existingFileJpg"
+				fi
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Moving video poster to final destination"
+				mv "$videoDownloadPath/poster.jpg" "$videoPath/$lidarrArtistFolderNoDisambig/${videoTitleClean}${videoType}.jpg"
+				chmod 666 "$videoPath/$lidarrArtistFolderNoDisambig/${videoTitleClean}${videoType}.jpg"
+			fi
+		fi
+
+		if [ ! -d /config/extended/logs/tidal-video ]; then
+			mkdir -p /config/extended/logs/tidal-video 
+			chmod 777 /config/extended/logs/tidal-video 
+		fi
+		log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Logging completed download $id to: /config/extended/logs/tidal-video/$id"
+		touch /config/extended/logs/tidal-video/$id
+		chmod 666 "/config/extended/logs/tidal-video/$id"
 	done
 done
 exit
