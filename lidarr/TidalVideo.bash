@@ -191,7 +191,7 @@ for lidarrArtistId in $(echo $lidarrArtistIds); do
     log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: Getting Tidal Video Data..."
     tidalVideosData=$(curl -s "https://api.tidal.com/v1/artists/${tidalArtistIds}/videos?countryCode=${tidalCountryCode}&offset=0&limit=100" -H "x-tidal-token: CzET4vdadNUFQ5JU" | jq -r ".items | sort_by(.explicit) | reverse | .[]")
     tidalVideoIds=$(echo $tidalVideosData | jq -r .id)
-    tidalVideoIdsCount=$(echo "$tidalVideosData" | wc -l)
+    tidalVideoIdsCount=$(echo "$tidalVideoIds" | wc -l)
     tidalVideoProcessNumber=0
 	
     for id in $(echo "$tidalVideoIds"); do
@@ -211,9 +211,36 @@ for lidarrArtistId in $(echo $lidarrArtistIds); do
 		videoSource="tidal"
 		videoArtists="$(echo "$videoData" | jq -r ".artists[]")"
 		videoArtistsIds="$(echo "$videoArtists" | jq -r ".id")"
+		videoType=""
+		log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Processing..."
+
+		if echo "$videoTitle" | grep -i "official" | grep -i "video" | read; then
+            log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Official Music Video Match Found!"
+			videoType="-video"
+        elif echo "$videoTitle" | grep -i "official" | grep -i "lyric" | read; then
+            log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Official Lyric Video Match Found!"
+			videoType="-lyrics"
+        elif echo "$videoTitle" | grep -i "video" | grep -i "lyric" | read; then
+            log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Official Lyric Video Match Found!"
+			videoType="-lyrics"
+        elif echo "$videoTitle" | grep -i "4k upgrade" | read; then
+            log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: 4K Upgrade Found!"
+			videoType="-video" 
+        elif echo "$videoTitle" | grep -i "\(.*live.*\)" | read; then
+            log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Live Video Found!"
+			videoType="-live"
+        elif echo $lidarrArtistTrackData | grep -i "$videoTitle" | read; then
+            log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Music Video Track Name Match Found!"
+			videoType="-video" 
+        else
+            log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: ERROR :: Unable to match!"
+            continue
+        fi
+
 		videoFileName="${videoTitleClean}${videoType}.mkv"
 		existingFileSize=""
 		existingFile=""
+
 		if [ -d "$videoPath/$lidarrArtistFolderNoDisambig" ]; then 
 			existingFile="$(find "$videoPath/$lidarrArtistFolderNoDisambig" -type f -iname "${videoFileName}")"
 			existingFileNfo="$(find "$videoPath/$lidarrArtistFolderNoDisambig" -type f -iname "${videoTitleClean}${videoType}.nfo")"
@@ -249,30 +276,8 @@ for lidarrArtistId in $(echo $lidarrArtistIds); do
 				echo  -n "$videoArtistName" > "/config/extended/cache/tidal-videos/$videoArtistId"
 			fi
 		done
-		log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle"
 
-        if echo "$videoTitle" | grep -i "official" | grep -i "video" | read; then
-            log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Official Music Video Match Found!"
-			videoType="-video"
-        elif echo "$videoTitle" | grep -i "official" | grep -i "lyric" | read; then
-            log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Official Lyric Video Match Found!"
-			videoType="-lyrics"
-        elif echo "$videoTitle" | grep -i "video" | grep -i "lyric" | read; then
-            log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Official Lyric Video Match Found!"
-			videoType="-lyrics"
-        elif echo "$videoTitle" | grep -i "4k upgrade" | read; then
-            log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: 4K Upgrade Found!"
-			videoType="-video" 
-        elif echo "$videoTitle" | grep -i "\(.*live.*\)" | read; then
-            log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Live Video Found!"
-			videoType="-live"
-        elif echo $lidarrArtistTrackData | grep -i "$videoTitle" | read; then
-            log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Music Video Track Name Match Found!"
-			videoType="-video" 
-        else
-            log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: ERROR :: Unable to match!"
-            continue
-        fi
+        
 
 		if [ ! -d "$videoDownloadPath/incomplete" ]; then
 			mkdir -p "$videoDownloadPath/incomplete"
