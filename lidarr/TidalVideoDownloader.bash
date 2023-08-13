@@ -31,6 +31,13 @@ verifyConfig () {
 		log "Sleeping (infinity)"
 		sleep infinity
 	fi
+
+  
+	if [ "$dlClientSource" != "tidal" ] || [ "$dlClientSource" != "both" ]; then
+ 		log "ERROR: Tidal is not enabled, set dlClientSource setting to either \"both\" or \"tidal\"..."
+ 		log "Sleeping (infinity)"
+		sleep infinity
+	fi
 }
 
 TidalClientSetup () {
