@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.0"
+scriptVersion="1.1"
 scriptName="Tidal Video Downloader"
 
 #### Import Settings
@@ -31,10 +31,11 @@ verifyConfig () {
 		log "Sleeping (infinity)"
 		sleep infinity
 	fi
-
   
-	if [ "$dlClientSource" != "tidal" ] || [ "$dlClientSource" != "both" ]; then
- 		log "ERROR: Tidal is not enabled, set dlClientSource setting to either \"both\" or \"tidal\"..."
+	if [ "$dlClientSource" == "tidal" ] || [ "$dlClientSource" == "both" ]; then
+ 		sleep 0.01
+	else
+		log "ERROR: Tidal is not enabled, set dlClientSource setting to either \"both\" or \"tidal\"..."
  		log "Sleeping (infinity)"
 		sleep infinity
 	fi
