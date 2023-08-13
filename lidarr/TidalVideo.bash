@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Experimental
-scriptVersion="1.0"
+scriptVersion="1.1"
 scriptName="TidalVideo"
 
 #### Import Settings
@@ -109,7 +109,6 @@ for lidarrArtistId in $(echo $lidarrArtistIds); do
 	IFS=$'\n'
 	artistGenres=($(echo $lidarrArtistData | jq -r ".genres[]"))
 	IFS="$OLDIFS"
-
     if [ ! -z "$artistGenres" ]; then
         for genre in ${!artistGenres[@]}; do
     	    artistGenre="${artistGenres[$genre]}"
@@ -119,6 +118,7 @@ for lidarrArtistId in $(echo $lidarrArtistIds); do
     else
         genre=""
     fi
+	
     tidalArtistUrl=$(echo "${lidarrArtistData}" | jq -r ".links | .[] | select(.name==\"tidal\") | .url")
 	tidalArtistIds="$(echo "$tidalArtistUrl" | grep -o '[[:digit:]]*' | sort -u | head -n1)"
     lidarrArtistTrackData=$(wget --timeout=0 -q -O - "$arrUrl/api/v1/track?artistId=$lidarrArtistId&apikey=${arrApiKey}" | jq -r .[].title)
@@ -127,10 +127,13 @@ for lidarrArtistId in $(echo $lidarrArtistIds); do
     tidalVideoIds=$(echo $tidalVideosData | jq -r .id)
     tidalVideoIdsCount=$(echo "$tidalVideosData" | wc -l)
     tidalVideoProcessNumber=0
+	
     for id in $(echo "$tidalVideoIds"); do
         tidalVideoProcessNumber=$(( $tidalVideoProcessNumber + 1 ))
         videoData=$(echo $tidalVideosData | jq -r "select(.id==$id)")
         videoTitle=$(echo $videoData | jq -r .title)
+		videoTitleClean="$(echo "$videoTitle" | sed 's%/%-%g')"
+		videoTitleClean="$(echo "$videoTitleClean" | sed -e "s/[:alpha:][:digit:]._' -/ /g" -e "s/  */ /g" | sed 's/^[.]*//' | sed  's/[.]*$//g' | sed  's/^ *//g' | sed 's/ *$//g')"
         videoExplicit=$(echo $videoData | jq -r .explicit)
 		videoUrl="https://tidal.com/browse/video/$id"
 		videoDate="$(echo "$videoData" | jq -r ".releaseDate")"
@@ -140,17 +143,15 @@ for lidarrArtistId in $(echo $lidarrArtistIds); do
         videoImageIdFix="$(echo "$videoImageId" | sed "s/-/\//g")"
         videoThumbnailUrl="https://resources.tidal.com/images/$videoImageIdFix/750x500.jpg"
 		videoSource="tidal"
+		videoArtists="$(echo "$videoData" | jq -r ".artists[]")"
+		videoArtistsIds="$(echo "$videoArtists" | jq -r ".id")"
 
-
-        log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle"
-        echo $videoExplicit
-		echo $videoUrl
-		echo $videoDate
-		echo $videoYear
-		echo $videoImageId
-		echo $videoImageIdFix
-		echo $videoThumbnailUrl
-		echo $videoSource
+		for videoArtistId in $(echo "$videoArtistsIds"); do
+			videoArtistData=$(echo "$videoArtists" | jq -r "select(.id==$videoArtistId)")
+			videoArtistName=$(echo "$videoArtistData" | jq -r .name)
+			videoArtistType=$(echo "$videoArtistData" | jq -r .type)
+		done
+		log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle"
 
         if echo "$videoTitle" | grep -i "official" | grep -i "video" | read; then
             log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Official Music Video Match Found!"
@@ -175,7 +176,7 @@ for lidarrArtistId in $(echo $lidarrArtistIds); do
             continue
         fi
 
-		videoFileName="${videoTitle}${videoType}.mkv"
+		videoFileName="${videoTitleClean}${videoType}.mkv"
 
 		if [ -f "$videoPath/$lidarrArtistFolderNoDisambig/${videoFileName}" ]; then
 			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle :: Already Downloaded, skipping..."
@@ -239,9 +240,9 @@ for lidarrArtistId in $(echo $lidarrArtistIds); do
 					-attach "$videoDownloadPath/poster.jpg" -metadata:s:t mimetype=image/jpeg \
 					"$videoDownloadPath/$videoFileName"
 				chmod 666 "$videoDownloadPath/$videoFileName"
-        if [ -f "$videoDownloadPath/poster.jpg" ]; then
-          rm "$videoDownloadPath/poster.jpg"
-        fi
+				if [ -f "$videoDownloadPath/poster.jpg" ]; then
+					rm "$videoDownloadPath/poster.jpg"
+				fi
 			fi
 			if [ -f "$videoDownloadPath/$videoFileName" ]; then
 				if [ -f "$videoDownloadPath/${filenamenoext}.mkv" ]; then
@@ -250,13 +251,10 @@ for lidarrArtistId in $(echo $lidarrArtistIds); do
 			fi
 		done
 
-
 		if [ -f "$videoDownloadPath/$videoFileName" ]; then
-			mv	"$videoDownloadPath/$videoFileName" "$videoPath/$lidarrArtistFolderNoDisambig/${videoFileName}"
+			mv "$videoDownloadPath/$videoFileName" "$videoPath/$lidarrArtistFolderNoDisambig/${videoFileName}"
 			chmod 666 "$videoPath/$lidarrArtistFolderNoDisambig/${videoFileName}"
 		fi
-		exit
-    done
-
+	done
 done
 exit
