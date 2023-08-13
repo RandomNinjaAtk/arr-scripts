@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-scriptVersion="1.1"
-scriptName="Tidal Video Downloader"
+scriptVersion="1.2"
+scriptName="TidalVideoDownloader"
 
 #### Import Settings
 source /config/extended.conf
