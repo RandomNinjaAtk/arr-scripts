@@ -155,6 +155,23 @@ AddFeaturedVideoArtists () {
 
 }
 
+LidarrTaskStatusCheck () {
+	alerted=no
+	until false
+	do
+		taskCount=$(curl -s "$arrUrl/api/v1/command?apikey=${arrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | wc -l)
+		if [ "$taskCount" -ge "1" ]; then
+			if [ "$alerted" = "no" ]; then
+				alerted=yes
+				log "STATUS :: LIDARR BUSY :: Pausing/waiting for all active Lidarr tasks to end..."
+			fi
+			sleep 2
+		else
+			break
+		fi
+	done
+}
+
 TidalClientSetup
 AddFeaturedVideoArtists
 
