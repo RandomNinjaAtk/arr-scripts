@@ -1387,6 +1387,121 @@ SearchProcess () {
 				touch "/config/extended/logs/notfound/$wantedAlbumId--$lidarrArtistForeignArtistId--$lidarrAlbumForeignAlbumId"
 				chmod 777 "/config/extended/logs/notfound/$wantedAlbumId--$lidarrArtistForeignArtistId--$lidarrAlbumForeignAlbumId"
 			fi
+
+			if [ $notFoundYoutubeFallback == "true" ]; then
+				log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Falling back to YouTube"
+				
+				query_param="release:${lidarrAlbumTitle} AND artist:${lidarrArtistName}&fmt=json"
+				album_id=$(curl --get --data-urlencode "query=${query_param}" --data-urlencode "fmt=json" "https://musicbrainz.org/ws/2/release/" | jq -r '.releases[0].id')
+				album_data=$(curl --get "https://musicbrainz.org/ws/2/release/${album_id}?inc=recordings&fmt=json")
+				tracks=$(jq -r '.media[0].tracks' <<< "$album_data" )
+				
+				downloadedAlbumTitleClean="$(echo "$4" | sed -e "s%[^[:alpha:][:digit:]._' ]% %g" -e "s/  */ /g" | sed 's/^[.]*//' | sed  's/[.]*$//g' | sed  's/^ *//g' | sed 's/ *$//g')"
+				downloadedAlbumFolder="$lidarrArtistNameSanitized-$downloadedAlbumTitleClean ($3)-${albumquality^^}-$1-$2"
+
+				if [[ -z $album_id ]]; then
+					echo "Album not found on MusicBrainz."
+				else
+					if [ -d "/temp-yt-dl" ]; then
+						rm -rf "/temp-yt-dl"
+					fi
+
+					mkdir -p /temp-yt-dl/
+					chmod 777 -R /temp-yt-dl/
+					chomd 777 -R "${audioPath}/incomplete/"
+
+					jq -c '.[]' <<< "$tracks" | while read track; do
+						track_title=$(jq -r '.title' <<< "$track")
+						track_id=$(jq -r '.id' <<< "$track")
+						yt-dlp --audio-quality highest --audio-format aac -o "/temp-yt-dl/${track_id}" -x "ytsearch:${lidarrArtistName} - ${track_title} (Audio)"
+						ffmpeg -i "/temp-yt-dl/${track_id}.m4a" -metadata title="${track_title}" -metadata artist="${lidarrArtistName}" -metadata album="${lidarrAlbumTitle}" "${audioPath}/incomplete/${track_id}.m4a"
+					done
+
+					if [ -d "/temp-yt-dl" ]; then
+						rm -rf "/temp-yt-dl"
+					fi
+
+					if [ "$enableBeetsTagging" == "true" ]; then
+						if [ -f /config/extended/beets-error ]; then
+							rm /config/extended/beets-error
+						fi
+						log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Processing files with beets..."
+						ProcessWithBeets "$audioPath"/incomplete/
+
+						if [ -f /config/extended/beets-error ]; then
+							return
+						fi 
+					fi
+
+					if [ "$enableReplaygainTags" == "true" ]; then
+						AddReplaygainTags "$audioPath/incomplete"
+					else
+						log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Replaygain Tagging Disabled (set enableReplaygainTags=true to enable...)"
+					fi
+
+					albumquality="$(find "$audioPath"/incomplete/ -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | head -n 1 | egrep -i -E -o "\.{1}\w*$" | sed  's/\.//g')"
+					downloadedAlbumFolder="$lidarrArtistNameSanitized-$downloadedAlbumTitleClean ($3)-${albumquality^^}-$1-$2"
+
+					find "$audioPath/incomplete" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -print0 | while IFS= read -r -d '' audio; do
+						file="${audio}"
+						filenoext="${file%.*}"
+						filename="$(basename "$audio")"
+						extension="${filename##*.}"
+						filenamenoext="${filename%.*}"
+						if [ ! -d "$audioPath/complete" ]; then
+							mkdir -p "$audioPath"/complete
+							chmod 777 "$audioPath"/complete
+						fi
+						mkdir -p "$audioPath/complete/$downloadedAlbumFolder"
+						mv "$file" "$audioPath/complete/$downloadedAlbumFolder"/
+					done
+
+					chmod -R 777 "$audioPath"/complete
+					
+					if [ -d "$audioPath/complete/$downloadedAlbumFolder" ]; then
+						NotifyLidarrForImport "$audioPath/complete/$downloadedAlbumFolder"
+						
+						LidarrTaskStatusCheck
+						CheckLidarrBeforeImport "$checkLidarrAlbumId"
+						if [ "$alreadyImported" == "true" ]; then
+							log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Already Imported, skipping..."
+							rm -rf "$audioPath"/incomplete/*
+						fi
+					fi
+					
+					if [ -d "$audioPath/complete/$downloadedAlbumFolder" ]; then
+						NotifyLidarrForImport "$audioPath/complete/$downloadedAlbumFolder"
+						
+						LidarrTaskStatusCheck
+						CheckLidarrBeforeImport "$checkLidarrAlbumId"
+						if [ "$alreadyImported" == "true" ]; then
+							log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Already Imported, skipping..."
+							rm -rf "$audioPath"/incomplete/*
+						fi
+					fi
+					
+					if [ -d "$audioPath/complete/$downloadedAlbumFolder" ]; then
+						NotifyLidarrForImport "$audioPath/complete/$downloadedAlbumFolder"
+						
+						LidarrTaskStatusCheck
+						CheckLidarrBeforeImport "$checkLidarrAlbumId"
+						if [ "$alreadyImported" == "true" ]; then
+							log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Already Imported, skipping..."
+							rm -rf "$audioPath"/incomplete/*
+						fi
+					fi
+
+					if [ -d "$audioPath/complete/$downloadedAlbumFolder" ]; then
+						rm -rf "$audioPath"/incomplete/*
+					fi
+
+					LidarrTaskStatusCheck
+					CheckLidarrBeforeImport "$checkLidarrAlbumId"
+					if [ "$alreadyImported" == "true" ]; then
+						break
+					fi
+				fi
+			fi
 		else
 			log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Skip marking album as not found because it's a new release for 7 days..."
 		fi
