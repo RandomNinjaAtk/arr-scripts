@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.11"
+scriptVersion="2.12"
 scriptName="Audio"
 
 ### Import Settings
@@ -151,7 +151,7 @@ Configuration () {
 }
 
 DownloadClientFreyr () {
-	freyr --no-bar -d $audioPath/incomplete deezer:album:$1
+	freyr --no-bar -d $audioPath/incomplete deezer:album:$1 2>&1 | tee -a /config/logs/$scriptName.txt
 }
 
 DownloadFormat () {
@@ -472,14 +472,25 @@ DownloadProcess () {
 				if [ -z $arlToken ]; then
     					rm -rf "$audioPath"/incomplete/*
 					log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: All $failedDownloadAttemptThreshold Download Attempts failed, skipping..."
-     			else
+     				else
 	    				DeezerClientTest
-	       			if [ "$deezerClientTest" == "success" ]; then
+	       				if [ "$deezerClientTest" == "success" ]; then
 		   				log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType ::  All $failedDownloadAttemptThreshold Download Attempts failed, skipping..."
+	 					deemixFail=0
 					fi
 				fi
 			fi
 		fi
+
+		if [ "$2" == "DEEZER" ]; then
+  			if [ $deemixFail -eq $failedDownloadAttemptThreshold ]; then
+				if [ -z $arlToken ]; then
+					DownloadClientFreyr $1
+				else
+					deemix -b $deemixQuality -p "$audioPath"/incomplete "https://www.deezer.com/album/$1" 2>&1 | tee -a /config/logs/$scriptName.txt
+				fi
+    			fi
+       		fi
 
 		if [ "$2" == "TIDAL" ]; then
 			TidaldlStatusCheck
