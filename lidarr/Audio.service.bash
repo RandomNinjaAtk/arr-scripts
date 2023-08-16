@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.12"
+scriptVersion="2.13"
 scriptName="Audio"
 
 ### Import Settings
