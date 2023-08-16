@@ -1391,16 +1391,16 @@ SearchProcess () {
 			if [ $notFoundYoutubeFallback == "true" ]; then
 				log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Falling back to YouTube"
 				
-				query_param="release:${lidarrAlbumTitle} AND artist:${lidarrArtistName}&fmt=json"
-				album_id=$(curl --get --data-urlencode "query=${query_param}" --data-urlencode "fmt=json" "https://musicbrainz.org/ws/2/release/" | jq -r '.releases[0].id')
-				album_data=$(curl --get "https://musicbrainz.org/ws/2/release/${album_id}?inc=recordings&fmt=json")
-				tracks=$(jq -r '.media[0].tracks' <<< "$album_data" )
+				lidarrAlbumData=$(curl -X GET "$arrUrl/api/v1/album/${checkLidarrAlbumId}" --header "X-Api-Key:"${arrApiKey} -H "Content-Type: application/json")
+				
+				lidarrAlbumId=$(jq -r '.releases[0].albumId' <<< "$lidarrAlbumData")
+				tracks=$(curl -X GET "$arrUrl/api/v1/track?albumId=${lidarrAlbumId}" --header "X-Api-Key:"${arrApiKey} -H "Content-Type: application/json")
 				
 				downloadedAlbumTitleClean="$(echo "$4" | sed -e "s%[^[:alpha:][:digit:]._' ]% %g" -e "s/  */ /g" | sed 's/^[.]*//' | sed  's/[.]*$//g' | sed  's/^ *//g' | sed 's/ *$//g')"
 				downloadedAlbumFolder="$lidarrArtistNameSanitized-$downloadedAlbumTitleClean ($3)-${albumquality^^}-$1-$2"
 
-				if [[ -z $album_id ]]; then
-					echo "Album not found on MusicBrainz."
+				if [[ -z $lidarrAlbumId ]]; then
+					echo "Album not found on Lidarr."
 				else
 					if [ -d "/temp-yt-dl" ]; then
 						rm -rf "/temp-yt-dl"
@@ -1408,13 +1408,18 @@ SearchProcess () {
 
 					mkdir -p /temp-yt-dl/
 					chmod 777 -R /temp-yt-dl/
-					chomd 777 -R "${audioPath}/incomplete/"
-
-					jq -c '.[]' <<< "$tracks" | while read track; do
-						track_title=$(jq -r '.title' <<< "$track")
-						track_id=$(jq -r '.id' <<< "$track")
-						yt-dlp --audio-quality highest --audio-format aac -o "/temp-yt-dl/${track_id}" -x "ytsearch:${lidarrArtistName} - ${track_title} (Audio)"
-						ffmpeg -i "/temp-yt-dl/${track_id}.m4a" -metadata title="${track_title}" -metadata artist="${lidarrArtistName}" -metadata album="${lidarrAlbumTitle}" "${audioPath}/incomplete/${track_id}.m4a"
+					chmod 777 -R "${audioPath}/incomplete/"
+					
+					trackLength=$(echo $tracks | jq length)
+					trackLength=$((trackLength-1))
+					for i in `seq 0 $trackLength`
+					do
+						trackTitle=$(jq -r ".[$i].title" <<< "$tracks")
+						trackId=$(jq -r ".[$i].foreignTrackId" <<< "$tracks")
+						log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: $trackTitle :: Downloading from YouTube"
+						yt-dlp -q --audio-quality highest --audio-format aac -o "/temp-yt-dl/${trackId}" -x "ytsearch:${lidarrArtistName} - ${trackTitle} (Audio)"
+						log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: $trackTitle :: Adding metadata"
+						ffmpeg -hide_banner -loglevel error -i "/temp-yt-dl/${trackId}.m4a" -metadata title="${trackTitle}" -metadata artist="${lidarrArtistName}" -metadata album="${lidarrAlbumTitle}" "${audioPath}/incomplete/${trackId}.m4a"
 					done
 
 					if [ -d "/temp-yt-dl" ]; then
