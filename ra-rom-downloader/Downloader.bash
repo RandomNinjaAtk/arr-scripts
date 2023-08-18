@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.0"
+scriptVersion="1.1"
 scriptName="RA-ROM-Downloader"
 
 #### Import Settings
@@ -45,12 +45,12 @@ DownloadRomCountSummary () {
 
 DownloadRoms () {
   echo "############### UPDATING ROMS #################" 2>&1 | tee -a /config/$scriptName.log
-    rclone sync -P --http-url https://ia902505.us.archive.org ":http:/27/items/retroachievements_collection_v5" "$downloadPath" --filter="- SNES/**" --filter="- NES/**" --filter="- PlayStation Portable/**" --filter="- PlayStation/**" --filter="- PlayStation 2/**" --filter "- retroachievements_collection*" --filter "- TamperMonkeyRetroachievements*" --filter "- __ia_thumb.jpg" --filter "- rclone.txt" --local-case-sensitive --delete-before --transfers $downloadTransfers --checkers $downloadCheckers --tpslimit $downloadTpslimit --log-file="/config/rclong.log"
-  rclone sync -P --http-url https://ia902701.us.archive.org ":http:/29/items/retroachievements_collection_NES/NES" "$downloadPath/NES" --local-case-sensitive --delete-before --transfers $downloadTransfers --checkers $downloadCheckers --tpslimit $downloadTpslimit --log-file="/config/rclong.log"
-  rclone sync -P --http-url https://ia802606.us.archive.org ":http:/25/items/retroachievements_collection_SNES/SNES" "$downloadPath/SNES" --local-case-sensitive --delete-before --transfers $downloadTransfers --checkers $downloadCheckers --tpslimit $downloadTpslimit --filter="- *(MSU)*" --log-file="/config/rclong.log"
-  rclone sync -P --http-url https://ia902607.us.archive.org ":http:/23/items/retroachievements_collection_PlayStation_Portable/PlayStation Portable" "$downloadPath/PlayStation Portable" --local-case-sensitive --delete-before --transfers $downloadTransfers --checkers $downloadCheckers --tpslimit $downloadTpslimit --log-file="/config/rclong.log"
-  rclone sync -P --http-url https://ia902709.us.archive.org ":http:/31/items/retroachievements_collection_PlayStation/PlayStation" "$downloadPath/PlayStation" --local-case-sensitive --delete-before --transfers $downloadTransfers --checkers $downloadCheckers --tpslimit $downloadTpslimit --log-file="/config/rclong.log"
-  rclone sync -P --http-url https://ia904707.us.archive.org ":http:/16/items/retroachievements_collection_PS2/PlayStation 2" "$downloadPath/PlayStation 2" --local-case-sensitive --delete-before --transfers $downloadTransfers --checkers $downloadCheckers --tpslimit $downloadTpslimit --log-file="/config/rclong.log"
+  rclone sync -P --http-url https://archive.org ":http:/27/items/retroachievements_collection_v5" "$downloadPath" --filter="- SNES/**" --filter="- NES/**" --filter="- PlayStation Portable/**" --filter="- PlayStation/**" --filter="- PlayStation 2/**" --filter "- retroachievements_collection*" --filter "- TamperMonkeyRetroachievements*" --filter "- __ia_thumb.jpg" --filter "- rclone.txt" --local-case-sensitive --delete-before --transfers $downloadTransfers --checkers $downloadCheckers --tpslimit $downloadTpslimit --log-file="/config/rclong.log"
+  rclone sync -P --http-url https://archive.org ":http:/29/items/retroachievements_collection_NES/NES" "$downloadPath/NES" --local-case-sensitive --delete-before --transfers $downloadTransfers --checkers $downloadCheckers --tpslimit $downloadTpslimit --log-file="/config/rclong.log"
+  rclone sync -P --http-url https://archive.org ":http:/25/items/retroachievements_collection_SNES/SNES" "$downloadPath/SNES" --local-case-sensitive --delete-before --transfers $downloadTransfers --checkers $downloadCheckers --tpslimit $downloadTpslimit --filter="- *(MSU)*" --log-file="/config/rclong.log"
+  rclone sync -P --http-url https://archive.org ":http:/23/items/retroachievements_collection_PlayStation_Portable/PlayStation Portable" "$downloadPath/PlayStation Portable" --local-case-sensitive --delete-before --transfers $downloadTransfers --checkers $downloadCheckers --tpslimit $downloadTpslimit --log-file="/config/rclong.log"
+  rclone sync -P --http-url https://archive.org ":http:/31/items/retroachievements_collection_PlayStation/PlayStation" "$downloadPath/PlayStation" --local-case-sensitive --delete-before --transfers $downloadTransfers --checkers $downloadCheckers --tpslimit $downloadTpslimit --log-file="/config/rclong.log"
+  rclone sync -P --http-url https://archive.org ":http:/16/items/retroachievements_collection_PS2/PlayStation 2" "$downloadPath/PlayStation 2" --local-case-sensitive --delete-before --transfers $downloadTransfers --checkers $downloadCheckers --tpslimit $downloadTpslimit --log-file="/config/rclong.log"
 }
 
 # Loop Script
