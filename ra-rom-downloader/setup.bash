@@ -16,6 +16,7 @@ apt-get install -y \
 	zip \
  	wget \
   	python3-pip \
+        rclone \
 	bsdmainutils
 echo "************ RAHasher installation ************"
 mkdir -p ${RAHASHER_PATH}
