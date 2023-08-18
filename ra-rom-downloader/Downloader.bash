@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.1"
+scriptVersion="1.2"
 scriptName="RA-ROM-Downloader"
 
 #### Import Settings
@@ -57,7 +57,9 @@ DownloadRoms () {
 for (( ; ; )); do
   let i++
   logfileSetup
-  echo "Script starting..." 2>&1 | tee -a /config/$scriptName.log
+  echo "############# $scriptName ###############" 2>&1 | tee -a /config/$scriptName.log
+  echo "Version: $scriptVersion" 2>&1 | tee -a /config/$scriptName.log
+  echo "Starting..." 2>&1 | tee -a /config/$scriptName.log
   DownloadRomCountSummary
   DownloadRoms
   DownloadRomCountSummary
