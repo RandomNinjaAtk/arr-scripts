@@ -62,7 +62,6 @@ for (( ; ; )); do
   DownloadRoms
   DownloadRomCountSummary
   echo "Script sleeping for $downloadScriptInterval..." 2>&1 | tee -a /config/$scriptName.log
-  DownloadRomCountSummary
   sleep $downloadScriptInterval
 done
 exit
