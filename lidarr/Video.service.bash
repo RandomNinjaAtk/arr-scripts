@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="3.3"
+scriptVersion="3.4"
 scriptName="Video"
 
 ### Import Settings
@@ -585,7 +585,8 @@ VideoProcess () {
               for imvdbVideoData in $(ls /config/extended/cache/imvdb/$lidarrArtistMusicbrainzId--*.json); do
                   imvdbProcessCount=$(( $imvdbProcessCount + 1 ))
                   imvdbVideoTitle="$(cat "$imvdbVideoData" | jq -r .song_title)"
-                  videoTitleClean="$(echo "$imvdbVideoTitle" | sed -e "s/[^[:alpha:][:digit:]$^&_+=()'%;{},.@#]/ /g" -e "s/  */ /g" | sed 's/^[.]*//' | sed  's/[.]*$//g' | sed  's/^ *//g' | sed 's/ *$//g')"
+                  videoTitleClean="$(echo "$imvdbVideoTitle" | sed 's%/%-%g')"
+			      videoTitleClean="$(echo "$videoTitleClean" | sed -e "s/[:alpha:][:digit:]._' -/ /g" -e "s/  */ /g" | sed 's/^[.]*//' | sed  's/[.]*$//g' | sed  's/^ *//g' | sed 's/ *$//g')"
                   imvdbVideoYear=""
   		          imvdbVideoYear="$(cat "$imvdbVideoData" | jq -r .year)"
                   imvdbVideoImage="$(cat "$imvdbVideoData" | jq -r .image.o)"
