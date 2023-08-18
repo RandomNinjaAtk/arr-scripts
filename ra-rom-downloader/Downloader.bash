@@ -1,10 +1,10 @@
 #!/usr/bin/with-contenv bash
 scriptVersion="1.0"
 scriptName="RA-ROM-Downloader"
-downloadPath="$romPath/RA_collection"
 
 #### Import Settings
 source /config/extended.conf
+downloadPath="$romPath/RA_collection"
 
 #### Funcitons
 logfileSetup () {
