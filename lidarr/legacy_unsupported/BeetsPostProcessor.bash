@@ -53,25 +53,25 @@ ProcessWithBeets () {
 
 	# Input
 	# $1 Download Folder to process
-	if [ -f /config/library-postprocessor.blb ]; then
-		rm /config/library-postprocessor.blb
+	if [ -f /config/extended/library-postprocessor.blb ]; then
+		rm /config/extended/library-postprocessor.blb
 		sleep 0.5
 	fi
-	if [ -f /config/extended/logs/beets.log ]; then 
-		rm /config/extended/logs/beets.log
+	if [ -f /config/extended/extended/logs/beets.log ]; then 
+		rm /config/extended/extended/logs/beets.log
 		sleep 0.5
 	fi
 
-	if [ -f "/config/beets-postprocessor-match" ]; then 
-		rm "/config/beets-postprocessor-match"
+	if [ -f "/config/extended/beets-postprocessor-match" ]; then 
+		rm "/config/extended/beets-postprocessor-match"
 		sleep 0.5
 	fi
-	touch "/config/beets-postprocessor-match"
+	touch "/config/extended/beets-postprocessor-match"
 	sleep 0.5
 
     log "$1 :: Being matching with beets!"
-	beet -c /config/extended/beets-config.yaml -l /config/library-postprocessor.blb -d "$1" import -qC "$1"
-	if [ $(find "$1" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -newer "/config/beets-postprocessor-match" | wc -l) -gt 0 ]; then
+	beet -c /config/extended/beets-config-postprocessor.yaml -l /config/extended/library-postprocessor.blb -d "$1" import -qC "$1"
+	if [ $(find "$1" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -newer "/config/extended/beets-postprocessor-match" | wc -l) -gt 0 ]; then
 		log "$1 :: SUCCESS :: Matched with beets!"
 		
 		# Fix tags
@@ -106,13 +106,13 @@ ProcessWithBeets () {
 		log "$1 :: ERROR :: Unable to match using beets to a musicbrainz release..."
 	fi	
 
-	if [ -f "/config/beets-postprocessor-match" ]; then 
-		rm "/config/beets-postprocessor-match"
+	if [ -f "/config/extended/beets-postprocessor-match" ]; then 
+		rm "/config/extended/beets-postprocessor-match"
 		sleep 0.5
 	fi
 
-	if [ -f /config/library-postprocessor.blb ]; then
-		rm /config/library-postprocessor.blb
+	if [ -f /config/extended/library-postprocessor.blb ]; then
+		rm /config/extended/library-postprocessor.blb
 		sleep 0.5
 	fi
 	if [ -f /config/extended/logs/beets.log ]; then 
