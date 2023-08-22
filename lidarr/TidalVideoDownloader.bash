@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.6"
+scriptVersion="1.7"
 scriptName="TidalVideoDownloader"
 
 #### Import Settings
@@ -208,6 +208,7 @@ VideoProcess () {
 	lidarrArtists=$(wget --timeout=0 -q -O - "$arrUrl/api/v1/artist?apikey=$arrApiKey" | jq -r .[])
 	lidarrArtistIds=$(echo $lidarrArtists | jq -r .id)
 	lidarrArtistCount=$(echo "$lidarrArtistIds" | wc -l)
+        processCount=0
 	for lidarrArtistId in $(echo $lidarrArtistIds); do
 		processCount=$(( $processCount + 1))
 		lidarrArtistData=$(wget --timeout=0 -q -O - "$arrUrl/api/v1/artist/$lidarrArtistId?apikey=$arrApiKey")
