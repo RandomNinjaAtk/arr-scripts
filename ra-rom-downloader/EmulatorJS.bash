@@ -5,7 +5,6 @@ scriptName="EmulatorJS"
 #### Import Settings
 source /config/extended.conf
 downloadPath="$romPath/RA_collection"
-emulatorjsPath="$romPath/emulatorjs"
 
 #### Funcitons
 logfileSetup () {
@@ -106,7 +105,7 @@ fi
 
 log "##########################################################"
 log "Processing NES ROMS"
-raFolder="$romPath/RA_collection/NES" 
+raFolder="$downloadPath/NES" 
 emulatorJsPlatformFolder="nes"
 if [ -d "$raFolder" ]; then
     ProcessRoms "$raFolder" "$emulatorJsPlatformFolder"
@@ -116,7 +115,7 @@ sleep 2
 
 
 log "Processing Game Boy ROMS"
-raFolder="$romPath/RA_collection/Game Boy" 
+raFolder="$downloadPath/Game Boy" 
 emulatorJsPlatformFolder="gb"
 if [ -d "$raFolder" ]; then
     ProcessRoms "$raFolder" "$emulatorJsPlatformFolder"
@@ -125,7 +124,7 @@ log "##########################################################"
 sleep 2
 
 log "Processing Game Boy Color ROMS"
-raFolder="$romPath/RA_collection/Game Boy Color" 
+raFolder="$downloadPath/Game Boy Color" 
 emulatorJsPlatformFolder="gbc"
 if [ -d "$raFolder" ]; then
     ProcessRoms "$raFolder" "$emulatorJsPlatformFolder"
@@ -133,7 +132,7 @@ fi
 log "##########################################################"
 
 log "Processing Game Boy Advance ROMS"
-raFolder="$romPath/RA_collection/Game Boy Advance" 
+raFolder="$downloadPath/Game Boy Advance" 
 emulatorJsPlatformFolder="gba"
 if [ -d "$raFolder" ]; then
     ProcessRoms "$raFolder" "$emulatorJsPlatformFolder"
@@ -142,7 +141,7 @@ log "##########################################################"
 sleep 2
 
 log "Processing Game Gear ROMS"
-raFolder="$romPath/RA_collection/Game Gear" 
+raFolder="$downloadPath/Game Gear" 
 emulatorJsPlatformFolder="segaGG"
 if [ -d "$raFolder" ]; then
     ProcessRoms "$raFolder" "$emulatorJsPlatformFolder"
@@ -151,7 +150,7 @@ log "##########################################################"
 sleep 2
 
 log "Processing SNES ROMS"
-raFolder="$romPath/RA_collection/SNES" 
+raFolder="$downloadPath/SNES" 
 emulatorJsPlatformFolder="snes"
 if [ -d "$raFolder" ]; then
     ProcessRoms "$raFolder" "$emulatorJsPlatformFolder"
@@ -160,7 +159,7 @@ log "##########################################################"
 sleep 2
 
 log "Processing Virtual Boy ROMS"
-raFolder="$romPath/RA_collection/Virtual Boy" 
+raFolder="$downloadPath/Virtual Boy" 
 emulatorJsPlatformFolder="vb"
 if [ -d "$raFolder" ]; then
     ProcessRoms "$raFolder" "$emulatorJsPlatformFolder"
@@ -169,7 +168,7 @@ log "##########################################################"
 sleep 2
 
 log "Processing Vectrex ROMS"
-raFolder="$romPath/RA_collection/Vectrex" 
+raFolder="$downloadPath/Vectrex" 
 emulatorJsPlatformFolder="vectrex"
 if [ -d "$raFolder" ]; then
     ProcessRoms "$raFolder" "$emulatorJsPlatformFolder"
@@ -178,7 +177,7 @@ log "##########################################################"
 sleep 2
 
 log "Processing Mega Drive ROMS"
-raFolder="$romPath/RA_collection/Mega Drive" 
+raFolder="$downloadPath/Mega Drive" 
 emulatorJsPlatformFolder="segaMD"
 if [ -d "$raFolder" ]; then
     ProcessRoms "$raFolder" "$emulatorJsPlatformFolder"
@@ -187,7 +186,7 @@ log "##########################################################"
 sleep 2
 
 log "Processing Master System ROMS"
-raFolder="$romPath/RA_collection/Master System" 
+raFolder="$downloadPath/Master System" 
 emulatorJsPlatformFolder="segaMS"
 if [ -d "$raFolder" ]; then
     ProcessRoms "$raFolder" "$emulatorJsPlatformFolder"
@@ -196,7 +195,7 @@ log "##########################################################"
 sleep 2
 
 log "Processing Nintendo 64 ROMS"
-raFolder="$romPath/RA_collection/Nintendo 64" 
+raFolder="$downloadPath/Nintendo 64" 
 emulatorJsPlatformFolder="n64"
 if [ -d "$raFolder" ]; then
     ProcessRoms "$raFolder" "$emulatorJsPlatformFolder"
@@ -205,7 +204,7 @@ log "##########################################################"
 sleep 2
 
 log "Processing Atari 2600 ROMS"
-raFolder="$romPath/RA_collection/Atari 2600" 
+raFolder="$downloadPath/Atari 2600" 
 emulatorJsPlatformFolder="atari2600"
 if [ -d "$raFolder" ]; then
     ProcessRoms "$raFolder" "$emulatorJsPlatformFolder"
@@ -214,7 +213,7 @@ log "##########################################################"
 sleep 2
 
 log "Processing Atari 7800 ROMS"
-raFolder="$romPath/RA_collection/Atari 7800" 
+raFolder="$downloadPath/Atari 7800" 
 emulatorJsPlatformFolder="atari7800"
 if [ -d "$raFolder" ]; then
     ProcessRoms "$raFolder" "$emulatorJsPlatformFolder"
@@ -223,7 +222,7 @@ log "##########################################################"
 sleep 2
 
 log "Processing Atari Lynx ROMS"
-raFolder="$romPath/RA_collection/Atari Lynx" 
+raFolder="$downloadPath/Atari Lynx" 
 emulatorJsPlatformFolder="lynx"
 if [ -d "$raFolder" ]; then
     ProcessRoms "$raFolder" "$emulatorJsPlatformFolder"
@@ -232,7 +231,7 @@ log "##########################################################"
 sleep 2
 
 log "Processing ColecoVision ROMS"
-raFolder="$romPath/RA_collection/ColecoVision" 
+raFolder="$downloadPath/ColecoVision" 
 emulatorJsPlatformFolder="colecovision"
 if [ -d "$raFolder" ]; then
     ProcessRoms "$raFolder" "$emulatorJsPlatformFolder"
@@ -241,7 +240,7 @@ log "##########################################################"
 sleep 2
 
 log "Processing Magnavox Odyssey 2 ROMS"
-raFolder="$romPath/RA_collection/Magnavox Odyssey 2" 
+raFolder="$downloadPath/Magnavox Odyssey 2" 
 emulatorJsPlatformFolder="odyssey2"
 if [ -d "$raFolder" ]; then
     ProcessRoms "$raFolder" "$emulatorJsPlatformFolder"
@@ -250,7 +249,7 @@ log "##########################################################"
 sleep 2
 
 log "Processing Atari Jaguar ROMS"
-raFolder="$romPath/RA_collection/Atari Jaguar" 
+raFolder="$downloadPath/Atari Jaguar" 
 emulatorJsPlatformFolder="jaguar"
 if [ -d "$raFolder" ]; then
     ProcessRoms "$raFolder" "$emulatorJsPlatformFolder"
@@ -259,7 +258,7 @@ log "##########################################################"
 sleep 2
 
 log "Processing Neo Geo Pocket ROMS"
-raFolder="$romPath/RA_collection/Neo Geo Pocket" 
+raFolder="$downloadPath/Neo Geo Pocket" 
 emulatorJsPlatformFolder="ngp"
 if [ -d "$raFolder" ]; then
     ProcessRoms "$raFolder" "$emulatorJsPlatformFolder"
@@ -268,7 +267,7 @@ log "##########################################################"
 sleep 2
 
 log "Processing WonderSwan ROMS"
-raFolder="$romPath/RA_collection/WonderSwan" 
+raFolder="$downloadPath/WonderSwan" 
 emulatorJsPlatformFolder="ws"
 if [ -d "$raFolder" ]; then
     ProcessRoms "$raFolder" "$emulatorJsPlatformFolder"
@@ -277,7 +276,7 @@ log "##########################################################"
 sleep 2
 
 log "Processing Sega 32X ROMS"
-raFolder="$romPath/RA_collection/32X" 
+raFolder="$downloadPath/32X" 
 emulatorJsPlatformFolder="sega32x"
 if [ -d "$raFolder" ]; then
     ProcessRoms "$raFolder" "$emulatorJsPlatformFolder"
