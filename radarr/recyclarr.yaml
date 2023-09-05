@@ -22,6 +22,39 @@ radarr:
     delete_old_custom_formats: true
     replace_existing_custom_formats: True
 
+    quality_profiles:
+      - name: All
+        reset_unmatched_scores:
+          enabled: false
+        upgrade:
+          allowed: true
+          until_score: 4500
+          until_quality: All
+        min_format_score: 10
+        quality_sort: top
+        qualities:
+          - name: All
+            qualities:
+              - WEBDL-1080p
+              - WEBDL-2160p
+              - Bluray-1080p
+              - WEBRip-1080p
+              - HDTV-1080p
+              - Bluray-2160p
+              - WEBRip-2160p
+              - HDTV-2160p
+              - WEBDL-720p
+              - Bluray-720p
+              - WEBRip-720p
+              - Bluray-576p
+              - HDTV-720p
+              - WEBDL-480p
+              - Bluray-480p
+              - WEBRip-480p
+              - SDTV
+              - DVD
+              - DVD-R
+
     custom_formats:
       # Custom scoring  
       - trash_ids:
@@ -66,7 +99,7 @@ radarr:
           - 820b09bb9acbfde9c35c71e0e565dad8 # 1080p
         quality_profiles:
           - name: All
-            score: 100
+            score: 500
       - trash_ids:
           - 185f1dd7264c4562b9022d963ac37424 # DD+
           - e23edd2482476e595fb990b12e7c609c # DV HDR10
