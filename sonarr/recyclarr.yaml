@@ -18,9 +18,41 @@ sonarr:
     # Quality definitions from the guide to sync to Sonarr. Choice: anime, series, hybrid
     quality_definition:
       type: series
-      preferred_ratio: 1.0
-
+        
     delete_old_custom_formats: true
+    replace_existing_custom_formats: True
+
+    quality_profiles:
+      - name: All
+        reset_unmatched_scores:
+          enabled: false
+        upgrade:
+          allowed: true
+          until_score: 5500
+          until_quality: All
+        min_format_score: 10
+        quality_sort: top
+        qualities:
+          - name: All
+            qualities:
+              - WEBDL-1080p
+              - WEBDL-2160p
+              - Bluray-1080p
+              - WEBRip-1080p
+              - HDTV-1080p
+              - Bluray-2160p
+              - WEBRip-2160p
+              - HDTV-2160p
+              - WEBDL-720p
+              - Bluray-720p
+              - WEBRip-720p
+              - HDTV-720p
+              - WEBDL-480p
+              - Bluray-480p
+              - WEBRip-480p
+              - SDTV
+              - DVD
+
 
     custom_formats:
       # Custom scoring
@@ -29,7 +61,7 @@ sonarr:
           - c9eafd50846d299b862ca9bb6ea91950 # x265
           - cddfb4e32db826151d97352b8e37c648 # x264
         quality_profiles:
-          - name: Any
+          - name: All
             score: 2000
       - trash_ids:
           # Streaming Services
@@ -37,6 +69,7 @@ sonarr:
           - f67c9ca88f463a48346062e8ad07713f # ATVP
           - f27d46a831e6b16fa3fee2c4e5d10984 # CANAL+
           - 77a7b25585c18af08f60b1547bb9b4fb # CC
+          - 4e9a630db98d5391aec1368a0256e2fe # CRAV
           - 36b72f59f4ea20aad9316f475f2d9fbb # DCU
           - 89358767a60cc28783cdc3d0be9388a4 # DSNP
           - 7a235133c87f7da4c8cccceca7e3c7a6 # HBO
@@ -46,6 +79,7 @@ sonarr:
           - 81d1fbf600e2540cee87f3a23f9d3c1c # MAX
           - d34870697c9db575f17700212167be23 # NF
           - b2b980877494b560443631eb1f473867 # NLZ
+          - fb1a91cdc0f26f7ca0696e0e95274645 # OViD
           - 1656adc6d7bb2c8cca6acfb6592db421 # PCOK
           - c67a75ae4a1715f2bb4d492755ba4195 # PMTP
           - 3ac5d84fce98bab1b531393e9c82f467 # QIBI
@@ -58,10 +92,15 @@ sonarr:
           - d2d299244a92b8a52d4921ce3897a256 # UHD Streaming Cut
           - 5d2317d99af813b6529c7ebf01c83533 # VDL
         quality_profiles:
-          - name: Any
+          - name: All
             score: 1000
       - trash_ids:
           - 290078c8b266272a5cc8e251b5e2eb0b # 1080p
+          - 3e2c4e748b64a1a1118e0ea3f4cf6875 # HDR
+          - bb019e1cd00f304f80971c965de064dc # HDR (undefined)
+          - 3497799d29a085e2ac2df9d468413c94 # HDR10
+          - a3d82cbef5039f8d295478d28a887159 # HDR10+
+          - 7878c33f1963fefb3d6c8657d46c2f0a # DV HDR10
           # Audio Channels
           - 3fbafa924f361e66fbc6187af82dfa85 # 5.1 Surround
           - 9fb6d778592c293467437593ef394bf1 # 6.1 Surround
@@ -73,8 +112,8 @@ sonarr:
           - 418f50b10f1907201b6cfdf881f467b7 # Anime Dual Audio
           - 026d5aadd1a6b4e550b134cb6c72b3ca # Uncensored
         quality_profiles:
-          - name: Any
-            score: 100
+          - name: All
+            score: 500
       - trash_ids:
           # Audio Channels
           - 834e534f103938853ffced4203b53e72 # 2.0 Stereo
@@ -82,20 +121,21 @@ sonarr:
           - 1895195e84767de180653914ce207245 # 4.0 Sound
           # Audio Advanced #1
           - 63487786a8b01b7f20dd2bc90dd4a477 # DD+
+          - 1bef6c151fa35093015b0bfef18279e5 # 2160p
         quality_profiles:
-          - name: Any
+          - name: All
             score: 75
       - trash_ids:
           # Audio Advanced #2
           - dbe00161b08a25ac6154c55f95e6318d # DD
         quality_profiles:
-          - name: Any
+          - name: All
             score: 30
       - trash_ids:
           # Audio Channels
           - bd6dd5e043aa27ff4696a08d011c7d96 # 1.0 Mono
         quality_profiles:
-          - name: Any
+          - name: All
             score: 25
       - trash_ids:
           - 44e7c4de10ae50265753082e5dc76047 # Repack v3
@@ -105,12 +145,12 @@ sonarr:
       - trash_ids:
           - eb3d5cc0a2be0db205fb823640db6a3c # Repack v2
         quality_profiles:
-          - name: Any
+          - name: All
             score: 15
       - trash_ids:
           - ec8fa7296b64e8cd390a1600981f3923 # Repack/Proper
         quality_profiles:
-          - name: Any
+          - name: All
             score: 10
       - trash_ids:
           - 851bd64e04c9374c51102be3dd9ae4cc # FLAC
@@ -142,7 +182,7 @@ sonarr:
           # Unwanted
           - 47435ece6b99a0b477caf360e79ba0bb # x265 (HD)
         quality_profiles:
-          - name: Any
+          - name: All
             score: 5
       - trash_ids:
           # Misc
@@ -152,7 +192,7 @@ sonarr:
           - 90501962793d580d011511155c97e4e5 # VP9
           - 82d40da2bc6923f41e14394075dd4b03 # No-RlsGroup
         quality_profiles:
-          - name: Any
+          - name: All
             score: -10
       - trash_ids:
           # Optional
@@ -169,19 +209,41 @@ sonarr:
           - b735f09d3c025cbb7d75a5d38325b73b # Remaster
           # HDR Formats
           - 6d0d8de7b57e35518ac0308b0ddf404e # DV
-          - 7878c33f1963fefb3d6c8657d46c2f0a # DV HDR10
           - 1f733af03141f068a540eec352589a89 # DV HLG
           - 27954b0a80aab882522a88a4d9eae1cd # DV SDR
-          - 3e2c4e748b64a1a1118e0ea3f4cf6875 # HDR
-          - bb019e1cd00f304f80971c965de064dc # HDR (undefined)
-          - 3497799d29a085e2ac2df9d468413c94 # HDR10
-          - a3d82cbef5039f8d295478d28a887159 # HDR10+
           - 17e889ce13117940092308f48b48b45b # HLG
           - 2a7e3be05d3861d6df7171ec74cad727 # PQ
           # Unwanted
           - 85c61753df5da1fb2aab6f2a47426b09 # BR-DISK
           - fbcb31d8dabd2a319072b84fc0b7249c # Extras
           - 9c11cd3f07101cdba90a2d81cf0e56b4 # LQ
+          # French Audio Version
+          - 84f0acbda9c0c9de783894fb66df25aa # FanSUB
+          - ea0bb4b6ba388992fad1092703b5ff7b # FastSUB
+          - 4721382d9ee05f1b4967a25e75072911 # French Audio
+          - 2f6e84efc47246ec9071e311e71c4953 # Multi-Audio
+          - 7982e39789f17864f57b11f1996844f4 # Multi-French
+          - 34789ec3caa819f087e23bbf9999daf7 # VF2
+          - 0ce1e39a4676c6692ce47935278dac76 # VFB
+          - 2c29a39a4fdfd6d258799bc4c09731b9 # VFF
+          - b6816a0e1d4b64bf3550ad3b74b009b6 # VFI
+          - 7a7f4e4f58bd1058440236d033a90b67 # VFQ
+          - 7ae924ee9b2f39df3283c6c0beb8a2aa # VOF
+          - 07a32f77690263bb9fda1842db7e273f # VOSTFR
+          - 82085412d9a53ba8d8e46fc624eb701d # VQ
+          # French Source Groups
+          - 44b6c964dad997577d793fd004a39224 # FR Anime FanSub
+          - db13a377f7afb29975ea39470434d2ef # FR Anime Tier 01
+          - 4e6134a384dbc0ef166234cc0e45d26d # FR Anime Tier 02
+          - db34d4357937fbfe89b63ba095f22155 # FR Anime Tier 03
+          - d844321db5e126d2e7e46152f0706532 # FR HD Bluray Tier 01
+          - 3ba797e5dc13af4b8d9bb25e83d90de2 # FR LQ
+          - b8e91cc8fb2bd96468fab74730c30d18 # FR Remux Tier 01
+          - 2f3422339d185eb227a324644a2fbfca # FR Scene Groups
+          - ddb8eaa9c85a549c50034d280539d54d # FR WEB Tier 01
+          - a4c51febd4d8b2a0db10a3c974f21d92 # FR WEB Tier 02
+          - dbfc0a4b5cb4cbd693311c4482ae9683 # FR WEB Tier 03
         quality_profiles:
-          - name: Any
+          - name: All
             score: -100000
+
