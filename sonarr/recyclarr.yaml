@@ -29,14 +29,16 @@ sonarr:
         upgrade:
           allowed: true
           until_score: 5500
-          until_quality: All
+          until_quality: WEB-DL (HD/UHD)
         min_format_score: 10
         quality_sort: top
         qualities:
-          - name: All
+          - name: WEB-DL (HD/UHD)
             qualities:
               - WEBDL-1080p
               - WEBDL-2160p
+          - name: Other
+            qualities:
               - Bluray-1080p
               - WEBRip-1080p
               - HDTV-1080p
@@ -96,6 +98,10 @@ sonarr:
             score: 1000
       - trash_ids:
           - 290078c8b266272a5cc8e251b5e2eb0b # 1080p
+        quality_profiles:
+          - name: All
+            score: 600
+      - trash_ids:
           - 3e2c4e748b64a1a1118e0ea3f4cf6875 # HDR
           - bb019e1cd00f304f80971c965de064dc # HDR (undefined)
           - 3497799d29a085e2ac2df9d468413c94 # HDR10
