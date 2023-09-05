@@ -19,8 +19,6 @@ radarr:
     quality_definition:
       type: sqp-streaming
 
-    delete_old_custom_formats: true
-
     custom_formats:
       # Custom scoring  
       - trash_ids:
