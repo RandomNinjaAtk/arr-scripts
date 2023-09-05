@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.0"
+scriptVersion="1.1"
 scriptName="InvalidMoviesAutoCleaner"
 
 #### Import Settings
@@ -15,7 +15,7 @@ verifyApiAccess
 verifyConfig () {
 
   if [ "$enableInvalidMoviesAutoCleaner" != "true" ]; then
-	log "Script is not enabled, enable by setting enableInvalidSeriesAutoCleaner to \"true\" by modifying the \"/config/extended.conf\" config file..."
+	log "Script is not enabled, enable by setting enableInvalidMoviesAutoCleaner to \"true\" by modifying the \"/config/extended.conf\" config file..."
 	log "Sleeping (infinity)"
 	#sleep infinity
   fi
@@ -70,7 +70,7 @@ for (( ; ; )); do
 	let i++
 	logfileSetup
  	log "Script starting..."
-  verifyConfig
+  	verifyConfig
 	getArrAppInfo
 	verifyApiAccess
 	InvalidMovieAutoCleanerProcess
