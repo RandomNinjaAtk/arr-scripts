@@ -43,7 +43,7 @@ radarr:
           - e36a0ba1bc902b26ee40818a1d59b8bd # PMTP
         quality_profiles:
           - name: Any
-            score: 1000
+            score: 10
       - trash_ids:
           - e61e28db95d22bedcadf030b8f156d96 # HDR
           - dfb86d5941bc9075d6af23b09c2aeecd # HDR10
