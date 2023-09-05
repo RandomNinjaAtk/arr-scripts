@@ -45,6 +45,8 @@ radarr:
           - name: Any
             score: 1000
       - trash_ids:
+          - e61e28db95d22bedcadf030b8f156d96 # HDR
+          - dfb86d5941bc9075d6af23b09c2aeecd # HDR10
           - eecf3a857724171f968a66cb5719e152 # IMAX
           - 9f6cbff8cfe4ebbc1bde14c7b7bec0de # IMAX Enhanced
           - 1af239278386be2919e1bcee0bde047e # DD+ ATMOS
@@ -159,8 +161,6 @@ radarr:
           - 9364dd386c9b4a1100dde8264690add7 # HLG
           - b17886cb4158d9fea189859409975758 # HDR10+ Boost
           - b6832f586342ef70d9c128d40c07b872 # Bad Dual Groups   
-          - e61e28db95d22bedcadf030b8f156d96 # HDR
-          - dfb86d5941bc9075d6af23b09c2aeecd # HDR10
           - b974a6cd08c1066250f1f177d7aa1225 # HDR10+
           - 08d6d8834ad9ec87b1dc7ec8148e7a1f # PQ
         quality_profiles:
