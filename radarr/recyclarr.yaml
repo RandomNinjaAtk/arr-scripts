@@ -17,7 +17,7 @@ radarr:
     api_key: arrApi
     
     quality_definition:
-      type: movie
+      type: sqp-streaming
 
     delete_old_custom_formats: true
 
@@ -79,7 +79,6 @@ radarr:
           - name: Any
             score: 30
       - trash_ids:
-          - 185f1dd7264c4562b9022d963ac37424 # DD+
           - 89dac1be53d5268a7e10a19d3c896826 # 2.0 Stereo
           - 205125755c411c3b8622ca3175d27b37 # 3.0 Sound
           - 373b58bd188fc00c817bd8c7470ea285 # 4.0 Sound
@@ -146,7 +145,6 @@ radarr:
           - name: Any
             score: -50
       - trash_ids:
-          - ff86c4326018682f817830ced463332b # MPEG2
           - cae4ca30163749b891686f95532519bd # AV1
           - b8cd450cbfa689c0259a01d9e29ba3d6 # 3D
           - ed38b889b31be83fda192888e2286d83 # BR-DISK
