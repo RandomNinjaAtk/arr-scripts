@@ -53,8 +53,6 @@ radarr:
           - name: All
             score: 10
       - trash_ids:
-          - e23edd2482476e595fb990b12e7c609c # DV HDR10
-          - b974a6cd08c1066250f1f177d7aa1225 # HDR10+
           - dfb86d5941bc9075d6af23b09c2aeecd # HDR10
           - e61e28db95d22bedcadf030b8f156d96 # HDR
           - 2a4d9069cc1fe3242ff9bdaebed239bb # HDR (undefined)
@@ -71,6 +69,8 @@ radarr:
             score: 100
       - trash_ids:
           - 185f1dd7264c4562b9022d963ac37424 # DD+
+          - e23edd2482476e595fb990b12e7c609c # DV HDR10
+          - b974a6cd08c1066250f1f177d7aa1225 # HDR10+
         quality_profiles:
           - name: All
             score: 70
