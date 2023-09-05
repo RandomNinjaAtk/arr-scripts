@@ -22,6 +22,30 @@ radarr:
     delete_old_custom_formats: true
     replace_existing_custom_formats: True
 
+    # yaml-language-server: $schema=https://raw.githubusercontent.com/recyclarr/recyclarr/master/schemas/config-schema.json
+
+# A starter config to use with Recyclarr. Most values are set to "reasonable defaults". Update the
+# values below as needed for your instance. You will be required to update the API Key and URL for
+# each instance you want to use.
+#
+# MAll optional settings have been omitted to keep this template simple.
+#
+# For more details on the configuration, see the Configuration Reference on the wiki here:
+# https://github.com/recyclarr/recyclarr/wiki/Configuration-Reference
+
+# Configuration specific to Radarr.
+radarr:
+  # Set the URL/API Key to your actual instance
+  instance1:
+    base_url: http://127.0.0.1:7878
+    api_key: 64cadcacaaa44363bb3d3c38aeb89de8
+    
+    quality_definition:
+      type: sqp-streaming
+    
+    delete_old_custom_formats: true
+    replace_existing_custom_formats: True
+
     quality_profiles:
       - name: All
         reset_unmatched_scores:
@@ -201,6 +225,7 @@ radarr:
           - 73613461ac2cea99d52c4cd6e177ab82 # HFR
           - c465ccc73923871b3eb1802042331306 # Line/Mic Dubbed  
           # HDR
+          - b17886cb4158d9fea189859409975758  # HDR10+ Boost
           - e23edd2482476e595fb990b12e7c609c  # DV HDR10
           - 58d6a88f13e2db7f5059c41047876f00  # DV
           - 55d53828b9d81cbe20b02efd00aa0efd  # DV HLG
