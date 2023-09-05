@@ -22,63 +22,6 @@ radarr:
     delete_old_custom_formats: true
     replace_existing_custom_formats: True
 
-    # yaml-language-server: $schema=https://raw.githubusercontent.com/recyclarr/recyclarr/master/schemas/config-schema.json
-
-# A starter config to use with Recyclarr. Most values are set to "reasonable defaults". Update the
-# values below as needed for your instance. You will be required to update the API Key and URL for
-# each instance you want to use.
-#
-# MAll optional settings have been omitted to keep this template simple.
-#
-# For more details on the configuration, see the Configuration Reference on the wiki here:
-# https://github.com/recyclarr/recyclarr/wiki/Configuration-Reference
-
-# Configuration specific to Radarr.
-radarr:
-  # Set the URL/API Key to your actual instance
-  instance1:
-    base_url: http://127.0.0.1:7878
-    api_key: 64cadcacaaa44363bb3d3c38aeb89de8
-    
-    quality_definition:
-      type: sqp-streaming
-    
-    delete_old_custom_formats: true
-    replace_existing_custom_formats: True
-
-    quality_profiles:
-      - name: All
-        reset_unmatched_scores:
-          enabled: false
-        upgrade:
-          allowed: true
-          until_score: 100000
-          until_quality: All
-        min_format_score: 10
-        quality_sort: top
-        qualities:
-          - name: All
-            qualities:
-              - WEBDL-1080p
-              - WEBDL-2160p
-              - Bluray-1080p
-              - WEBRip-1080p
-              - HDTV-1080p
-              - Bluray-2160p
-              - WEBRip-2160p
-              - HDTV-2160p
-              - WEBDL-720p
-              - Bluray-720p
-              - WEBRip-720p
-              - Bluray-576p
-              - HDTV-720p
-              - WEBDL-480p
-              - Bluray-480p
-              - WEBRip-480p
-              - SDTV
-              - DVD
-              - DVD-R
-
     custom_formats:
       # Custom scoring  
       - trash_ids:
@@ -110,6 +53,7 @@ radarr:
           - name: All
             score: 10
       - trash_ids:
+          - e23edd2482476e595fb990b12e7c609c # DV HDR10
           - b974a6cd08c1066250f1f177d7aa1225 # HDR10+
           - dfb86d5941bc9075d6af23b09c2aeecd # HDR10
           - e61e28db95d22bedcadf030b8f156d96 # HDR
@@ -225,13 +169,11 @@ radarr:
           - 73613461ac2cea99d52c4cd6e177ab82 # HFR
           - c465ccc73923871b3eb1802042331306 # Line/Mic Dubbed  
           # HDR
-          - e23edd2482476e595fb990b12e7c609c  # DV HDR10
           - 58d6a88f13e2db7f5059c41047876f00  # DV
           - 55d53828b9d81cbe20b02efd00aa0efd  # DV HLG
           - a3e19f8f627608af0211acd02bf89735  # DV SDR
           - 08d6d8834ad9ec87b1dc7ec8148e7a1f  # PQ
           - 9364dd386c9b4a1100dde8264690add7  # HLG
-          - 923b6abef9b17f937fab56cfcf89e1f1  # DV (WEBDL)        
           # French Audio Version
           - 02e48d30a176c91baf9e15de05e5dc6a # FanSUB
           - 7f9b93f82b7e996391525f2be1d891e0 # FastSUB
