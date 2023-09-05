@@ -225,7 +225,6 @@ radarr:
           - 73613461ac2cea99d52c4cd6e177ab82 # HFR
           - c465ccc73923871b3eb1802042331306 # Line/Mic Dubbed  
           # HDR
-          - b17886cb4158d9fea189859409975758  # HDR10+ Boost
           - e23edd2482476e595fb990b12e7c609c  # DV HDR10
           - 58d6a88f13e2db7f5059c41047876f00  # DV
           - 55d53828b9d81cbe20b02efd00aa0efd  # DV HLG
