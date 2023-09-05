@@ -86,9 +86,10 @@ radarr:
           - name: All
             score: 10
       - trash_ids:
-          - e61e28db95d22bedcadf030b8f156d96 # HDR
-          - dfb86d5941bc9075d6af23b09c2aeecd # HDR10
           - b974a6cd08c1066250f1f177d7aa1225 # HDR10+
+          - dfb86d5941bc9075d6af23b09c2aeecd # HDR10
+          - e61e28db95d22bedcadf030b8f156d96 # HDR
+          - 2a4d9069cc1fe3242ff9bdaebed239bb # HDR (undefined)
           - eecf3a857724171f968a66cb5719e152 # IMAX
           - 9f6cbff8cfe4ebbc1bde14c7b7bec0de # IMAX Enhanced
           - 1af239278386be2919e1bcee0bde047e # DD+ ATMOS
@@ -154,9 +155,14 @@ radarr:
           - name: All
             score: 5
       - trash_ids:
-          - ff5bc9e8ce91d46c997ca3ac6994d6f8 # FraMeSToR
-          - 5153ec7413d9dae44e24275589b5e944 # BHDStudio
-          - 8cd3ac70db7ac318cf9a0e01333940a4 # SiC
+          # HQ Release Groups
+          - 5153ec7413d9dae44e24275589b5e944  # BHDStudio
+          - c20f169ef63c5f40c2def54abaf4438e  # WEB Tier 01
+          - 403816d65392c79236dcb6dd591aeda4  # WEB Tier 02
+          - af94e0fe497124d1f9ce732069ec8c3b  # WEB Tier 03
+          - ed27ebfef2f323e964fb1f61391bcb35  # HD Bluray Tier 01
+          - c20c8647f2746a1f4c4262b0fbbeeeae  # HD Bluray Tier 02
+          - 5608c71bcebba0a5e666223bae8c9227  # HD Bluray Tier 03
         quality_profiles:
           - name: All
             score: 50
@@ -191,18 +197,17 @@ radarr:
           - ed38b889b31be83fda192888e2286d83 # BR-DISK
           - 90cedc1fea7ea5d11298bebd3d1d3223 # EVO (no WEBDL)
           - 0a3f082873eb454bde444150b70253cc # Extras
-          - 2a4d9069cc1fe3242ff9bdaebed239bb # HDR (undefined)
-          - e23edd2482476e595fb990b12e7c609c # DV HDR10
-          - 55d53828b9d81cbe20b02efd00aa0efd # DV HLG
-          - a3e19f8f627608af0211acd02bf89735 # DV SDR
-          - 923b6abef9b17f937fab56cfcf89e1f1 # DV (WEBDL)
-          - 58d6a88f13e2db7f5059c41047876f00 # DV
-          - 9364dd386c9b4a1100dde8264690add7 # HLG
-          - b17886cb4158d9fea189859409975758 # HDR10+ Boost
           - b6832f586342ef70d9c128d40c07b872 # Bad Dual Groups   
-          - 08d6d8834ad9ec87b1dc7ec8148e7a1f # PQ
           - 73613461ac2cea99d52c4cd6e177ab82 # HFR
-          - c465ccc73923871b3eb1802042331306 # Line/Mic Dubbed          
+          - c465ccc73923871b3eb1802042331306 # Line/Mic Dubbed  
+          # HDR
+          - e23edd2482476e595fb990b12e7c609c  # DV HDR10
+          - 58d6a88f13e2db7f5059c41047876f00  # DV
+          - 55d53828b9d81cbe20b02efd00aa0efd  # DV HLG
+          - a3e19f8f627608af0211acd02bf89735  # DV SDR
+          - 08d6d8834ad9ec87b1dc7ec8148e7a1f  # PQ
+          - 9364dd386c9b4a1100dde8264690add7  # HLG
+          - 923b6abef9b17f937fab56cfcf89e1f1  # DV (WEBDL)        
           # French Audio Version
           - 02e48d30a176c91baf9e15de05e5dc6a # FanSUB
           - 7f9b93f82b7e996391525f2be1d891e0 # FastSUB
