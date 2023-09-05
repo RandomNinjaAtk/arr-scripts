@@ -89,7 +89,6 @@ radarr:
           - dfb86d5941bc9075d6af23b09c2aeecd # HDR10
           - e61e28db95d22bedcadf030b8f156d96 # HDR
           - 2a4d9069cc1fe3242ff9bdaebed239bb # HDR (undefined)
-          - eecf3a857724171f968a66cb5719e152 # IMAX
           - 9f6cbff8cfe4ebbc1bde14c7b7bec0de # IMAX Enhanced
           - 1af239278386be2919e1bcee0bde047e # DD+ ATMOS
           - 77ff61788dfe1097194fd8743d7b4524 # 5.1 Surround
