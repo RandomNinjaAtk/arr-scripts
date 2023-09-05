@@ -16,8 +16,32 @@ radarr:
     base_url: http://127.0.0.1:7878
     api_key: arrApi
     
-    quality_definition:
-      type: sqp-streaming
+    quality_profiles:
+      - name: Any
+        reset_unmatched_scores:
+          enabled: true
+        upgrade:
+          allowed: true
+          until_score: 100000
+          until_quality: Any
+        min_format_score: 0
+        quality_sort: top
+        qualities:
+          - name: Any
+            qualities:
+              - WEBDL-1080p
+              - WEBDL-2160p
+              - Bluray-1080p
+              - WEBRip-1080p
+              - WEBRip-2160p
+              - Bluray-2160p
+              - WEBDL-720p
+              - WEBRip-720p
+              - Bluray-720p
+              - WEBDL-480p
+              - WEBRip-480p
+              - Bluray-480p
+              - SDTV
 
     custom_formats:
       # Custom scoring  
