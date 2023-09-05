@@ -91,13 +91,17 @@ echo "Download Extras script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/Extras.bash -o /config/extended/Extras.bash 
 echo "Done"
 
-echo "Download SMA config..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/sma.ini -o /config/extended/sma.ini 
-echo "Done"
+if [ ! -f /config/extended/sma.ini ]; then
+	echo "Download SMA config..."
+	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/sma.ini -o /config/extended/sma.ini 
+	echo "Done"
+fi
 
-echo "Download Recyclarr config..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/recyclarr.yaml -o /config/extended/recyclarr.yaml
-echo "Done"
+if [ ! -f /config/extended/recyclarr.yaml ]; then
+	echo "Download Recyclarr config..."
+	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/recyclarr.yaml -o /config/extended/recyclarr.yaml
+	echo "Done"
+fi
 
 if [ ! -f /config/extended.conf ]; then
 	echo "Download Extended config..."
