@@ -57,6 +57,10 @@ echo "Download Recyclarr service..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/services/Recyclarr -o /custom-services.d/Recyclarr
 echo "Done"
 
+echo "Download InvalidMoviesAutoCleaner service..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/InvalidMoviesAutoCleaner.bash -o /custom-services.d/InvalidMoviesAutoCleaner
+echo "Done"
+
 echo "Download UnmappedFolderCleaner service..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/UnmappedFolderCleaner.bash -o /custom-services.d/UnmappedFolderCleaner
 echo "Done"
