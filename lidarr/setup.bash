@@ -102,6 +102,10 @@ echo "Download Tidal config..."
 curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/tidal-dl.json" -o /config/extended/tidal-dl.json
 echo "Done"
 
+echo "Download LyricExtractor script..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/LyricExtractor.bash -o /config/extended/LyricExtractor.bash
+echo "Done"
+
 if [ ! -f /config/extended.conf ]; then
 	echo "Download Extended config..."
 	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/extended.conf -o /config/extended.conf
