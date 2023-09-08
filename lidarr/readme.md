@@ -75,7 +75,7 @@ This configuration does its best to update everything automatically, but with ho
 * Queue Cleaner Script
   * Automatically removes downloads that have a "warning" or "failed" status that will not auto-import into Lidarr, which enables Lidarr to automatically re-search for the album
 
-For more details, visit the [Wiki](https://github.com/RandomNinjaAtk/arr-scripts/wiki)
+For more details, visit the [Wiki](https://github.com/RandomNinjaAtk/arr-scripts/wiki/Lidarr)
 
 ### Audio & Video (Plex Example)
 
