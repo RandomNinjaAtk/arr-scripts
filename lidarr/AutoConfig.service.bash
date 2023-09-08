@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="2.5"
+scriptVersion="2.6"
 scriptName="AutoConfig"
 
 ### Import Settings
@@ -53,6 +53,16 @@ if [ "$configureCustomScripts" == "true" ] || [ -z "$configureCustomScripts" ]; 
 		postSettingsToLidarr=$(curl -s "$arrUrl/api/v1/filesystem?path=%2Fconfig%2Fextended%2FLyricExtractor.bash&allowFoldersWithoutTrailingSlashes=true&includeFiles=true" -H "X-Api-Key: ${arrApiKey}")
 	
 		postSettingsToLidarr=$(curl -s "$arrUrl/api/v1/notification?" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: ${arrApiKey}" --data-raw '{"onGrab":false,"onReleaseImport":true,"onUpgrade":true,"onRename":true,"onHealthIssue":false,"onDownloadFailure":false,"onImportFailure":false,"onTrackRetag":false,"onApplicationUpdate":false,"supportsOnGrab":true,"supportsOnReleaseImport":true,"supportsOnUpgrade":true,"supportsOnRename":true,"supportsOnHealthIssue":true,"includeHealthWarnings":false,"supportsOnDownloadFailure":false,"supportsOnImportFailure":false,"supportsOnTrackRetag":true,"supportsOnApplicationUpdate":true,"name":"LyricExtractor.bash","fields":[{"name":"path","value":"/config/extended/LyricExtractor.bash"},{"name":"arguments"}],"implementationName":"Custom Script","implementation":"CustomScript","configContract":"CustomScriptSettings","infoLink":"https://wiki.servarr.com/lidarr/supported#customscript","message":{"message":"Testing will execute the script with the EventType set to Test, ensure your script handles this correctly","type":"warning"},"tags":[]}')
+	
+	fi
+
+ 	if curl -s "$arrUrl/api/v1/notification" -H "X-Api-Key: ${arrApiKey}" | jq -r .[].name | grep "ArtworkExtractor.bash" | read; then
+		log "ArtworkExtractor.bash Already added to Lidarr custom scripts"
+	else
+		log "Adding ArtworkExtractor.bash to Lidarr custom scripts"
+		postSettingsToLidarr=$(curl -s "$arrUrl/api/v1/filesystem?path=%2Fconfig%2Fextended%2FArtworkExtractor.bash&allowFoldersWithoutTrailingSlashes=true&includeFiles=true" -H "X-Api-Key: ${arrApiKey}")
+	
+		postSettingsToLidarr=$(curl -s "$arrUrl/api/v1/notification?" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: ${arrApiKey}" --data-raw '{"onGrab":false,"onReleaseImport":true,"onUpgrade":true,"onRename":true,"onHealthIssue":false,"onDownloadFailure":false,"onImportFailure":false,"onTrackRetag":false,"onApplicationUpdate":false,"supportsOnGrab":true,"supportsOnReleaseImport":true,"supportsOnUpgrade":true,"supportsOnRename":true,"supportsOnHealthIssue":true,"includeHealthWarnings":false,"supportsOnDownloadFailure":false,"supportsOnImportFailure":false,"supportsOnTrackRetag":true,"supportsOnApplicationUpdate":true,"name":"ArtworkExtractor.bash","fields":[{"name":"path","value":"/config/extended/ArtworkExtractor.bash"},{"name":"arguments"}],"implementationName":"Custom Script","implementation":"CustomScript","configContract":"CustomScriptSettings","infoLink":"https://wiki.servarr.com/lidarr/supported#customscript","message":{"message":"Testing will execute the script with the EventType set to Test, ensure your script handles this correctly","type":"warning"},"tags":[]}')
 	
 	fi
 fi
