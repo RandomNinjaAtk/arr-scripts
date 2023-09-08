@@ -1,4 +1,4 @@
-plugins: embedart lastgenre
+plugins: chroma embedart lastgenre
 art_filename: folder
 threaded: yes
 per_disc_numbering: yes
@@ -65,9 +65,12 @@ import:
     languages: ['en']
     group_albums: no
 
-embedart:
+chroma:
     auto: yes
 
+embedart:
+    auto: yes
+    
 lastgenre:
     auto: yes
     canonical: yes
