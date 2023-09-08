@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 scriptVersion="1.0"
-scriptName="Beets"
+scriptName="BeetsTagger"
 
 #### Import Settings
 source /config/extended.conf
@@ -50,8 +50,8 @@ ProcessWithBeets () {
 
 	# Input
 	# $1 Download Folder to process
-	if [ -f /config/extended/library-postprocessor.blb ]; then
-		rm /config/extended/library-postprocessor.blb
+	if [ -f /config/extended/library-lidarr.blb ]; then
+		rm /config/extended/library-lidarr.blb
 		sleep 0.5
 	fi
 	if [ -f /config/extended/extended/logs/beets.log ]; then 
@@ -59,16 +59,16 @@ ProcessWithBeets () {
 		sleep 0.5
 	fi
 
-	if [ -f "/config/extended/beets-postprocessor-match" ]; then 
-		rm "/config/extended/beets-postprocessor-match"
+	if [ -f "/config/extended/beets-lidarr-match" ]; then 
+		rm "/config/extended/beets-lidarr-match"
 		sleep 0.5
 	fi
-	touch "/config/extended/beets-postprocessor-match"
+	touch "/config/extended/beets-lidarr-match"
 	sleep 0.5
 
     log "$1 :: Being matching with beets!"
-	beet -c /config/extended/beets-config-postprocessor.yaml -l /config/extended/library-postprocessor.blb -d "$1" import -qC "$1"
-	if [ $(find "$1" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -newer "/config/extended/beets-postprocessor-match" | wc -l) -gt 0 ]; then
+	beet -c /config/extended/beets-config-lidarr.yaml -l /config/extended/library-lidarr.blb -d "$1" import -qC "$1"
+	if [ $(find "$1" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -newer "/config/extended/beets-lidarr-match" | wc -l) -gt 0 ]; then
 		log "$1 :: SUCCESS :: Matched with beets!"
 		
 		# Fix tags
@@ -103,13 +103,13 @@ ProcessWithBeets () {
 		log "$1 :: ERROR :: Unable to match using beets to a musicbrainz release..."
 	fi	
 
-	if [ -f "/config/extended/beets-postprocessor-match" ]; then 
-		rm "/config/extended/beets-postprocessor-match"
+	if [ -f "/config/extended/beets-lidarr-match" ]; then 
+		rm "/config/extended/beets-lidarr-match"
 		sleep 0.5
 	fi
 
-	if [ -f /config/extended/library-postprocessor.blb ]; then
-		rm /config/extended/library-postprocessor.blb
+	if [ -f /config/extended/library-lidarr.blb ]; then
+		rm /config/extended/library-lidarr.blb
 		sleep 0.5
 	fi
 	if [ -f /config/extended/logs/beets.log ]; then 
