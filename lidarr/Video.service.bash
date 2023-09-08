@@ -128,10 +128,10 @@ ImvdbCache () {
     cachedArtistImvdbVideoUrlsCount=$(ls /config/extended/cache/imvdb/$lidarrArtistMusicbrainzId--* 2>/dev/null | wc -l)
 
     if [ "$artistImvdbVideoUrlsCount" == "$cachedArtistImvdbVideoUrlsCount" ]; then
-        log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Chache is already up-to-date ($artistImvdbVideoUrlsCount==$cachedArtistImvdbVideoUrlsCount), skipping..."
+        log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Cache is already up-to-date ($artistImvdbVideoUrlsCount==$cachedArtistImvdbVideoUrlsCount), skipping..."
         return
     else 
-        log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Chache needs updating (${artistImvdbVideoUrlsCount}!=${cachedArtistImvdbVideoUrlsCount})..."
+        log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Cache needs updating (${artistImvdbVideoUrlsCount}!=${cachedArtistImvdbVideoUrlsCount})..."
     	if [ -f "/config/extended/logs/video/complete/$lidarrArtistMusicbrainzId" ]; then
 		    log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Removing Artist completed log file to allow artist re-processing..."
 		    rm "/config/extended/logs/video/complete/$lidarrArtistMusicbrainzId"
