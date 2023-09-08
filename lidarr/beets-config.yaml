@@ -71,7 +71,7 @@ embedart:
 lastgenre:
     auto: yes
     canonical: yes
-    count: 1
+    count: 3
     fallback: None
     force: yes
     min_weight: 10
