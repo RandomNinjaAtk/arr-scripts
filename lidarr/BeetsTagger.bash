@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.0"
+scriptVersion="1.1"
 scriptName="BeetsTagger"
 
 #### Import Settings
@@ -69,42 +69,37 @@ ProcessWithBeets () {
 	touch "/config/extended/beets-lidarr-match"
 	sleep 0.5
 
-    log "$1 :: Being matching with beets!"
+    log "$1 :: Begin matching with beets!"
 	beet -c /config/extended/beets-config-lidarr.yaml -l /config/extended/library-lidarr.blb -d "$1" import -qC "$1"
-	if [ $(find "$1" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -newer "/config/extended/beets-lidarr-match" | wc -l) -gt 0 ]; then
-		log "$1 :: SUCCESS :: Matched with beets!"
+	# Fix tags
+	log "$1 :: Fixing Tags..."
 		
-		# Fix tags
-		log "$1 :: Fixing Tags..."
-		
-		# Fix flac tags
-		fixed=0
-		find "$1" -type f -iname "*.flac" -print0 | while IFS= read -r -d '' file; do
-			if [ $fixed == 0 ]; then
-				fixed=$(( $fixed + 1 ))
-				log "$1 :: Fixing Flac Tags..."
-			fi
-			getArtistCredit="$(ffprobe -loglevel 0 -print_format json -show_format -show_streams "$file" | jq -r ".format.tags.ARTIST_CREDIT" | sed "s/null//g" | sed "/^$/d")"
-			metaflac --remove-tag=ARTIST "$file"
-			metaflac --remove-tag=ALBUMARTIST "$file"
-			metaflac --remove-tag=ALBUMARTIST_CREDIT "$file"
-			metaflac --remove-tag=ALBUMARTISTSORT "$file"
-			metaflac --remove-tag=ALBUM_ARTIST "$file"
-			metaflac --remove-tag="ALBUM ARTIST" "$file"
-			metaflac --remove-tag=ARTISTSORT "$file"
-			metaflac --remove-tag=COMPOSERSORT "$file"
-			metaflac --set-tag=ALBUMARTIST="$getAlbumArtist" "$file"
-			if [ ! -z "$getArtistCredit" ]; then
-        			metaflac --set-tag=ARTIST="$getArtistCredit" "$file"
+	# Fix flac tags
+	fixed=0
+	find "$1" -type f -iname "*.flac" -print0 | while IFS= read -r -d '' file; do
+		if [ $fixed == 0 ]; then
+			fixed=$(( $fixed + 1 ))
+			log "$1 :: Fixing Flac Tags..."
+		fi
+		getArtistCredit="$(ffprobe -loglevel 0 -print_format json -show_format -show_streams "$file" | jq -r ".format.tags.ARTIST_CREDIT" | sed "s/null//g" | sed "/^$/d")"
+		metaflac --remove-tag=ARTIST "$file"
+		metaflac --remove-tag=ALBUMARTIST "$file"
+		metaflac --remove-tag=ALBUMARTIST_CREDIT "$file"
+		metaflac --remove-tag=ALBUMARTISTSORT "$file"
+		metaflac --remove-tag=ALBUM_ARTIST "$file"
+		metaflac --remove-tag="ALBUM ARTIST" "$file"
+		metaflac --remove-tag=ARTISTSORT "$file"
+		metaflac --remove-tag=COMPOSERSORT "$file"
+		metaflac --set-tag=ALBUMARTIST="$getAlbumArtist" "$file"
+		if [ ! -z "$getArtistCredit" ]; then
+       			metaflac --set-tag=ARTIST="$getArtistCredit" "$file"
 			else
-				metaflac --set-tag=ARTIST="$getAlbumArtist" "$file"
-			fi
-		done
+			metaflac --set-tag=ARTIST="$getAlbumArtist" "$file"
+		fi
+	done
 		
-		log "$1 :: Fixing Tags Complete!"		
-	else
-		log "$1 :: ERROR :: Unable to match using beets to a musicbrainz release..."
-	fi	
+	log "$1 :: Fixing Tags Complete!"	
+	
 
 	if [ -f "/config/extended/beets-lidarr-match" ]; then 
 		rm "/config/extended/beets-lidarr-match"
