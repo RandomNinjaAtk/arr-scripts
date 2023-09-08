@@ -106,6 +106,12 @@ echo "Download LyricExtractor script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/LyricExtractor.bash -o /config/extended/LyricExtractor.bash
 echo "Done"
 
+if [ ! -f /config/extended/beets-genre-whitelist.txt ]; then
+	echo "Download beets-genre-whitelist.txt..."
+	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/beets-genre-whitelist.txt -o /config/extended/beets-genre-whitelist.txt
+	echo "Done"
+fi
+
 echo "Download ArtworkExtractor script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/ArtworkExtractor.bash -o /config/extended/ArtworkExtractor.bash
 echo "Done"
