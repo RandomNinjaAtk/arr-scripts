@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.0"
+scriptVersion="1.1"
 scriptName="ArtworkExtractor"
 
 #### Import Settings
@@ -41,11 +41,6 @@ if echo "$getFolderPath" | grep "$getAlbumArtistPath" | read; then
 else 
 	log "ERROR :: $getAlbumArtistPath not found within \"$getFolderPath\" :: Exiting..."
 	exit
-fi
-
-if ls "$getFolderPath" | grep "lrc" | read; then
-    log "Processing :: $getAlbumFolderName :: Removing existing lrc files"
-    find "$getFolderPath" -type f -iname "*.lrc" -delete
 fi
 
 find "$getFolderPath" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -print0 | while IFS= read -r -d '' file; do
