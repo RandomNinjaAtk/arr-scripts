@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.3"
+scriptVersion="1.4"
 scriptName="LyricExtractor"
 
 #### Import Settings
@@ -56,10 +56,10 @@ find "$getFolderPath" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -print0 |
     if [ "$fileExt" == "flac" ]; then
         log "Processing :: $getAlbumFolderName :: $fileName :: Getting Lyrics from embedded metadata"
         getLyrics="$(ffprobe -loglevel 0 -print_format json -show_format -show_streams "$file" | jq -r ".format.tags.LYRICS" 2>/dev/null | sed "s/null//g" | sed "/^$/d")"
-        if [ ! -z "$getLyrics" ]; then
+        if [ -z "$getLyrics" ]; then
             getLyrics="$(ffprobe -loglevel 0 -print_format json -show_format -show_streams "$file" | jq -r ".format.tags.Lyrics" 2>/dev/null | sed "s/null//g" | sed "/^$/d")"
         fi
-        if [ ! -z "$getLyrics" ]; then
+        if [ -z "$getLyrics" ]; then
             getLyrics="$(ffprobe -loglevel 0 -print_format json -show_format -show_streams "$file" | jq -r ".format.tags.lyrics" 2>/dev/null | sed "s/null//g" | sed "/^$/d")"
         fi
     fi
@@ -67,10 +67,10 @@ find "$getFolderPath" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -print0 |
     if [ "$fileExt" == "opus" ]; then
         log "Processing :: $getAlbumFolderName :: $fileName :: Getting Lyrics from embedded metadata"
         getLyrics="$(ffprobe -loglevel 0 -print_format json -show_format -show_streams "$file" | jq -r ".streams[].tags.LYRICS" 2>/dev/null | sed "s/null//g" | sed "/^$/d")"
-        if [ ! -z "$getLyrics" ]; then
+        if [ -z "$getLyrics" ]; then
             getLyrics="$(ffprobe -loglevel 0 -print_format json -show_format -show_streams "$file" | jq -r ".streams[].tags.Lyrics" 2>/dev/null | sed "s/null//g" | sed "/^$/d")"
         fi
-        if [ ! -z "$getLyrics" ]; then
+        if [ -z "$getLyrics" ]; then
             getLyrics="$(ffprobe -loglevel 0 -print_format json -show_format -show_streams "$file" | jq -r ".streams[].tags.lyrics" 2>/dev/null | sed "s/null//g" | sed "/^$/d")"
         fi
     fi
