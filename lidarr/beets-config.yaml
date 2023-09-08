@@ -1,4 +1,4 @@
-plugins: embedart
+plugins: embedart lastgenre
 art_filename: folder
 threaded: yes
 per_disc_numbering: yes
@@ -66,4 +66,17 @@ import:
     group_albums: no
 
 embedart:
-    auto: no
+    auto: yes
+
+lastgenre:
+    auto: yes
+    canonical: yes
+    count: 1
+    fallback: None
+    force: yes
+    min_weight: 10
+    prefer_specific: no
+    source: album
+    separator: ', '
+    whitelist: /config/extended/beets-genre-whitelist.txt
+    title_case: yes
