@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.13"
+scriptVersion="2.14"
 scriptName="Audio"
 
 ### Import Settings
@@ -741,21 +741,34 @@ ProcessWithBeets () {
 	beet -c /config/extended/beets-config.yaml -l /config/extended/beets-library.blb -d "$1" import -qC "$1"
 	if [ $(find "$1" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -newer "/config/beets-match" | wc -l) -gt 0 ]; then
 		log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: SUCCESS: Matched with beets!"
+		log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: fixing track tags" 
 		find "$audioPath/incomplete" -type f -iname "*.flac" -print0 | while IFS= read -r -d '' file; do
 			getArtistCredit="$(ffprobe -loglevel 0 -print_format json -show_format -show_streams "$file" | jq -r ".format.tags.ARTIST_CREDIT" | sed "s/null//g" | sed "/^$/d")"
+			# album artist
 			metaflac --remove-tag=ALBUMARTIST "$file"
 			metaflac --remove-tag=ALBUMARTIST_CREDIT "$file"
-			metaflac --remove-tag=ALBUMARTISTSORT "$file"
 			metaflac --remove-tag=ALBUM_ARTIST "$file"
 			metaflac --remove-tag="ALBUM ARTIST" "$file"
-			metaflac --remove-tag=ARTISTSORT "$file"
+			# artist
 			metaflac --remove-tag=ARTIST "$file"
+			metaflac --remove-tag=ARTIST_CREDIT "$file"
+			if [ ! -z "$getArtistCredit" ]; then
+        		metaflac --set-tag=ARTIST="$getArtistCredit" "$file"
+			else
+				metaflac --set-tag=ARTIST="$lidarrArtistName" "$file"
+			fi
+			# sorts
+			metaflac --remove-tag=ARTISTSORT "$file"
+			metaflac --remove-tag=COMPOSERSORT "$file"
+			metaflac --remove-tag=ALBUMARTISTSORT "$file"
+			# lidarr
+			metaflac --set-tag=ALBUMARTIST="$lidarrArtistName" "$file"
+			# mbrainz
 			metaflac --remove-tag=MUSICBRAINZ_ARTISTID "$file"
 			metaflac --remove-tag=MUSICBRAINZ_ALBUMARTISTID "$file"
-			metaflac --set-tag=ARTIST="$lidarrArtistName" "$file"
-			metaflac --set-tag=ALBUMARTIST="$lidarrArtistName" "$file"
 			metaflac --set-tag=MUSICBRAINZ_ARTISTID="$lidarrArtistForeignArtistId" "$file"
 			metaflac --set-tag=MUSICBRAINZ_ALBUMARTISTID="$lidarrArtistForeignArtistId" "$file"
+			log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: FIXED : $file"
 		done
 	else
 		log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: ERROR :: Unable to match using beets to a musicbrainz release..."
