@@ -24,7 +24,10 @@ if [ -z "$lidarr_album_id" ]; then
 	lidarr_album_id="$1"
 fi
 
-
+if [ "$enableBeetsTagging" != "true" ]; then
+  log "Beets tagging is disabled, please enable by setting \"enableBeetsTagging=true\" in \"/config/extended.conf\""
+  exit 0
+fi
 
 getAlbumArtist="$(curl -s "$arrUrl/api/v1/album/$lidarr_album_id" -H "X-Api-Key: ${arrApiKey}" | jq -r .artist.artistName)"
 getAlbumArtistPath="$(curl -s "$arrUrl/api/v1/album/$lidarr_album_id" -H "X-Api-Key: ${arrApiKey}" | jq -r .artist.path)"
