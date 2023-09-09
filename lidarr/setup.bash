@@ -111,6 +111,10 @@ echo "Download LyricExtractor script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/LyricExtractor.bash -o /config/extended/LyricExtractor.bash
 echo "Done"
 
+echo "Download ArtworkExtractor script..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/ArtworkExtractor.bash -o /config/extended/ArtworkExtractor.bash
+echo "Done"
+
 echo "Download Beets Tagger script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/BeetsTagger.bash -o /config/extended/BeetsTagger.bash
 echo "Done"
