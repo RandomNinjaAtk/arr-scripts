@@ -133,5 +133,5 @@ if [ ! -f /config/extended.conf ]; then
 fi
 
 chmod 777 -R /config/extended
-
+chmod 777 -R /root
 exit
