@@ -13,6 +13,7 @@ apk add -U --upgrade --no-cache \
   ffmpeg \
   imagemagick \
   opus-tools \
+  opustags \
   python3-dev \
   libc-dev \
   py3-pip \
