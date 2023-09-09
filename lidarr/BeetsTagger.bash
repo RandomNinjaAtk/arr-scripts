@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.2"
+scriptVersion="1.3"
 scriptName="BeetsTagger"
 
 #### Import Settings
@@ -122,16 +122,6 @@ ProcessWithBeets () {
 
 	duration=$SECONDS
 	log "$1 :: Finished in $(($duration / 60 )) minutes and $(($duration % 60 )) seconds!"
- 	NotifyPlex "$getAlbumArtist" "$getAlbumArtistPath"
-}
-
-NotifyPlex () {
-	# Process item with PlexNotify.bash if plexToken is configured
-	if [ ! -z "$plexToken" ]; then
-		# update plex
-		log "$1 :: Using PlexNotify.bash to update Plex...."
-		bash /config/extended/PlexNotify.bash "$2"
-	fi
 }
 
 ProcessWithBeets "$getFolderPath"
