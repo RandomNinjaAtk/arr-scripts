@@ -46,9 +46,14 @@ else
 	exit
 fi
 ProcessWithBeets () {
-
-	SECONDS=0
 	log "$1 :: Start Processing..."
+	if find "$1" -type f -iname "*.flac" -print0  | read; then
+ 		sleep 0.01
+   	else
+    		log "$1 :: ERROR :: Only supports flac files, exiting..." 
+    		return
+        fi
+	SECONDS=0
 	
 
 	# Input
@@ -117,6 +122,7 @@ ProcessWithBeets () {
 
 	duration=$SECONDS
 	log "$1 :: Finished in $(($duration / 60 )) minutes and $(($duration % 60 )) seconds!"
+ 	NotifyPlex "$getAlbumArtist" "$getAlbumArtistPath"
 }
 
 NotifyPlex () {
@@ -129,7 +135,5 @@ NotifyPlex () {
 }
 
 ProcessWithBeets "$getFolderPath"
-MetadataPostProcess "$lidarr_album_id"
 NotifyPlex "$getAlbumArtist" "$getAlbumArtistPath"
-exit
 exit
