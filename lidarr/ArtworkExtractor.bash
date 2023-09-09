@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.1"
+scriptVersion="1.2"
 scriptName="ArtworkExtractor"
 
 #### Import Settings
@@ -16,7 +16,6 @@ if [ "$lidarr_eventtype" == "Test" ]; then
 	exit 0	
 fi
 
-verifyConfig
 getArrAppInfo
 verifyApiAccess
 
