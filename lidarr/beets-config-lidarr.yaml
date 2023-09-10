@@ -80,7 +80,7 @@ lastgenre:
     min_weight: 10
     prefer_specific: no
     source: album
-    separator: ', '
+    separator: '; '
     whitelist: /config/extended/beets-genre-whitelist.txt
     title_case: yes
 
