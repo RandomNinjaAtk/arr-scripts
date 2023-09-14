@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="2.7"
+scriptVersion="2.8"
 scriptName="AutoConfig"
 
 ### Import Settings
@@ -31,7 +31,7 @@ fi
 
 if [ "$configureMetadataProviderSettings" == "true" ] || [ -z "$configureMetadataProviderSettings" ]; then
   log "Configuring Lidarr Metadata Provider Settings"
-  postSettingsToLidarr=$(curl -s "$arrUrl/api/v1/config/metadataProvider" -X PUT -H 'Content-Type: application/json' -H "X-Api-Key: ${arrApiKey}" --data-raw '{"metadataSource":"","writeAudioTags":"sync","scrubAudioTags":false,"id":1}')
+  postSettingsToLidarr=$(curl -s "$arrUrl/api/v1/config/metadataProvider" -X PUT -H 'Content-Type: application/json' -H "X-Api-Key: ${arrApiKey}" --data-raw '{"metadataSource":"","writeAudioTags":"newFiles","scrubAudioTags":false,"id":1}')
 fi
 
 if [ "$configureCustomScripts" == "true" ] || [ -z "$configureCustomScripts" ]; then
