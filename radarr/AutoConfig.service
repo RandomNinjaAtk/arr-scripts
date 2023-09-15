@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.8"
+scriptVersion="1.9"
 scriptName="AutoConfig"
 
 #### Import Settings
@@ -29,67 +29,54 @@ fi
 trashStandardMovieFormat=$(echo "$namingJson" | jq -r '.file.default')
 trashMovieFolderFormat=$(echo "$namingJson" | jq -r '.folder.default')
 
-log "Updating Radarr Moving Naming..."
-updateArr=$(curl -s "$arrUrl/api/v3/config/naming" -X PUT -H "Content-Type: application/json" -H "X-Api-Key: $arrApiKey" --data-raw "{
-    \"renameMovies\":true,
-    \"replaceIllegalCharacters\":true,
-    \"colonReplacementFormat\":\"delete\",
-    \"standardMovieFormat\":\"$trashStandardMovieFormat\",
-    \"movieFolderFormat\":\"$trashMovieFolderFormat\",
-    \"includeQuality\":false,
-    \"replaceSpaces\":false,
-    \"id\":1
-    }")
-    
-log "Complete"
-
-log "Updating Radarr Media Management..."
-updateArr=$(curl -s "$arrUrl/api/v3/config/mediamanagement" -X PUT -H "Content-Type: application/json" -H "X-Api-Key: $arrApiKey" --data-raw '{
-  "autoUnmonitorPreviouslyDownloadedMovies":false,
-  "recycleBin":"",
-  "recycleBinCleanupDays":7,
-  "downloadPropersAndRepacks":"doNotPrefer",
-  "createEmptyMovieFolders":false,
-  "deleteEmptyFolders":true,
-  "fileDate":"cinemas",
-  "rescanAfterRefresh":"never",
-  "autoRenameFolders":false,
-  "pathsDefaultStatic":false,
-  "setPermissionsLinux":false,
-  "chmodFolder":"777",
-  "chownGroup":"",
-  "skipFreeSpaceCheckWhenImporting":false,
-  "minimumFreeSpaceWhenImporting":100,
-  "copyUsingHardlinks":true,
-  "importExtraFiles":true,
-  "extraFileExtensions":"srt",
-  "enableMediaInfo":true,
-  "id":1
-  }')
-log "Complete"
-
-log "Updating Radarr Medata Settings..."
-updateArr=$(curl -s "$arrUrl/api/v3/metadata/1?" -X PUT -H "Content-Type: application/json" -H "X-Api-Key: $arrApiKey" --data-raw '{
-  "enable":true,"name":"Kodi (XBMC) / Emby","fields":[{"name":"movieMetadata","value":true},{"name":"movieMetadataURL","value":false},{"name":"movieMetadataLanguage","value":1},{"name":"movieImages","value":true},{"name":"useMovieNfo","value":true}],"implementationName":"Kodi (XBMC) / Emby","implementation":"XbmcMetadata","configContract":"XbmcMetadataSettings","infoLink":"https://wiki.servarr.com/radarr/supported#xbmcmetadata","tags":[],"id":1}')
-log "Complete"
-
-log "Configuring Radarr Custom Scripts"
-if curl -s "$arrUrl/api/v3/notification" -H "X-Api-Key: ${arrApiKey}" | jq -r .[].name | grep "PlexNotify.bash" | read; then
-	log "PlexNotify.bash already added to Radarr custom scripts"
-else
-	log "Adding PlexNotify.bash to Radarr custom scripts"
-	updateArr=$(curl -s "$arrUrl/api/v3/filesystem?path=%2Fconfig%2Fextended%2Fscripts%2FPlexNotify.bash&allowFoldersWithoutTrailingSlashes=true&includeFiles=true" -H "X-Api-Key: ${arrApiKey}")
-  updateArr=$(curl -s "$arrUrl/api/v3/notification?" -X POST -H "Content-Type: application/json" -H "X-Api-Key: ${arrApiKey}" --data-raw '{"onGrab":false,"onDownload":true,"onUpgrade":true,"onRename":true,"onMovieAdded":false,"onMovieDelete":false,"onMovieFileDelete":true,"onMovieFileDeleteForUpgrade":true,"onHealthIssue":false,"onApplicationUpdate":false,"supportsOnGrab":true,"supportsOnDownload":true,"supportsOnUpgrade":true,"supportsOnRename":true,"supportsOnMovieAdded":true,"supportsOnMovieDelete":true,"supportsOnMovieFileDelete":true,"supportsOnMovieFileDeleteForUpgrade":true,"supportsOnHealthIssue":true,"supportsOnApplicationUpdate":true,"includeHealthWarnings":false,"name":"PlexNotify.bash","fields":[{"name":"path","value":"/config/extended/PlexNotify.bash"},{"name":"arguments"}],"implementationName":"Custom Script","implementation":"CustomScript","configContract":"CustomScriptSettings","infoLink":"https://wiki.servarr.com/radarr/supported#customscript","message":{"message":"Testing will execute the script with the EventType set to Test, ensure your script handles this correctly","type":"warning"},"tags":[]}')
-  log "Complete"
+if [ "$configureNaming" == "true" ] || [ -z "$configureNaming" ]; then
+	log "Updating Radarr Moving Naming..."
+	updateArr=$(curl -s "$arrUrl/api/v3/config/naming" -X PUT -H "Content-Type: application/json" -H "X-Api-Key: $arrApiKey" --data-raw "{
+	    \"renameMovies\":true,
+	    \"replaceIllegalCharacters\":true,
+	    \"colonReplacementFormat\":\"delete\",
+	    \"standardMovieFormat\":\"$trashStandardMovieFormat\",
+	    \"movieFolderFormat\":\"$trashMovieFolderFormat\",
+	    \"includeQuality\":false,
+	    \"replaceSpaces\":false,
+	    \"id\":1
+	    }")
+	    
+	log "Complete"
 fi
 
-if curl -s "$arrUrl/api/v3/notification" -H "X-Api-Key: ${arrApiKey}" | jq -r .[].name | grep "Extras.bash" | read; then
-	log "Extras.bash already added to Radarr custom scripts"
-else
-	log "Adding Extras.bash to Radarr custom scripts"ogs
-	updateArr=$(curl -s "$arrUrl/api/v3/filesystem?path=%2Fconfig%2Fextended%2Fscripts%2FExtras.bash&allowFoldersWithoutTrailingSlashes=true&includeFiles=true" -H "X-Api-Key: ${arrApiKey}")
-  updateArr=$(curl -s "$arrUrl/api/v3/notification?" -X POST -H "Content-Type: application/json" -H "X-Api-Key: ${arrApiKey}" --data-raw '{"onGrab":false,"onDownload":true,"onUpgrade":true,"onRename":true,"onMovieAdded":false,"onMovieDelete":false,"onMovieFileDelete":false,"onMovieFileDeleteForUpgrade":false,"onHealthIssue":false,"onApplicationUpdate":false,"supportsOnGrab":true,"supportsOnDownload":true,"supportsOnUpgrade":true,"supportsOnRename":true,"supportsOnMovieAdded":true,"supportsOnMovieDelete":true,"supportsOnMovieFileDelete":true,"supportsOnMovieFileDeleteForUpgrade":true,"supportsOnHealthIssue":true,"supportsOnApplicationUpdate":true,"includeHealthWarnings":false,"name":"Extras.bash","fields":[{"name":"path","value":"/config/extended/Extras.bash"},{"name":"arguments"}],"implementationName":"Custom Script","implementation":"CustomScript","configContract":"CustomScriptSettings","infoLink":"https://wiki.servarr.com/radarr/supported#customscript","message":{"message":"Testing will execute the script with the EventType set to Test, ensure your script handles this correctly","type":"warning"},"tags":[]}')
-  log "Complete"
+if [ "$configureMediaManagement" == "true" ] || [ -z "$configureMediaManagement" ]; then
+	log "Updating Radarr Media Management..."
+	updateArr=$(curl -s "$arrUrl/api/v3/config/mediamanagement" -X PUT -H "Content-Type: application/json" -H "X-Api-Key: $arrApiKey" --data-raw '{"autoUnmonitorPreviouslyDownloadedMovies":false,"recycleBin":"","recycleBinCleanupDays":7,"downloadPropersAndRepacks":"doNotPrefer","createEmptyMovieFolders":false,"deleteEmptyFolders":true,"fileDate":"cinemas","rescanAfterRefresh":"always","autoRenameFolders":false,"pathsDefaultStatic":false,"setPermissionsLinux":false,"chmodFolder":"777","chownGroup":"","skipFreeSpaceCheckWhenImporting":false,"minimumFreeSpaceWhenImporting":100,"copyUsingHardlinks":true,"useScriptImport":false,"scriptImportPath":"","importExtraFiles":true,"extraFileExtensions":"srt","enableMediaInfo":true,"id":1}')
+	log "Complete"
+fi
+
+if [ "$configureMetadataProviderSettings" == "true" ] || [ -z "$configureMetadataProviderSettings" ]; then
+	log "Updating Radarr Medata Settings..."
+	updateArr=$(curl -s "$arrUrl/api/v3/metadata/1?" -X PUT -H "Content-Type: application/json" -H "X-Api-Key: $arrApiKey" --data-raw '{
+	  "enable":true,"name":"Kodi (XBMC) / Emby","fields":[{"name":"movieMetadata","value":true},{"name":"movieMetadataURL","value":false},{"name":"movieMetadataLanguage","value":1},{"name":"movieImages","value":true},{"name":"useMovieNfo","value":true}],"implementationName":"Kodi (XBMC) / Emby","implementation":"XbmcMetadata","configContract":"XbmcMetadataSettings","infoLink":"https://wiki.servarr.com/radarr/supported#xbmcmetadata","tags":[],"id":1}')
+	log "Complete"
+fi
+
+if [ "$configureCustomScripts" == "true" ] || [ -z "$configureCustomScripts" ]; then
+	log "Configuring Radarr Custom Scripts"
+	if curl -s "$arrUrl/api/v3/notification" -H "X-Api-Key: ${arrApiKey}" | jq -r .[].name | grep "PlexNotify.bash" | read; then
+		log "PlexNotify.bash already added to Radarr custom scripts"
+	else
+		log "Adding PlexNotify.bash to Radarr custom scripts"
+		updateArr=$(curl -s "$arrUrl/api/v3/filesystem?path=%2Fconfig%2Fextended%2Fscripts%2FPlexNotify.bash&allowFoldersWithoutTrailingSlashes=true&includeFiles=true" -H "X-Api-Key: ${arrApiKey}")
+	  updateArr=$(curl -s "$arrUrl/api/v3/notification?" -X POST -H "Content-Type: application/json" -H "X-Api-Key: ${arrApiKey}" --data-raw '{"onGrab":false,"onDownload":true,"onUpgrade":true,"onRename":true,"onMovieAdded":false,"onMovieDelete":false,"onMovieFileDelete":true,"onMovieFileDeleteForUpgrade":true,"onHealthIssue":false,"onApplicationUpdate":false,"supportsOnGrab":true,"supportsOnDownload":true,"supportsOnUpgrade":true,"supportsOnRename":true,"supportsOnMovieAdded":true,"supportsOnMovieDelete":true,"supportsOnMovieFileDelete":true,"supportsOnMovieFileDeleteForUpgrade":true,"supportsOnHealthIssue":true,"supportsOnApplicationUpdate":true,"includeHealthWarnings":false,"name":"PlexNotify.bash","fields":[{"name":"path","value":"/config/extended/PlexNotify.bash"},{"name":"arguments"}],"implementationName":"Custom Script","implementation":"CustomScript","configContract":"CustomScriptSettings","infoLink":"https://wiki.servarr.com/radarr/supported#customscript","message":{"message":"Testing will execute the script with the EventType set to Test, ensure your script handles this correctly","type":"warning"},"tags":[]}')
+	  log "Complete"
+	fi
+	
+	if curl -s "$arrUrl/api/v3/notification" -H "X-Api-Key: ${arrApiKey}" | jq -r .[].name | grep "Extras.bash" | read; then
+		log "Extras.bash already added to Radarr custom scripts"
+	else
+		log "Adding Extras.bash to Radarr custom scripts"ogs
+		updateArr=$(curl -s "$arrUrl/api/v3/filesystem?path=%2Fconfig%2Fextended%2Fscripts%2FExtras.bash&allowFoldersWithoutTrailingSlashes=true&includeFiles=true" -H "X-Api-Key: ${arrApiKey}")
+	  updateArr=$(curl -s "$arrUrl/api/v3/notification?" -X POST -H "Content-Type: application/json" -H "X-Api-Key: ${arrApiKey}" --data-raw '{"onGrab":false,"onDownload":true,"onUpgrade":true,"onRename":true,"onMovieAdded":false,"onMovieDelete":false,"onMovieFileDelete":false,"onMovieFileDeleteForUpgrade":false,"onHealthIssue":false,"onApplicationUpdate":false,"supportsOnGrab":true,"supportsOnDownload":true,"supportsOnUpgrade":true,"supportsOnRename":true,"supportsOnMovieAdded":true,"supportsOnMovieDelete":true,"supportsOnMovieFileDelete":true,"supportsOnMovieFileDeleteForUpgrade":true,"supportsOnHealthIssue":true,"supportsOnApplicationUpdate":true,"includeHealthWarnings":false,"name":"Extras.bash","fields":[{"name":"path","value":"/config/extended/Extras.bash"},{"name":"arguments"}],"implementationName":"Custom Script","implementation":"CustomScript","configContract":"CustomScriptSettings","infoLink":"https://wiki.servarr.com/radarr/supported#customscript","message":{"message":"Testing will execute the script with the EventType set to Test, ensure your script handles this correctly","type":"warning"},"tags":[]}')
+	  log "Complete"
+	fi
 fi
 
 # Add Language: Not Original Custom Format
@@ -102,5 +89,7 @@ log "Adding Language: Not Original or English Custom format"
 updateArr=$(curl -s "$arrUrl/api/v3/customformat?" -X POST -H "Content-Type: application/json" -H "X-Api-Key: ${arrApiKey}" --data-raw $'{"includeCustomFormatWhenRenaming":false,"trash_id":"guide-only","trash_score":-10000,"trash_scores":{"default":-10000},"trash_description":"Language: Prefer X but i\'ll take Y","name":"Language: Not Original or English","specifications":[{"implementation":"LanguageSpecification","implementationName":"Language","infoLink":"https://wiki.servarr.com/radarr/settings#custom-formats-2","negate":true,"required":true,"fields":[{"order":0,"name":"value","label":"Language","value":-2,"type":"select","advanced":false,"selectOptions":[{"value":-1,"name":"Any","order":0,"dividerAfter":false},{"value":-2,"name":"Original","order":0,"dividerAfter":false},{"value":0,"name":"Unknown","order":0,"dividerAfter":true},{"value":31,"name":"Arabic","order":0,"dividerAfter":false},{"value":34,"name":"Bengali","order":0,"dividerAfter":false},{"value":41,"name":"Bosnian","order":0,"dividerAfter":false},{"value":29,"name":"Bulgarian","order":0,"dividerAfter":false},{"value":38,"name":"Catalan","order":0,"dividerAfter":false},{"value":10,"name":"Chinese","order":0,"dividerAfter":false},{"value":39,"name":"Croatian","order":0,"dividerAfter":false},{"value":25,"name":"Czech","order":0,"dividerAfter":false},{"value":6,"name":"Danish","order":0,"dividerAfter":false},{"value":7,"name":"Dutch","order":0,"dividerAfter":false},{"value":1,"name":"English","order":0,"dividerAfter":false},{"value":42,"name":"Estonian","order":0,"dividerAfter":false},{"value":16,"name":"Finnish","order":0,"dividerAfter":false},{"value":19,"name":"Flemish","order":0,"dividerAfter":false},{"value":2,"name":"French","order":0,"dividerAfter":false},{"value":4,"name":"German","order":0,"dividerAfter":false},{"value":20,"name":"Greek","order":0,"dividerAfter":false},{"value":23,"name":"Hebrew","order":0,"dividerAfter":false},{"value":26,"name":"Hindi","order":0,"dividerAfter":false},{"value":22,"name":"Hungarian","order":0,"dividerAfter":false},{"value":9,"name":"Icelandic","order":0,"dividerAfter":false},{"value":44,"name":"Indonesian","order":0,"dividerAfter":false},{"value":5,"name":"Italian","order":0,"dividerAfter":false},{"value":8,"name":"Japanese","order":0,"dividerAfter":false},{"value":21,"name":"Korean","order":0,"dividerAfter":false},{"value":36,"name":"Latvian","order":0,"dividerAfter":false},{"value":24,"name":"Lithuanian","order":0,"dividerAfter":false},{"value":15,"name":"Norwegian","order":0,"dividerAfter":false},{"value":33,"name":"Persian","order":0,"dividerAfter":false},{"value":12,"name":"Polish","order":0,"dividerAfter":false},{"value":18,"name":"Portuguese","order":0,"dividerAfter":false},{"value":30,"name":"Portuguese (Brazil)","order":0,"dividerAfter":false},{"value":27,"name":"Romanian","order":0,"dividerAfter":false},{"value":11,"name":"Russian","order":0,"dividerAfter":false},{"value":40,"name":"Serbian","order":0,"dividerAfter":false},{"value":35,"name":"Slovak","order":0,"dividerAfter":false},{"value":3,"name":"Spanish","order":0,"dividerAfter":false},{"value":37,"name":"Spanish (Latino)","order":0,"dividerAfter":false},{"value":14,"name":"Swedish","order":0,"dividerAfter":false},{"value":43,"name":"Tamil","order":0,"dividerAfter":false},{"value":45,"name":"Telugu","order":0,"dividerAfter":false},{"value":28,"name":"Thai","order":0,"dividerAfter":false},{"value":17,"name":"Turkish","order":0,"dividerAfter":false},{"value":32,"name":"Ukrainian","order":0,"dividerAfter":false},{"value":13,"name":"Vietnamese","order":0,"dividerAfter":false}],"privacy":"normal","isFloat":false}],"name":"Not Original","id":2},{"implementation":"LanguageSpecification","implementationName":"Language","infoLink":"https://wiki.servarr.com/radarr/settings#custom-formats-2","negate":true,"required":true,"fields":[{"order":0,"name":"value","label":"Language","value":1,"type":"select","advanced":false,"selectOptions":[{"value":-1,"name":"Any","order":0,"dividerAfter":false},{"value":-2,"name":"Original","order":0,"dividerAfter":false},{"value":0,"name":"Unknown","order":0,"dividerAfter":true},{"value":31,"name":"Arabic","order":0,"dividerAfter":false},{"value":34,"name":"Bengali","order":0,"dividerAfter":false},{"value":41,"name":"Bosnian","order":0,"dividerAfter":false},{"value":29,"name":"Bulgarian","order":0,"dividerAfter":false},{"value":38,"name":"Catalan","order":0,"dividerAfter":false},{"value":10,"name":"Chinese","order":0,"dividerAfter":false},{"value":39,"name":"Croatian","order":0,"dividerAfter":false},{"value":25,"name":"Czech","order":0,"dividerAfter":false},{"value":6,"name":"Danish","order":0,"dividerAfter":false},{"value":7,"name":"Dutch","order":0,"dividerAfter":false},{"value":1,"name":"English","order":0,"dividerAfter":false},{"value":42,"name":"Estonian","order":0,"dividerAfter":false},{"value":16,"name":"Finnish","order":0,"dividerAfter":false},{"value":19,"name":"Flemish","order":0,"dividerAfter":false},{"value":2,"name":"French","order":0,"dividerAfter":false},{"value":4,"name":"German","order":0,"dividerAfter":false},{"value":20,"name":"Greek","order":0,"dividerAfter":false},{"value":23,"name":"Hebrew","order":0,"dividerAfter":false},{"value":26,"name":"Hindi","order":0,"dividerAfter":false},{"value":22,"name":"Hungarian","order":0,"dividerAfter":false},{"value":9,"name":"Icelandic","order":0,"dividerAfter":false},{"value":44,"name":"Indonesian","order":0,"dividerAfter":false},{"value":5,"name":"Italian","order":0,"dividerAfter":false},{"value":8,"name":"Japanese","order":0,"dividerAfter":false},{"value":21,"name":"Korean","order":0,"dividerAfter":false},{"value":36,"name":"Latvian","order":0,"dividerAfter":false},{"value":24,"name":"Lithuanian","order":0,"dividerAfter":false},{"value":15,"name":"Norwegian","order":0,"dividerAfter":false},{"value":33,"name":"Persian","order":0,"dividerAfter":false},{"value":12,"name":"Polish","order":0,"dividerAfter":false},{"value":18,"name":"Portuguese","order":0,"dividerAfter":false},{"value":30,"name":"Portuguese (Brazil)","order":0,"dividerAfter":false},{"value":27,"name":"Romanian","order":0,"dividerAfter":false},{"value":11,"name":"Russian","order":0,"dividerAfter":false},{"value":40,"name":"Serbian","order":0,"dividerAfter":false},{"value":35,"name":"Slovak","order":0,"dividerAfter":false},{"value":3,"name":"Spanish","order":0,"dividerAfter":false},{"value":37,"name":"Spanish (Latino)","order":0,"dividerAfter":false},{"value":14,"name":"Swedish","order":0,"dividerAfter":false},{"value":43,"name":"Tamil","order":0,"dividerAfter":false},{"value":45,"name":"Telugu","order":0,"dividerAfter":false},{"value":28,"name":"Thai","order":0,"dividerAfter":false},{"value":17,"name":"Turkish","order":0,"dividerAfter":false},{"value":32,"name":"Ukrainian","order":0,"dividerAfter":false},{"value":13,"name":"Vietnamese","order":0,"dividerAfter":false}],"privacy":"normal","isFloat":false}],"name":"Not English","id":3}]}')
 log "Complete"
 
+sleep infinity
+exit $?
 sleep infinity
 exit $?
