@@ -58,24 +58,7 @@ fi
 
 if [ "$configureMediaManagement" == "true" ] || [ -z "$configureMediaManagement" ]; then
 	log "Updating Sonrr Media Management..."
-	updateArr=$(curl -s "$arrUrl/api/v3/config/mediamanagement" -X PUT -H "Content-Type: application/json" -H "X-Api-Key: $arrApiKey" --data-raw '{"autoUnmonitorPreviouslyDownloadedEpisodes":false,
-	  "recycleBin":"",
-	  "recycleBinCleanupDays":7,
-	  "downloadPropersAndRepacks":"doNotPrefer",
-	  "createEmptySeriesFolders":false,
-	  "deleteEmptyFolders":true,
-	  "fileDate":"utcAirDate",
-	  "rescanAfterRefresh":"never",
-	  "setPermissionsLinux":false,
-	  "chmodFolder":"777",
-	  "chownGroup":"",
-	  "episodeTitleRequired":"always",
-	  "skipFreeSpaceCheckWhenImporting":false,
-	  "minimumFreeSpaceWhenImporting":100,
-	  "copyUsingHardlinks":true,
-	  "importExtraFiles":true,
-	  "extraFileExtensions":"srt",
-	  "enableMediaInfo":true,"id":1}')
+	updateArr=$(curl -s "$arrUrl/api/v3/config/mediamanagement" -X PUT -H "Content-Type: application/json" -H "X-Api-Key: $arrApiKey" --data-raw '{"autoUnmonitorPreviouslyDownloadedEpisodes":false,"recycleBin":"","recycleBinCleanupDays":7,"downloadPropersAndRepacks":"doNotPrefer","createEmptySeriesFolders":false,"deleteEmptyFolders":true,"fileDate":"utcAirDate","rescanAfterRefresh":"always","setPermissionsLinux":false,"chmodFolder":"777","chownGroup":"","episodeTitleRequired":"always","skipFreeSpaceCheckWhenImporting":false,"minimumFreeSpaceWhenImporting":100,"copyUsingHardlinks":true,"useScriptImport":false,"scriptImportPath":"","importExtraFiles":true,"extraFileExtensions":"srt","enableMediaInfo":true,"id":1}')
 	log "Complete"
 fi
 
