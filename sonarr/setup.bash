@@ -59,10 +59,6 @@ echo "Download InvalidSeriesAutoCleaner service..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/InvalidSeriesAutoCleaner.service -o /custom-services.d/InvalidSeriesAutoCleaner
 echo "Done"
 
-echo "Download Recyclarr service..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/services/Recyclarr -o /custom-services.d/Recyclarr
-echo "Done"
-
 echo "Download YoutubeSeriesDownloader service..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/YoutubeSeriesDownloader.service -o /custom-services.d/YoutubeSeriesDownloader
 echo "Done"
