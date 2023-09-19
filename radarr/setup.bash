@@ -53,10 +53,6 @@ echo "Download AutoExtras service..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/AutoExtras.service -o /custom-services.d/AutoExtras
 echo "Done"
 
-echo "Download Recyclarr service..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/services/Recyclarr -o /custom-services.d/Recyclarr
-echo "Done"
-
 echo "Download InvalidMoviesAutoCleaner service..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/InvalidMoviesAutoCleaner.bash -o /custom-services.d/InvalidMoviesAutoCleaner
 echo "Done"
