@@ -1,19 +1,12 @@
 log () {
   m_time=`date "+%F %T"`
-  echo $m_time" :: $scriptName :: $scriptVersion :: "$1 2>&1 | tee -a /config/logs/$scriptName.txt
+  echo $m_time" :: $scriptName :: $scriptVersion :: "$1 2>&1 | tee -a /config/logs/$scriptName-$(date +"%Y_%m_%d_%I_%M_%p").txt
 }
 
 logfileSetup () {
-  # auto-clean up log file to reduce space usage
-  if [ -f "/config/logs/$scriptName.txt" ]; then
-    if find /config/logs -type f -name "$scriptName.txt" -size +1024k | read; then
-      echo "" > /config/logs/$scriptName.txt
-    fi
-  fi
-  
   if [ ! -f "/config/logs/$scriptName.txt" ]; then
-    echo "" > /config/logs/$scriptName.txt
-    chmod 666 "/config/logs/$scriptName.txt"
+    echo "" > /config/logs/$scriptName-$(date +"%Y_%m_%d_%I_%M_%p").txt
+    chmod 666 "/config/logs/$scriptName-_$(date +"%Y_%m_%d_%I_%M_%p").txt"
   fi
 }
 
