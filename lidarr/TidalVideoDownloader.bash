@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.8"
+scriptVersion="1.9"
 scriptName="TidalVideoDownloader"
 
 #### Import Settings
@@ -51,7 +51,7 @@ TidalClientSetup () {
 		fi
 	fi
 	
-	tidal-dl -o "$videoDownloadPath"/incomplete 2>&1 | tee -a /config/logs/$scriptName-$(date +"%Y_%m_%d_%I_%M_%p").txt
+	tidal-dl -o "$videoDownloadPath"/incomplete 2>&1 | tee -a "/config/logs/$logFileName"
 	tidalQuality=HiFi
 
 	if [ ! -f /config/xdg/.tidal-dl.token.json ]; then
@@ -59,7 +59,7 @@ TidalClientSetup () {
 		#pip3 install tidal-dl==2022.3.4.2 --no-cache-dir &>/dev/null
 		log "TIDAL :: ERROR :: Loading client for required authentication, please authenticate, then exit the client..."
 		NotifyWebhook "FatalError" "TIDAL requires authentication, please authenticate now (check logs)"
-		tidal-dl 2>&1 | tee -a /config/logs/$scriptName-$(date +"%Y_%m_%d_%I_%M_%p").txt
+		tidal-dl 2>&1 | tee -a "/config/logs/$logFileName"
 	fi
 	
 	if [ ! -d "$videoDownloadPath/incomplete" ]; then
@@ -94,7 +94,7 @@ TidalClientTest () {
 	while [ $i -lt 3 ]; do
 		i=$(( $i + 1 ))
   		TidaldlStatusCheck
-		tidal-dl -q Normal -o "$videoDownloadPath"/incomplete -l "$tidalClientTestDownloadId" 2>&1 | tee -a /config/logs/$scriptName-$(date +"%Y_%m_%d_%I_%M_%p").txt 
+		tidal-dl -q Normal -o "$videoDownloadPath"/incomplete -l "$tidalClientTestDownloadId" 2>&1 | tee -a "/config/logs/$logFileName" 
 		downloadCount=$(find "$videoDownloadPath"/incomplete -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | wc -l)
 		if [ $downloadCount -le 0 ]; then
 			continue
@@ -333,7 +333,7 @@ VideoProcess () {
 
 			downloadFailed=false
 			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Downloading..."
-			tidal-dl -r P1080 -o "$videoDownloadPath/incomplete" -l "$videoUrl" 2>&1 | tee -a /config/logs/$scriptName-$(date +"%Y_%m_%d_%I_%M_%p").txt
+			tidal-dl -r P1080 -o "$videoDownloadPath/incomplete" -l "$videoUrl" 2>&1 | tee -a "/config/logs/$logFileName"
 			find "$videoDownloadPath/incomplete" -type f -exec mv "{}" "$videoDownloadPath/incomplete"/ \;
 			find "$videoDownloadPath/incomplete" -mindepth 1 -type d -exec rm -rf "{}" \; &>/dev/null
 			find "$videoDownloadPath/incomplete" -type f -regex ".*/.*\.\(mkv\|mp4\)"  -print0 | while IFS= read -r -d '' video; do
@@ -384,7 +384,7 @@ VideoProcess () {
 						-metadata ALBUMARTIST="$lidarrArtistName" \
 						-metadata ENCODED_BY="lidarr-extended" \
 						-attach "$videoDownloadPath/poster.jpg" -metadata:s:t mimetype=image/jpeg \
-						"$videoDownloadPath/$videoFileName"  2>&1 | tee -a /config/logs/$scriptName-$(date +"%Y_%m_%d_%I_%M_%p").txt
+						"$videoDownloadPath/$videoFileName"  2>&1 | tee -a "/config/logs/$logFileName"
 					chmod 666 "$videoDownloadPath/$videoFileName"
 				fi
 				if [ -f "$videoDownloadPath/$videoFileName" ]; then
