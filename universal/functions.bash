@@ -5,6 +5,10 @@ log () {
 
 logfileSetup () {
   logFileName="$scriptName-$(date +"%Y_%m_%d_%I_%M_%p").txt"
+
+  # delete log files older than 5 days
+  find "/config/logs" -type f -iname "$scriptName-*.txt" -mtime +5 -delete
+  
   if [ ! -f "/config/logs/$logFileName" ]; then
     echo "" > "/config/logs/$logFileName"
     chmod 666 "/config/logs/$logFileName"
