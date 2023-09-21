@@ -1,6 +1,6 @@
 log () {
   m_time=`date "+%F %T"`
-  echo $m_time" :: $scriptName :: $scriptVersion :: "$1 2>&1 | tee -a /config/logs/$scriptName-$(date +"%Y_%m_%d_%I_%M_%p").txt
+  echo $m_time" :: $scriptName :: $scriptVersion :: "$1 2>&1 | tee -a "/config/logs/$logFileName"
 }
 
 logfileSetup () {
