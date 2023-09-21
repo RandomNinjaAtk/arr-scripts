@@ -4,9 +4,10 @@ log () {
 }
 
 logfileSetup () {
-  if [ ! -f "/config/logs/$scriptName.txt" ]; then
-    echo "" > /config/logs/$scriptName-$(date +"%Y_%m_%d_%I_%M_%p").txt
-    chmod 666 "/config/logs/$scriptName-_$(date +"%Y_%m_%d_%I_%M_%p").txt"
+  logFileName="$scriptName-$(date +"%Y_%m_%d_%I_%M_%p").txt"
+  if [ ! -f "/config/logs/$logFileName" ]; then
+    echo "" > "/config/logs/$logFileName"
+    chmod 666 "/config/logs/$logFileName"
   fi
 }
 
