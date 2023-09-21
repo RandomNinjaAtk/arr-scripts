@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="3.4"
+scriptVersion="3.5"
 scriptName="Video"
 
 ### Import Settings
@@ -106,7 +106,7 @@ ImvdbCache () {
     attemptError="false"
     until false; do
       count=$(( $count + 1 ))
-      artistImvdbVideoUrls=$(wget "https://imvdb.com/n/$artistImvdbSlug" -O - | grep "$artistImvdbSlug" | grep -Eoi '<a [^>]+>' |  grep -Eo 'href="[^\"]+"' | grep -Eo '(http|https)://[^"]+' |  grep -i ".com/video/$artistImvdbSlug/" | sed "s%/[0-9]$%%g" | sort -u)
+      artistImvdbVideoUrls=$(curl -s "https://imvdb.com/n/$artistImvdbSlug" --compressed -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/116.0' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H 'Accept-Language: en-US,en;q=0.5' -H 'Accept-Encoding: gzip, deflate, br' -H 'DNT: 1' -H 'Connection: keep-alive' -H 'Upgrade-Insecure-Requests: 1' -H 'Sec-Fetch-Dest: document' -H 'Sec-Fetch-Mode: navigate' -H 'Sec-Fetch-Site: none' -H 'Sec-Fetch-User: ?1' | grep "$artistImvdbSlug" | grep -Eoi '<a [^>]+>' |  grep -Eo 'href="[^\"]+"' | grep -Eo '(http|https)://[^"]+' |  grep -i ".com/video/$artistImvdbSlug/" | sed "s%/[0-9]$%%g" | sort -u)
       if echo "$artistImvdbVideoUrls" | grep -i "imvdb.com" | read; then
         break
       else
@@ -119,6 +119,7 @@ ImvdbCache () {
         break
       fi
     done
+
 
     if [ "$attemptError" == "true" ]; then
       return
@@ -137,7 +138,7 @@ ImvdbCache () {
 		    rm "/config/extended/logs/video/complete/$lidarrArtistMusicbrainzId"
 	    fi
     fi
-    
+     
 
     sleep 0.5
     imvdbProcessCount=0
@@ -167,10 +168,11 @@ ImvdbCache () {
                 count=$(( $count + 1 ))
                 #echo "$count"
                 if [ ! -f "$imvdbVideoData" ]; then
-                    imvdbVideoId=$(wget "$imvdbVideoUrl" -O - | grep "<p>ID:" | grep -o "[[:digit:]]*")
-                    imvdbVideoJsonUrl="https://imvdb.com/api/v1/video/$imvdbVideoId?include=sources,countries,featured,credits,bts,popularity"
+                    imvdbVideoId=$(curl -s "$imvdbVideoUrl" --compressed -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/116.0' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H 'Accept-Language: en-US,en;q=0.5' -H 'Accept-Encoding: gzip, deflate, br' -H 'DNT: 1' -H 'Connection: keep-alive' -H 'Upgrade-Insecure-Requests: 1' -H 'Sec-Fetch-Dest: document' -H 'Sec-Fetch-Mode: navigate' -H 'Sec-Fetch-Site: none' -H 'Sec-Fetch-User: ?1' | grep "<p>ID:" | grep -o "[[:digit:]]*")
+                    imvdbVideoJsonUrl="https://imvdb.com/api/v1/video/$imvdbVideoId?include=sources,featured,credits"
                     log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ${imvdbProcessCount}/${artistImvdbVideoUrlsCount} ::  Downloading Video data"
-                    wget "$imvdbVideoJsonUrl" -O "$imvdbVideoData"
+           
+                    curl -s "$imvdbVideoJsonUrl" --compressed -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/116.0' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H 'Accept-Language: en-US,en;q=0.5' -H 'Accept-Encoding: gzip, deflate, br' -H 'DNT: 1' -H 'Connection: keep-alive' -H 'Upgrade-Insecure-Requests: 1' -H 'Sec-Fetch-Dest: document' -H 'Sec-Fetch-Mode: navigate' -H 'Sec-Fetch-Site: none' -H 'Sec-Fetch-User: ?1' -o "$imvdbVideoData"
                     sleep 0.5
                 fi
                 if [ -f "$imvdbVideoData" ]; then
