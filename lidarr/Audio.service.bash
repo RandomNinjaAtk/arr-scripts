@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.15"
+scriptVersion="2.16"
 scriptName="Audio"
 
 ### Import Settings
@@ -151,7 +151,7 @@ Configuration () {
 }
 
 DownloadClientFreyr () {
-	freyr --no-bar -d $audioPath/incomplete deezer:album:$1 2>&1 | tee -a /config/logs/$scriptName-$(date +"%Y_%m_%d_%I_%M_%p").txt
+	freyr --no-bar -d $audioPath/incomplete deezer:album:$1 2>&1 | tee -a "/config/logs/$logFileName"
 }
 
 DownloadFormat () {
@@ -262,7 +262,7 @@ TidalClientSetup () {
 	fi
 	
 	TidaldlStatusCheck
-	tidal-dl -o "$audioPath"/incomplete 2>&1 | tee -a /config/logs/$scriptName-$(date +"%Y_%m_%d_%I_%M_%p").txt
+	tidal-dl -o "$audioPath"/incomplete 2>&1 | tee -a "/config/logs/$logFileName"
 	DownloadFormat
 
 	if [ ! -f /config/xdg/.tidal-dl.token.json ]; then
@@ -318,7 +318,7 @@ TidalClientTest () {
 	while [ $i -lt 3 ]; do
 		i=$(( $i + 1 ))
   		TidaldlStatusCheck
-		tidal-dl -q Normal -o "$audioPath"/incomplete -l "$tidalClientTestDownloadId" 2>&1 | tee -a /config/logs/$scriptName-$(date +"%Y_%m_%d_%I_%M_%p").txt
+		tidal-dl -q Normal -o "$audioPath"/incomplete -l "$tidalClientTestDownloadId" 2>&1 | tee -a "/config/logs/$logFileName"
 		downloadCount=$(find "$audioPath"/incomplete -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | wc -l)
 		if [ $downloadCount -le 0 ]; then
 			continue
@@ -450,7 +450,7 @@ DownloadProcess () {
 			if [ -z $arlToken ]; then
 				DownloadClientFreyr $1
 			else
-				deemix -b $deemixQuality -p "$audioPath"/incomplete "https://www.deezer.com/album/$1" 2>&1 | tee -a /config/logs/$scriptName-$(date +"%Y_%m_%d_%I_%M_%p").txt
+				deemix -b $deemixQuality -p "$audioPath"/incomplete "https://www.deezer.com/album/$1" 2>&1 | tee -a "/config/logs/$logFileName"
 			fi
 			
 			if [ -d "/tmp/deemix-imgs" ]; then
@@ -487,7 +487,7 @@ DownloadProcess () {
 				if [ -z $arlToken ]; then
 					DownloadClientFreyr $1
 				else
-					deemix -b $deemixQuality -p "$audioPath"/incomplete "https://www.deezer.com/album/$1" 2>&1 | tee -a /config/logs/$scriptName-$(date +"%Y_%m_%d_%I_%M_%p").txt
+					deemix -b $deemixQuality -p "$audioPath"/incomplete "https://www.deezer.com/album/$1" 2>&1 | tee -a "/config/logs/$logFileName"
 				fi
     			fi
        		fi
@@ -495,7 +495,7 @@ DownloadProcess () {
 		if [ "$2" == "TIDAL" ]; then
 			TidaldlStatusCheck
 
-			tidal-dl -q $tidalQuality -o "$audioPath/incomplete" -l "$1"  2>&1 | tee -a /config/logs/$scriptName-$(date +"%Y_%m_%d_%I_%M_%p").txt
+			tidal-dl -q $tidalQuality -o "$audioPath/incomplete" -l "$1"  2>&1 | tee -a "/config/logs/$logFileName"
 
 			# Verify Client Works...
 			clientTestDlCount=$(find "$audioPath"/incomplete/ -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | wc -l)
@@ -956,7 +956,7 @@ DeemixClientSetup () {
 DeezerClientTest () {
 	log "DEEZER :: deemix client setup verification..."
 
-	deemix -b 128 -p $audioPath/incomplete "https://www.deezer.com/album/$deezerClientTestDownloadId"  2>&1 | tee -a /config/logs/$scriptName-$(date +"%Y_%m_%d_%I_%M_%p").txt
+	deemix -b 128 -p $audioPath/incomplete "https://www.deezer.com/album/$deezerClientTestDownloadId"  2>&1 | tee -a "/config/logs/$logFileName"
 	if [ -d "/tmp/deemix-imgs" ]; then
 		rm -rf /tmp/deemix-imgs
 	fi
