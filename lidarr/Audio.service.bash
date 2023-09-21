@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.18"
+scriptVersion="2.19"
 scriptName="Audio"
 
 ### Import Settings
@@ -353,8 +353,6 @@ DownloadProcess () {
 	# $3 = Album Year that matches Album ID Metadata
 	# $4 = Album Title that matches Album ID Metadata
 	# $5 = Expected Track Count
-
-    lidarrDownloadImportNotfication="false"
 
 	# Create Required Directories	
 	if [ ! -d "$audioPath/incomplete" ]; then
