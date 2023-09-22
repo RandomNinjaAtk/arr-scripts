@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.19"
+scriptVersion="2.20"
 scriptName="Audio"
 
 ### Import Settings
@@ -1234,7 +1234,7 @@ SearchProcess () {
 		loopCount=0
 		until false
 		do
-			LidarrTaskStatusCheck
+			
 			loopCount=$(( $loopCount + 1 ))
 			if [ "$loopCount" == "1" ]; then
 				# First loop is either explicit or clean depending on script settings
@@ -1259,11 +1259,11 @@ SearchProcess () {
 				lidarrAlbumReleaseTitleFirstWord="${lidarrAlbumReleaseTitleFirstWord:0:3}"
 				albumTitleSearch="$(jq -R -r @uri <<<"${lidarrAlbumReleaseTitleSearchClean}")"
 				#echo "Debugging :: $loopCount :: $releaseProcessCount :: $lidarrArtistForeignArtistId :: $lidarrReleaseTitle :: $lidarrAlbumReleasesMinTrackCount-$lidarrAlbumReleasesMaxTrackCount :: $lidarrAlbumReleaseTitleFirstWord :: $albumArtistNameSearch :: $albumTitleSearch"
-				LidarrTaskStatusCheck
+
 				# Skip Various Artists album search that is not supported...
 				if [ "$lidarrArtistForeignArtistId" != "89ad4ac3-39f7-470e-963a-56509c546377" ]; then
-					# Lidarr Status Check
-					LidarrTaskStatusCheck					
+
+					#echo "1 : $lidarrDownloadImportNotfication"				
 					
 					# Tidal Artist search
 					if [ "$lidarrDownloadImportNotfication" == "false" ]; then
@@ -1274,6 +1274,8 @@ SearchProcess () {
 							done
 						fi
 					fi
+
+					#echo "2 : $lidarrDownloadImportNotfication"
 
 					# Deezer artist search
 					if [ "$lidarrDownloadImportNotfication" == "false" ]; then
@@ -1287,7 +1289,7 @@ SearchProcess () {
 					fi
 				fi
 				
-
+				#echo "3 : $lidarrDownloadImportNotfication"
 				# Tidal fuzzy search
 				if [ "$lidarrDownloadImportNotfication" == "false" ]; then
 					if [ "$dlClientSource" == "both" ] || [ "$dlClientSource" == "tidal" ]; then
@@ -1296,6 +1298,7 @@ SearchProcess () {
 					fi
 				fi
 
+				#echo "4 : $lidarrDownloadImportNotfication"
 				# Deezer fuzzy search
 				if [ "$lidarrDownloadImportNotfication" == "false" ]; then
 					if [ "$dlClientSource" == "both" ] || [ "$dlClientSource" == "deezer" ]; then
@@ -1319,6 +1322,16 @@ SearchProcess () {
 
 			# Break after all operations are complete
 			if [ "$loopCount" == "$endLoop" ]; then
+				log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Album Not found"
+				if [ "$skipNotFoundLogCreation" == "false" ]; then
+					log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Marking Album as notfound"
+					if [ ! -f "/config/extended/logs/notfound/$wantedAlbumId--$lidarrArtistForeignArtistId--$lidarrAlbumForeignAlbumId" ]; then
+						touch "/config/extended/logs/notfound/$wantedAlbumId--$lidarrArtistForeignArtistId--$lidarrAlbumForeignAlbumId"
+						chmod 777 "/config/extended/logs/notfound/$wantedAlbumId--$lidarrArtistForeignArtistId--$lidarrAlbumForeignAlbumId"
+					fi
+				else
+					log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Skip marking album as not found because it's a new release for 7 days..."
+				fi
 				break
 			fi
 		done
@@ -1395,8 +1408,10 @@ ArtistDeezerSearch () {
 		# String Character Count test, quicker than the levenshtein method to allow faster processing
 		characterMath=$(( ${#deezerAlbumTitleClean} - ${#lidarrAlbumReleaseTitleClean} ))
 		if [ "$characterMath" -gt "$matchDistance" ]; then
+		    log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Artist Search :: Deezer :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $deezerAlbumTitleClean :: Not a match..."
 			continue
 		elif [ "$characterMath" -lt "0" ]; then
+		    log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Artist Search :: Deezer :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $deezerAlbumTitleClean :: Not a match..."
 			continue
 		fi
 		GetDeezerAlbumInfo "$deezerAlbumID"
@@ -1565,8 +1580,10 @@ ArtistTidalSearch () {
 		# String Character Count test, quicker than the levenshtein method to allow faster processing
 		characterMath=$(( ${#tidalAlbumTitleClean} - ${#lidarrAlbumReleaseTitleClean} ))
 		if [ "$characterMath" -gt "$matchDistance" ]; then
+		    log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Artist Search :: Tidal :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $tidalAlbumTitleClean :: Not a match..."
 			continue
 		elif [ "$characterMath" -lt "0" ]; then
+		    log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Artist Search :: Tidal :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $tidalAlbumTitleClean :: Not a match..."
 			continue
 		fi
 
@@ -1626,8 +1643,10 @@ FuzzyTidalSearch () {
 			# String Character Count test, quicker than the levenshtein method to allow faster processing
 			characterMath=$(( ${#tidalAlbumTitleClean} - ${#lidarrAlbumReleaseTitleClean} ))
 			if [ "$characterMath" -gt "$matchDistance" ]; then
+			    log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Fuzzy Search :: Tidal :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $tidalAlbumTitleClean :: Not a match..."
 				continue
 			elif [ "$characterMath" -lt "0" ]; then
+			    log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Fuzzy Search :: Tidal :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $tidalAlbumTitleClean :: Not a match..."
 				continue
 			fi
 
