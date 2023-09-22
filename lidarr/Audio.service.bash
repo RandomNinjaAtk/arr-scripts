@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.20"
+scriptVersion="2.21"
 scriptName="Audio"
 
 ### Import Settings
@@ -1263,7 +1263,7 @@ SearchProcess () {
 				# Skip Various Artists album search that is not supported...
 				if [ "$lidarrArtistForeignArtistId" != "89ad4ac3-39f7-470e-963a-56509c546377" ]; then
 
-					#echo "1 : $lidarrDownloadImportNotfication"				
+					#log "1 : $lidarrDownloadImportNotfication"				
 					
 					# Tidal Artist search
 					if [ "$lidarrDownloadImportNotfication" == "false" ]; then
@@ -1275,7 +1275,7 @@ SearchProcess () {
 						fi
 					fi
 
-					#echo "2 : $lidarrDownloadImportNotfication"
+					#log "2 : $lidarrDownloadImportNotfication"
 
 					# Deezer artist search
 					if [ "$lidarrDownloadImportNotfication" == "false" ]; then
@@ -1289,7 +1289,7 @@ SearchProcess () {
 					fi
 				fi
 				
-				#echo "3 : $lidarrDownloadImportNotfication"
+				#log "3 : $lidarrDownloadImportNotfication"
 				# Tidal fuzzy search
 				if [ "$lidarrDownloadImportNotfication" == "false" ]; then
 					if [ "$dlClientSource" == "both" ] || [ "$dlClientSource" == "tidal" ]; then
@@ -1298,7 +1298,7 @@ SearchProcess () {
 					fi
 				fi
 
-				#echo "4 : $lidarrDownloadImportNotfication"
+				#log "4 : $lidarrDownloadImportNotfication"
 				# Deezer fuzzy search
 				if [ "$lidarrDownloadImportNotfication" == "false" ]; then
 					if [ "$dlClientSource" == "both" ] || [ "$dlClientSource" == "deezer" ]; then
@@ -1310,8 +1310,6 @@ SearchProcess () {
 				# End search if lidarr was successfully notified for import
 				if [ "$lidarrDownloadImportNotfication" == "true" ]; then
 					break
-				else
-					continue
 				fi
 			done
 				
@@ -1444,6 +1442,11 @@ ArtistDeezerSearch () {
 			
 			DownloadProcess "$deezerAlbumID" "DEEZER" "$downloadedReleaseYear" "$deezerAlbumTitle" "$deezerAlbumTrackCount"
 		fi
+
+		# End search if lidarr was successfully notified for import
+		if [ "$lidarrDownloadImportNotfication" == "true" ]; then
+			break
+		fi
 	done	
 }
 
@@ -1521,6 +1524,10 @@ FuzzyDeezerSearch () {
 				
 				DownloadProcess "$deezerAlbumID" "DEEZER" "$downloadedReleaseYear" "$deezerAlbumTitle" "$deezerAlbumTrackCount"
 			fi
+			# End search if lidarr was successfully notified for import
+			if [ "$lidarrDownloadImportNotfication" == "true" ]; then
+				break
+			fi
 		done
 		log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Fuzzy Search :: Deezer :: $type :: $lidarrReleaseTitle :: ERROR :: Results found, but none matching search criteria..."
 	else
@@ -1597,6 +1604,10 @@ ArtistTidalSearch () {
 			log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Artist Search :: Tidal :: $type :: $lidarrReleaseTitle :: Downloading $downloadedTrackCount Tracks :: $downloadedAlbumTitle ($downloadedReleaseYear)"
 			
 			DownloadProcess "$tidalArtistAlbumId" "TIDAL" "$downloadedReleaseYear" "$downloadedAlbumTitle" "$downloadedTrackCount"
+			# End search if lidarr was successfully notified for import
+			if [ "$lidarrDownloadImportNotfication" == "true" ]; then
+				break
+			fi
 		else
 			log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Artist Search :: Tidal :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $tidalAlbumTitleClean :: Tidal Match Not Found :: Calculated Difference ($diff) greater than 5"
 		fi
@@ -1661,6 +1672,10 @@ FuzzyTidalSearch () {
 
 			else
 				log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Fuzzy Search :: Tidal :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $tidalAlbumTitleClean :: Tidal Match Not Found :: Calculated Difference ($diff) greater than 5"
+			fi
+			# End search if lidarr was successfully notified for import
+			if [ "$lidarrDownloadImportNotfication" == "true" ]; then
+				break
 			fi
 		done
 		log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Fuzzy Search :: Tidal :: $type :: $lidarrReleaseTitle :: ERROR :: Albums found, but none matching search criteria..."
