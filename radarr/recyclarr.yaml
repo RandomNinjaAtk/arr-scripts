@@ -91,6 +91,7 @@ radarr:
           - 2a4d9069cc1fe3242ff9bdaebed239bb # HDR (undefined)
           - 9f6cbff8cfe4ebbc1bde14c7b7bec0de # IMAX Enhanced
           - 1af239278386be2919e1bcee0bde047e # DD+ ATMOS
+          - 185f1dd7264c4562b9022d963ac37424 # DD+
           - 77ff61788dfe1097194fd8743d7b4524 # 5.1 Surround
           - 6fd7b090c3f7317502ab3b63cc7f51e3 # 6.1 Surround
           - e77382bcfeba57cb83744c9c5449b401 # 7.1 Surround
@@ -100,7 +101,6 @@ radarr:
           - name: All
             score: 500
       - trash_ids:
-          - 185f1dd7264c4562b9022d963ac37424 # DD+
           - e23edd2482476e595fb990b12e7c609c # DV HDR10
           - b974a6cd08c1066250f1f177d7aa1225 # HDR10+
         quality_profiles:
@@ -201,11 +201,12 @@ radarr:
           - 73613461ac2cea99d52c4cd6e177ab82 # HFR
           - c465ccc73923871b3eb1802042331306 # Line/Mic Dubbed  
           # HDR
-          - 58d6a88f13e2db7f5059c41047876f00  # DV
-          - 55d53828b9d81cbe20b02efd00aa0efd  # DV HLG
-          - a3e19f8f627608af0211acd02bf89735  # DV SDR
-          - 08d6d8834ad9ec87b1dc7ec8148e7a1f  # PQ
-          - 9364dd386c9b4a1100dde8264690add7  # HLG
+          - 58d6a88f13e2db7f5059c41047876f00 # DV
+          - 55d53828b9d81cbe20b02efd00aa0efd # DV HLG
+          - a3e19f8f627608af0211acd02bf89735 # DV SDR
+          - 08d6d8834ad9ec87b1dc7ec8148e7a1f # PQ
+          - 9364dd386c9b4a1100dde8264690add7 # HLG
+          - 923b6abef9b17f937fab56cfcf89e1f1 # DV (WEBDL)
           # French Audio Version
           - 02e48d30a176c91baf9e15de05e5dc6a # FanSUB
           - 7f9b93f82b7e996391525f2be1d891e0 # FastSUB
