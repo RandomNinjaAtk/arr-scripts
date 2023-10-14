@@ -996,13 +996,16 @@ GetMissingCutOffList () {
 				dlnumber="$lidarrMissingTotalRecords"
 			fi
 			log "$page :: missing :: Downloading page $page... ($offset - $dlnumber of $lidarrMissingTotalRecords Results)"
-			lidarrRecords=$(wget --timeout=0 -q -O - "$arrUrl/api/v1/wanted/missing?page=$page&pagesize=$amountPerPull&sortKey=$searchOrder&sortDirection=$searchDirection&apikey=${arrApiKey}" | jq -r '.records[].id')
+      wget --timeout=0 -q -O - "$arrUrl/api/v1/wanted/missing?page=$page&pagesize=$amountPerPull&sortKey=$searchOrder&sortDirection=$searchDirection&apikey=${arrApiKey}" | jq -r '.records[].id' | sort > /config/extended/cache/tocheck.txt
 			log "$page :: missing :: Filtering Album IDs by removing previously searched Album IDs (/config/extended/logs/notfound/<files>)"
-			for lidarrRecordId in $(echo $lidarrRecords); do
+      ls /config/extended/cache/notfound/ | sed "s/--.*//" > /config/extended/cache/notfound.txt
+
+      for lidarrRecordId in $(comm -13 /config/extended/cache/notfound.txt /config/extended/cache/tocheck.txt); do
 				if [ ! -f /config/extended/logs/notfound/$lidarrRecordId--* ]; then
 					touch "/config/extended/cache/lidarr/list/${lidarrRecordId}-missing"
 				fi
 			done
+      rm /config/extended/cache/notfound.txt /config/extended/cache/tocheck.txt
 			
 			lidarrMissingRecords=$(ls /config/extended/cache/lidarr/list 2>/dev/null | wc -l)
 			log "$page :: missing :: ${lidarrMissingRecords} albums found to process!"
@@ -1034,14 +1037,18 @@ GetMissingCutOffList () {
 			fi
 
 			log "$page :: cutoff :: Downloading page $page... ($offset - $dlnumber of $lidarrCutoffTotalRecords Results)"
-			lidarrRecords=$(wget --timeout=0 -q -O - "$arrUrl/api/v1/wanted/cutoff?page=$page&pagesize=$amountPerPull&sortKey=$searchOrder&sortDirection=$searchDirection&apikey=${arrApiKey}" | jq -r '.records[].id')
+			# lidarrRecords=$(wget --timeout=0 -q -O - "$arrUrl/api/v1/wanted/cutoff?page=$page&pagesize=$amountPerPull&sortKey=$searchOrder&sortDirection=$searchDirection&apikey=${arrApiKey}" | jq -r '.records[].id')
+      wget --timeout=0 -q -O - "$arrUrl/api/v1/wanted/cutoff?page=$page&pagesize=$amountPerPull&sortKey=$searchOrder&sortDirection=$searchDirection&apikey=${arrApiKey}" | jq -r '.records[].id' | sort > /config/extended/cache/tocheck.txt
+
 			log "$page :: cutoff :: Filtering Album IDs by removing previously searched Album IDs (/config/extended/logs/notfound/<files>)"
-			
-			for lidarrRecordId in $(echo $lidarrRecords); do
+			ls /config/extended/cache/notfound/ | sed "s/--.*//" > /config/extended/cache/notfound.txt
+
+      for lidarrRecordId in $(comm -13 /config/extended/cache/notfound.txt /config/extended/cache/tocheck.txt); do
 				if [ ! -f /config/extended/logs/notfound/$lidarrRecordId--* ]; then
 					touch /config/extended/cache/lidarr/list/${lidarrRecordId}-cutoff
 				fi
 			done
+      rm /config/extended/cache/notfound.txt /config/extended/cache/tocheck.txt
 
 			lidarrCutoffRecords=$(ls /config/extended/cache/lidarr/list/*-cutoff 2>/dev/null | wc -l)
 			log "$page :: cutoff :: ${lidarrCutoffRecords} ablums found to process!"
