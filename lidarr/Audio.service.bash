@@ -998,7 +998,7 @@ GetMissingCutOffList () {
 			log "$page :: missing :: Downloading page $page... ($offset - $dlnumber of $lidarrMissingTotalRecords Results)"
       wget --timeout=0 -q -O - "$arrUrl/api/v1/wanted/missing?page=$page&pagesize=$amountPerPull&sortKey=$searchOrder&sortDirection=$searchDirection&apikey=${arrApiKey}" | jq -r '.records[].id' | sort > /config/extended/cache/tocheck.txt
 			log "$page :: missing :: Filtering Album IDs by removing previously searched Album IDs (/config/extended/logs/notfound/<files>)"
-      ls /config/extended/cache/notfound/ | sed "s/--.*//" > /config/extended/cache/notfound.txt
+      ls /config/extended/logs/notfound/ | sed "s/--.*//" > /config/extended/cache/notfound.txt
 
       for lidarrRecordId in $(comm -13 /config/extended/cache/notfound.txt /config/extended/cache/tocheck.txt); do
 				if [ ! -f /config/extended/logs/notfound/$lidarrRecordId--* ]; then
@@ -1041,7 +1041,7 @@ GetMissingCutOffList () {
       wget --timeout=0 -q -O - "$arrUrl/api/v1/wanted/cutoff?page=$page&pagesize=$amountPerPull&sortKey=$searchOrder&sortDirection=$searchDirection&apikey=${arrApiKey}" | jq -r '.records[].id' | sort > /config/extended/cache/tocheck.txt
 
 			log "$page :: cutoff :: Filtering Album IDs by removing previously searched Album IDs (/config/extended/logs/notfound/<files>)"
-			ls /config/extended/cache/notfound/ | sed "s/--.*//" > /config/extended/cache/notfound.txt
+			ls /config/extended/logs/notfound/ | sed "s/--.*//" > /config/extended/cache/notfound.txt
 
       for lidarrRecordId in $(comm -13 /config/extended/cache/notfound.txt /config/extended/cache/tocheck.txt); do
 				if [ ! -f /config/extended/logs/notfound/$lidarrRecordId--* ]; then
