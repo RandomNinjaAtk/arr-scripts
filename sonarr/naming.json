@@ -10,18 +10,18 @@
     },
     "episodes": {
         "standard": {
-            "default:3": "{Series TitleYear} - S{season:00}E{episode:00} - {Episode CleanTitle} [{Preferred Words }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}{[Mediainfo AudioCodec}{ Mediainfo AudioChannels]}{[MediaInfo VideoCodec]}{-Release Group}",
-            "default:4": "{Series TitleYear} - S{season:00}E{episode:00} - {Episode CleanTitle} [{Custom Formats }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}{[Mediainfo AudioCodec}{ Mediainfo AudioChannels]}{MediaInfo AudioLanguagesAll}[{MediaInfo VideoBitDepth}bit]{[MediaInfo VideoCodec]}{MediaInfo SubtitleLanguagesAll}{-Release Group}",
+            "default:3": "{Series TitleYear} - S{season:00}E{episode:00} [{Preferred Words }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}{[Mediainfo AudioCodec}{ Mediainfo AudioChannels]}{[MediaInfo VideoCodec]}{-Release Group}",
+            "default:4": "{Series TitleYear} - S{season:00}E{episode:00} [{Custom Formats }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}{[Mediainfo AudioCodec}{ Mediainfo AudioChannels]}{MediaInfo AudioLanguagesAll}[{MediaInfo VideoBitDepth}bit]{[MediaInfo VideoCodec]}{MediaInfo SubtitleLanguagesAll}{-Release Group}",
             "original": "{Original Title}"
           },
         "daily": {
-            "default:3": "{Series TitleYear} - {Air-Date} - {Episode CleanTitle} [{Preferred Words }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}{[Mediainfo AudioCodec}{ Mediainfo AudioChannels]}{[MediaInfo VideoCodec]}{-Release Group}",
-            "default:4": "{Series TitleYear} - {Air-Date} - {Episode CleanTitle} [{Custom Formats }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}{[Mediainfo AudioCodec}{ Mediainfo AudioChannels]}{MediaInfo AudioLanguagesAll}[{MediaInfo VideoBitDepth}bit]{[MediaInfo VideoCodec]}{MediaInfo SubtitleLanguagesAll}{-Release Group}",
+            "default:3": "{Series TitleYear} - {Air-Date} [{Preferred Words }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}{[Mediainfo AudioCodec}{ Mediainfo AudioChannels]}{[MediaInfo VideoCodec]}{-Release Group}",
+            "default:4": "{Series TitleYear} - {Air-Date} [{Custom Formats }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}{[Mediainfo AudioCodec}{ Mediainfo AudioChannels]}{MediaInfo AudioLanguagesAll}[{MediaInfo VideoBitDepth}bit]{[MediaInfo VideoCodec]}{MediaInfo SubtitleLanguagesAll}{-Release Group}",
             "original": "{Original Title}"
           },
         "anime": {
-            "default:3": "{Series TitleYear} - S{season:00}E{episode:00} - {absolute:000} - {Episode CleanTitle} [{Preferred Words }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}[{MediaInfo VideoBitDepth}bit]{[MediaInfo VideoCodec]}[{Mediainfo AudioCodec} { Mediainfo AudioChannels}]{MediaInfo AudioLanguages}{-Release Group}",
-            "default:4": "{Series TitleYear} - S{season:00}E{episode:00} - {absolute:000} - {Episode CleanTitle} [{Custom Formats }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}[{Mediainfo AudioCodec} { Mediainfo AudioChannels}]{MediaInfo AudioLanguagesAll}[{MediaInfo VideoBitDepth}bit]{[MediaInfo VideoCodec]}{MediaInfo SubtitleLanguagesAll}{-Release Group}"
+            "default:3": "{Series TitleYear} - S{season:00}E{episode:00} - {absolute:000} [{Preferred Words }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}[{MediaInfo VideoBitDepth}bit]{[MediaInfo VideoCodec]}[{Mediainfo AudioCodec} { Mediainfo AudioChannels}]{MediaInfo AudioLanguages}{-Release Group}",
+            "default:4": "{Series TitleYear} - S{season:00}E{episode:00} - {absolute:000} [{Custom Formats }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}[{Mediainfo AudioCodec} { Mediainfo AudioChannels}]{MediaInfo AudioLanguagesAll}[{MediaInfo VideoBitDepth}bit]{[MediaInfo VideoCodec]}{MediaInfo SubtitleLanguagesAll}{-Release Group}"
           }
     }
   }
