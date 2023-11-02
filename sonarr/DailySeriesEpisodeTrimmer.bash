@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.3"
+scriptVersion="1.4"
 scriptName="SeriesEpisodeTrimmer"
 
 #### Import Settings
@@ -76,8 +76,8 @@ for id in $seriesEpisodeIds; do
 		
 		# Unmonitor downloaded episode if greater than 14 downloaded episodes
 		log "$seriesTitle (ID:$episodeSeriesId) :: S${episodeSeasonNumber}E${episodeNumber} :: $episodeTitle :: Unmonitored Episode ID :: $id"
-		umonitorEpisode=$(curl -s "$arrUrl/api/v3/episode/monitor?apikey=$arrApiKey" -X PUT --data-raw "{\"episodeIds\":[$id],\"monitored\":false}")			
-			
+		umonitorEpisode=$(curl -s "$arrUrl/api/v3/episode/monitor?apikey=$arrApiKey" -X PUT -H 'Content-Type: application/json'  --data-raw "{\"episodeIds\":[$id],\"monitored\":false}")
+
 		# Delete downloaded episode if greater than 14 downloaded episodes
 		log "$seriesTitle (ID:$episodeSeriesId) :: S${episodeSeasonNumber}E${episodeNumber} :: $episodeTitle :: Deleted File ID :: $episodeFileId"
 		deleteFile=$(curl -s "$arrUrl/api/v3/episodefile/$episodeFileId?apikey=$arrApiKey" -X DELETE)
