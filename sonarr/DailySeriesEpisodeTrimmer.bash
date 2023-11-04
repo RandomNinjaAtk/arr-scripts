@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.4"
+scriptVersion="1.5"
 scriptName="SeriesEpisodeTrimmer"
 
 #### Import Settings
@@ -45,14 +45,19 @@ else
 		fi
 	done
 fi
+
 # Verify series is marked as "daily" type by sonarr, skip if not...
 if [ $seriesType != "daily" ] && [ "$tagMatch" == "false" ]; then
 	log "$seriesTitle (ID:$seriesId) :: ERROR :: Series does not match TYPE: Daily or TAG: $sonarrSeriesEpisodeTrimmerTag, skipping..."
 	exit
 fi
 
- 
-# Skip processing if less than 14 episodes were found to be downloaded
+# If non-daily series, set maximum episode count to match latest season total episode count
+if [ $seriesType != "daily" ]; then
+  maximumDailyEpisodes=$(echo "$seriesData" | jq -r ".seasons | sort_by(.seasonNumber) | reverse | .[].statistics.totalEpisodeCount" | head -n1)
+fi
+
+# Skip processing if less than the maximumDailyEpisodes setting were found to be downloaded
 if [ $seriesEpisodeIdsCount -lt $maximumDailyEpisodes ]; then
 	log "$seriesTitle (ID:$seriesId) :: ERROR :: Series has not exceeded $maximumDailyEpisodes downloaded episodes ($seriesEpisodeIdsCount files found), skipping..."
 	exit
