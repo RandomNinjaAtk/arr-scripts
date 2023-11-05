@@ -91,13 +91,17 @@ echo "Download SMA config..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/sma.ini -o /config/extended/sma.ini 
 echo "Done"
 
-echo "Download Beets config..."
-curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/beets-config.yaml" -o /config/extended/beets-config.yaml
-echo "Done"
+if [ ! -f /config/extended/beets-config.yaml ]; then
+	echo "Download Beets config..."
+	curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/beets-config.yaml" -o /config/extended/beets-config.yaml
+	echo "Done"
+fi
 
-echo "Download Beets lidarr config..."
-curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/beets-config-lidarr.yaml" -o /config/extended/beets-config-lidarr.yaml
-echo "Done"
+if [ ! -f /config/extended/beets-config-lidarr.yaml ]; then
+	echo "Download Beets lidarr config..."
+	curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/beets-config-lidarr.yaml" -o /config/extended/beets-config-lidarr.yaml
+	echo "Done"
+fi
 
 echo "Download Deemix config..."
 curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/deemix_config.json" -o /config/extended/deemix_config.json
