@@ -74,6 +74,8 @@ This configuration does its best to update everything automatically, but with ho
       * Artist Genere Tags (Lidarr)
 * Queue Cleaner Script
   * Automatically removes downloads that have a "warning" or "failed" status that will not auto-import into Lidarr, which enables Lidarr to automatically re-search for the album
+* Unmapped Folder Cleaner Script
+  * Automatically deletes folders that are not mapped in Lidarr
 
 For more details, visit the [Wiki](https://github.com/RandomNinjaAtk/arr-scripts/wiki/Lidarr)
 
