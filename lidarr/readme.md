@@ -81,11 +81,11 @@ For more details, visit the [Wiki](https://github.com/RandomNinjaAtk/arr-scripts
 
 ### Audio & Video (Plex Example)
 
-![](https://github.com/RandomNinjaAtk/docker-lidarr-extended/raw/main/.github/plex.png)
+![plex](https://github.com/RandomNinjaAtk/docker-lidarr-extended/raw/main/.github/plex.png)
 
 ### Video Example (Kodi)
 
-![](https://github.com/RandomNinjaAtk/docker-lidarr-extended/raw/main/.github/kodi-music-videos.png)
+![kodi](https://github.com/RandomNinjaAtk/docker-lidarr-extended/raw/main/.github/kodi-music-videos.png)
 
 ## Credits
 
