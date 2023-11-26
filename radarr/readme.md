@@ -65,4 +65,4 @@ For more details, visit the [Wiki](https://github.com/RandomNinjaAtk/arr-scripts
 * [Radarr](https://radarr.video/)
 * [The Movie Database](https://www.themoviedb.org/)
 * [Recyclarr](https://github.com/recyclarr/recyclarr)
-* Icons made by [Freepik](http://www.freepik.com/] from [Flaticon](ttps://www.flaticon.com)
+* Icons made by [Freepik](https://www.freepik.com/) from [Flaticon](ttps://www.flaticon.com)
