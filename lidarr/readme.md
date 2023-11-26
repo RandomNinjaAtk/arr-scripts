@@ -1,21 +1,23 @@
-# Requirements
+# README
 
-Container: https://docs.linuxserver.io/images/docker-lidarr<br>
+## Requirements
 
-# Installation/setup
+Container: <https://docs.linuxserver.io/images/docker-lidarr>  
 
-1. Add 2 volumes to your container <br>
-   `/custom-services.d` and `/custom-cont-init.d` (do not map to the same local folder...) <br>
-   Docker Run Example: <br>
-   `-v /path/to/preferred/local/folder-01:/custom-services.d` <br>
+## Installation/setup
+
+1. Add 2 volumes to your container
+   `/custom-services.d` and `/custom-cont-init.d` (do not map to the same local folder...)
+   Docker Run Example:
+   `-v /path/to/preferred/local/folder-01:/custom-services.d`
    `-v /path/to/preferred/local/folder-02:/custom-cont-init.d`
-2. Download the [script_init.bash](https://github.com/RandomNinjaAtk/arr-scripts/blob/main/lidarr/scripts_init.bash) ([Download Link](https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/scripts_init.bash)) and place it into the following folder: <br>
+2. Download the [script_init.bash](https://github.com/RandomNinjaAtk/arr-scripts/blob/main/lidarr/scripts_init.bash) ([Download Link](https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/scripts_init.bash)) and place it into the following folder:
    `-v /path/to/preferred/local/folder-02:/custom-cont-init.d`
 3. Start your container and wait for the application to load
 4. Optional: Customize the configuration by modifying the following file `/config/extended.conf`
 5. Restart the container
 
-# Updating
+## Updating
 
 Updating is a bit more combersum. To update, do the following:
 
@@ -25,7 +27,7 @@ Updating is a bit more combersum. To update, do the following:
 
 This configuration does its best to update everything automatically, but with how the core system is designed, the new scripts will not take affect until a second restart is completed because the container copies/uses the previous versions of the script for execution on the first restart.
 
-# Features
+## Features
 
 <table>
   <tr>
@@ -36,8 +38,8 @@ This configuration does its best to update everything automatically, but with ho
     <td><img src="https://github.com/RandomNinjaAtk/docker-lidarr-extended/raw/main/.github/video.png" width="150"></td>
   </tr>
  </table>
- 
-* Downloading **Music** using online sources for use in popular applications (Plex/Kodi/Emby/Jellyfin): 
+
+* Downloading **Music** using online sources for use in popular applications (Plex/Kodi/Emby/Jellyfin):
   * Completely automated
   * Searches for downloads based on Lidarr's album missing & cutoff list
   * Downloads using a third party download client automatically
@@ -85,16 +87,16 @@ For more details, visit the [Wiki](https://github.com/RandomNinjaAtk/arr-scripts
 
 ![](https://github.com/RandomNinjaAtk/docker-lidarr-extended/raw/main/.github/kodi-music-videos.png)
 
-# Credits
+## Credits
 
-- [LinuxServer.io Team](https://github.com/linuxserver/docker-lidarr)
-- [Lidarr](https://lidarr.audio/)
-- [Beets](https://beets.io/)
-- [Deemix download client](https://deemix.app/)
-- [Tidal-Media-Downloader client](https://github.com/yaronzz/Tidal-Media-Downloader)
-- [r128gain](https://github.com/desbma/r128gain)
-- [Algorithm Implementation/Strings/Levenshtein distance](https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance)
-- [ffmpeg](https://ffmpeg.org/)
-- [yt-dlp](https://github.com/yt-dlp/yt-dlp)
-- [SMA Conversion/Tagging Automation Script](https://github.com/mdhiggins/sickbeard_mp4_automator)
-- [Freyr](https://github.com/miraclx/freyr-js)
+* [LinuxServer.io Team](https://github.com/linuxserver/docker-lidarr)
+* [Lidarr](https://lidarr.audio/)
+* [Beets](https://beets.io/)
+* [Deemix download client](https://deemix.app/)
+* [Tidal-Media-Downloader client](https://github.com/yaronzz/Tidal-Media-Downloader)
+* [r128gain](https://github.com/desbma/r128gain)
+* [Algorithm Implementation/Strings/Levenshtein distance](https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance)
+* [ffmpeg](https://ffmpeg.org/)
+* [yt-dlp](https://github.com/yt-dlp/yt-dlp)
+* [SMA Conversion/Tagging Automation Script](https://github.com/mdhiggins/sickbeard_mp4_automator)
+* [Freyr](https://github.com/miraclx/freyr-js)
