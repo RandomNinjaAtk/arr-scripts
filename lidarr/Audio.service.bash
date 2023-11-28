@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.23"
+scriptVersion="2.24"
 scriptName="Audio"
 
 ### Import Settings
@@ -151,7 +151,7 @@ Configuration () {
 }
 
 DownloadClientFreyr () {
-	freyr --no-bar -d $audioPath/incomplete deezer:album:$1 2>&1 | tee -a "/config/logs/$logFileName"
+	freyr --no-bar --no-net-check -d $audioPath/incomplete deezer:album:$1 2>&1 | tee -a "/config/logs/$logFileName"
  	# Resolve issue 94
  	if [ -d /root/.cache/FreyrCLI ]; then
   		rm -rf  /root/.cache/FreyrCLI/*
