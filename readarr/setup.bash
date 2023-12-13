@@ -2,7 +2,8 @@
 echo "************ install and update packages ************"
 apk add -U --update --no-cache \
   jq \
-  py3-pip
+  py3-pip \
+  ffmpeg
 echo "************ install python packages ************"
 pip install --upgrade --no-cache-dir -U yq
 
@@ -22,6 +23,10 @@ echo "Done"
 
 echo "Download PlexNotify script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/readarr/PlexNotify.bash -o /config/extended/PlexNotify.bash 
+echo "Done"
+
+echo "Download combine script..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/readarr/combine.bash -o /config/extended/combine.bash 
 echo "Done"
 
 echo "Download AutoConfig config..."

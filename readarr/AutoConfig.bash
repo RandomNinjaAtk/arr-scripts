@@ -103,6 +103,17 @@ else
   updateArr=$(curl -s "$arrUrl/api/v1/notification?" -X POST -H "Content-Type: application/json" -H "X-Api-Key: ${arrApiKey}" --data-raw '{"onGrab":false,"onReleaseImport":true,"onUpgrade":true,"onRename":false,"onAuthorDelete":true,"onBookDelete":true,"onBookFileDelete":false,"onBookFileDeleteForUpgrade":false,"onHealthIssue":false,"onDownloadFailure":false,"onImportFailure":false,"onBookRetag":false,"onApplicationUpdate":false,"supportsOnGrab":true,"supportsOnReleaseImport":true,"supportsOnUpgrade":true,"supportsOnRename":true,"supportsOnAuthorDelete":true,"supportsOnBookDelete":true,"supportsOnBookFileDelete":true,"supportsOnBookFileDeleteForUpgrade":true,"supportsOnHealthIssue":true,"includeHealthWarnings":false,"supportsOnDownloadFailure":false,"supportsOnImportFailure":false,"supportsOnBookRetag":true,"supportsOnApplicationUpdate":true,"name":"PlexNotify.bash","fields":[{"name":"path","value":"/config/extended/PlexNotify.bash"},{"name":"arguments"}],"implementationName":"Custom Script","implementation":"CustomScript","configContract":"CustomScriptSettings","infoLink":"https://wiki.servarr.com/readarr/supported#customscript","message":{"message":"Testing will execute the script with the EventType set to Test, ensure your script handles this correctly","type":"warning"},"tags":[]}')
   log "Complete"
 fi
+if curl -s "$arrUrl/api/v1/notification" -H "X-Api-Key: ${arrApiKey}" | jq -r .[].name | grep "combine.bash" | read; then
+	log "combine.bash already added to $arrAppName custom scripts"
+else
+	log "Adding combine.bash to $arrAppName custom scripts"
+  # Send a command to check file path, to prevent error with adding...
+	updateArr=$(curl -s "$arrUrl/api/v3/filesystem?path=%2Fconfig%2Fextended%2FPlexNotify.bash&allowFoldersWithoutTrailingSlashes=true&includeFiles=true" -H "X-Api-Key: ${arrApiKey}")
+  
+  # Add combine.bash
+  updateArr=$(curl -s "$arrUrl/api/v1/notification?" -X POST -H "Content-Type: application/json" -H "X-Api-Key: ${arrApiKey}" --data-raw '{"onGrab":false,"onReleaseImport":true,"onUpgrade":true,"onRename":true,"onAuthorDelete":false,"onBookDelete":false,"onBookFileDelete":false,"onBookFileDeleteForUpgrade":false,"onHealthIssue":false,"onDownloadFailure":false,"onImportFailure":false,"onBookRetag":false,"onApplicationUpdate":false,"supportsOnGrab":true,"supportsOnReleaseImport":true,"supportsOnUpgrade":true,"supportsOnRename":true,"supportsOnAuthorDelete":true,"supportsOnBookDelete":true,"supportsOnBookFileDelete":true,"supportsOnBookFileDeleteForUpgrade":true,"supportsOnHealthIssue":true,"includeHealthWarnings":false,"supportsOnDownloadFailure":false,"supportsOnImportFailure":false,"supportsOnBookRetag":true,"supportsOnApplicationUpdate":false,"name":"combine.bash","fields":[{"name":"path","value":"/config/extended/combine.bash"},{"name":"arguments"}],"implementationName":"Custom Script","implementation":"CustomScript","configContract":"CustomScriptSettings","infoLink":"https://wiki.servarr.com/readarr/supported#customscript","message":{"message":"Testing will execute the script with the EventType set to Test, ensure your script handles this correctly","type":"warning"},"tags":[]}')
+  log "Complete"
+fi
 
 log "Script sleeping for (infinity)..."
 sleep infinity
