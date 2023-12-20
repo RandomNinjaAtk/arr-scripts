@@ -36,8 +36,11 @@ combineM4bFiles() {
 
     if [ $? -eq 0 ]; then
         log "M4b files combined successfully. Output: $outputFile"
+        rm -f "$readarr_artist_path/*.mp3"
+        log "MP3 files removed after successful M4b file combination."
     else
         log "Error combining M4b files with FFmpeg."
+        log "original file untouched"
     fi
 }
 
