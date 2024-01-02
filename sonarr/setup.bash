@@ -16,7 +16,7 @@ apk add -U --update --no-cache \
 	ffmpeg \
 	yt-dlp
 echo "************ install python packages ************"
-pip install --upgrade --no-cache-dir -U \
+pip install --upgrade --no-cache-dir -U --break-system-packages \
 	excludarr \
 	yq
 echo "************ setup SMA ************"
@@ -32,8 +32,8 @@ echo "************ create logging file ************"
 mkdir -p /config/extended/sma/config
 touch /config/extended/sma/config/sma.log
 echo "************ install pip dependencies ************"
-pip install --upgrade pip --no-cache-dir 
-pip install -r /config/extended/sma/setup/requirements.txt --no-cache-dir 
+pip install --upgrade pip --no-cache-dir --break-system-packages
+pip install -r /config/extended/sma/setup/requirements.txt --no-cache-dir --break-system-packages
 chmod 777 -R /config/extended/sma
 echo "************ install recyclarr ************"
 mkdir -p /recyclarr
