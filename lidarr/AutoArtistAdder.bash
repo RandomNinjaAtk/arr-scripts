@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.0"
+scriptVersion="2.1"
 scriptName="AutoArtistAdder"
 
 ### Import Settings
@@ -114,7 +114,7 @@ AddDeezerArtistToLidarr () {
 				\"foreignArtistId\": \"$foreignId\",
 				\"qualityProfileId\": $qualityProfileId,
 				\"metadataProfileId\": $metadataProfileId,
-				\"monitored\":true,
+				\"monitored\":$autoArtistAdderMonitored,
 				\"monitor\":\"all\",
 				\"rootFolderPath\": \"$path\",
 				\"addOptions\":{\"searchForMissingAlbums\":$lidarrSearchForMissing}
