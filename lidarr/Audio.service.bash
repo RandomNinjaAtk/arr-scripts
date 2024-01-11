@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.27"
+scriptVersion="2.28"
 scriptName="Audio"
 
 ### Import Settings
@@ -36,7 +36,7 @@ verifyConfig () {
   fi
 
   if [ -z "$ignoreInstrumentalRelease" ]; then
-  	ignoreInstrumentalRelease="false"
+  	ignoreInstrumentalRelease="true"
   fi
   
   audioPath="$downloadPath/audio"
@@ -1277,13 +1277,17 @@ SearchProcess () {
 				#echo "Debugging :: $loopCount :: $releaseProcessCount :: $lidarrArtistForeignArtistId :: $lidarrReleaseTitle :: $lidarrAlbumReleasesMinTrackCount-$lidarrAlbumReleasesMaxTrackCount :: $lidarrAlbumReleaseTitleFirstWord :: $albumArtistNameSearch :: $albumTitleSearch"
 
 
-				# ignore instrumental releases
-    				if [ "$ignoreInstrumentalRelease" == "true" ]; then
-	    				if echo "$lidarrReleaseTitle" | grep -i "instrumental" | read; then
-						log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Instrumental Release Found, Skipping..."
-	     					continue
-	 				fi
-      				fi
+    				if "$lidarrAlbumTitle" | grep -i "instrumental" | read; then
+					sleep 0.01
+    				else
+					# ignore instrumental releases
+	    				if [ "$ignoreInstrumentalRelease" == "true" ]; then
+		    				if echo "$lidarrReleaseTitle" | grep -i "instrumental" | read; then
+							log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Instrumental Release Found, Skipping..."
+		     					continue
+		 				fi
+	      				fi
+				fi
 
 				# Skip Various Artists album search that is not supported...
 				if [ "$lidarrArtistForeignArtistId" != "89ad4ac3-39f7-470e-963a-56509c546377" ]; then
