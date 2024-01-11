@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.29"
+scriptVersion="2.30"
 scriptName="Audio"
 
 ### Import Settings
@@ -1236,8 +1236,8 @@ SearchProcess () {
 				releaseDisambiguation=" ($releaseDisambiguation)" 
 			fi
 			echo "${releaseTitle}${releaseDisambiguation}" >> /temp-release-list 
-			echo "$lidarrAlbumTitle" >> /temp-release-list 
 		done
+  		echo "$lidarrAlbumTitle" >> /temp-release-list 
 
 		# Get Release Titles
 		OLDIFS="$IFS"
