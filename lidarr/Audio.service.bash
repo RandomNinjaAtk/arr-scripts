@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.24"
+scriptVersion="2.25"
 scriptName="Audio"
 
 ### Import Settings
@@ -665,7 +665,7 @@ DownloadProcess () {
 	fi
 	
 	albumquality="$(find "$audioPath"/incomplete/ -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | head -n 1 | egrep -i -E -o "\.{1}\w*$" | sed  's/\.//g')"
-	downloadedAlbumFolder="$lidarrArtistNameSanitized-$downloadedAlbumTitleClean ($3)-${albumquality^^}-$1-$2"
+	downloadedAlbumFolder="$lidarrArtistNameSanitized-${downloadedAlbumTitleClean:0:100} ($3)-${albumquality^^}-$1-$2"
 
 	find "$audioPath/incomplete" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -print0 | while IFS= read -r -d '' audio; do
         file="${audio}"
