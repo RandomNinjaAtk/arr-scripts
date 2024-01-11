@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.28"
+scriptVersion="2.29"
 scriptName="Audio"
 
 ### Import Settings
@@ -1277,7 +1277,7 @@ SearchProcess () {
 				#echo "Debugging :: $loopCount :: $releaseProcessCount :: $lidarrArtistForeignArtistId :: $lidarrReleaseTitle :: $lidarrAlbumReleasesMinTrackCount-$lidarrAlbumReleasesMaxTrackCount :: $lidarrAlbumReleaseTitleFirstWord :: $albumArtistNameSearch :: $albumTitleSearch"
 
 
-    				if "$lidarrAlbumTitle" | grep -i "instrumental" | read; then
+    				if echo "$lidarrAlbumTitle" | grep -i "instrumental" | read; then
 					sleep 0.01
     				else
 					# ignore instrumental releases
