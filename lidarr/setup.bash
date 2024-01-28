@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bash
 SMA_PATH="/usr/local/sma"
-version=1.0"
+version="1.0"
 
 echo "*** install packages ***" && \
 apk add -U --upgrade --no-cache \
