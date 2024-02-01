@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.30"
+scriptVersion="2.31"
 scriptName="Audio"
 
 ### Import Settings
@@ -1269,7 +1269,7 @@ SearchProcess () {
 				releaseProcessCount=$(( $releaseProcessCount + 1))
 				lidarrReleaseTitle="${lidarrReleaseTitles[$title]}"
 				lidarrAlbumReleaseTitleClean=$(echo "$lidarrReleaseTitle" | sed -e "s%[^[:alpha:][:digit:]]%%g" -e "s/  */ /g" | sed 's/^[.]*//' | sed  's/[.]*$//g' | sed  's/^ *//g' | sed 's/ *$//g')
-    				lidarrAlbumReleaseTitleClean="${lidarrAlbumReleaseTitleClean:0:130}"
+    			lidarrAlbumReleaseTitleClean="${lidarrAlbumReleaseTitleClean:0:130}"
 				lidarrAlbumReleaseTitleSearchClean="$(echo "$lidarrReleaseTitle" | sed -e "s%[^[:alpha:][:digit:]]% %g" -e "s/  */ /g" | sed 's/^[.]*//' | sed  's/[.]*$//g' | sed  's/^ *//g' | sed 's/ *$//g')"
 				lidarrAlbumReleaseTitleFirstWord="$(echo "$lidarrReleaseTitle"  | awk '{ print $1 }')"
 				lidarrAlbumReleaseTitleFirstWord="${lidarrAlbumReleaseTitleFirstWord:0:3}"
@@ -1432,16 +1432,7 @@ ArtistDeezerSearch () {
 		deezerAlbumData="$(echo "$deezerArtistAlbumsData" | jq -r "select(.id==$deezerAlbumID)")"
 		deezerAlbumTitle="$(echo "$deezerAlbumData" | jq -r ".title")"
 		deezerAlbumTitleClean="$(echo ${deezerAlbumTitle} | sed -e "s%[^[:alpha:][:digit:]]%%g" -e "s/  */ /g" | sed 's/^[.]*//' | sed  's/[.]*$//g' | sed  's/^ *//g' | sed 's/ *$//g')"
-  		deezerAlbumTitleClean="${deezerAlbumTitleClean:0:130}"
-		# String Character Count test, quicker than the levenshtein method to allow faster processing
-		characterMath=$(( ${#deezerAlbumTitleClean} - ${#lidarrAlbumReleaseTitleClean} ))
-		if [ "$characterMath" -gt "$matchDistance" ]; then
-		    log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Artist Search :: Deezer :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $deezerAlbumTitleClean :: Not a match..."
-			continue
-		elif [ "$characterMath" -lt "0" ]; then
-		    log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Artist Search :: Deezer :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $deezerAlbumTitleClean :: Not a match..."
-			continue
-		fi
+  		deezerAlbumTitleClean="${deezerAlbumTitleClean:0:130}"		
 		GetDeezerAlbumInfo "$deezerAlbumID"
 		deezerAlbumData="$(cat "/config/extended/cache/deezer/$deezerAlbumID.json")"
 		deezerAlbumTrackCount="$(echo "$deezerAlbumData" | jq -r .nb_tracks)"
@@ -1460,8 +1451,8 @@ ArtistDeezerSearch () {
 		fi
 		
 		log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Artist Search :: Deezer :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $deezerAlbumTitleClean :: Checking for Match..."
-		log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Artist Search :: Deezer :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $deezerAlbumTitleClean :: Calculating Similarity..."
-		diff=$(levenshtein "${lidarrAlbumReleaseTitleClean,,}" "${deezerAlbumTitleClean,,}" 2>/dev/null)
+		log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Artist Search :: Deezer :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $deezerAlbumTitleClean :: Calculating Damerau-Levenshtein distance..."
+		diff=$(python -c "from pyxdameraulevenshtein import damerau_levenshtein_distance; print(damerau_levenshtein_distance(\"${lidarrAlbumReleaseTitleClean,,}\", \"${deezerAlbumTitleClean,,}\"))" 2>/dev/null)
 		if [ "$diff" -le "$matchDistance" ]; then
 			log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Artist Search :: Deezer :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $deezerAlbumTitleClean :: Deezer MATCH Found :: Calculated Difference = $diff"
 
@@ -1481,7 +1472,7 @@ ArtistDeezerSearch () {
 FuzzyDeezerSearch () {
 	# Required Inputs
 	# $1 Process ID
-	# $3 Lyric Type (explicit = true, clean = false)
+	# $2 Lyric Type (explicit = true, clean = false)
 
 	if [ "$2" == "true" ]; then
 		type="Explicit"
@@ -1512,13 +1503,6 @@ FuzzyDeezerSearch () {
 			deezerAlbumTitle="$(echo "$deezerAlbumTitle" | head -n1)"
 			deezerAlbumTitleClean="$(echo "$deezerAlbumTitle" | sed -e "s%[^[:alpha:][:digit:]]%%g" -e "s/  */ /g" | sed 's/^[.]*//' | sed  's/[.]*$//g' | sed  's/^ *//g' | sed 's/ *$//g')"
 			deezerAlbumTitleClean="${deezerAlbumTitleClean:0:130}"
-			# String Character Count test, quicker than the levenshtein method to allow faster processing
-			characterMath=$(( ${#deezerAlbumTitleClean} - ${#lidarrAlbumReleaseTitleClean} ))
-			if [ "$characterMath" -gt "$matchDistance" ]; then
-				continue
-			elif [ "$characterMath" -lt "0" ]; then
-				continue
-			fi
 
 			GetDeezerAlbumInfo "${deezerAlbumID}"
 			deezerAlbumData="$(cat "/config/extended/cache/deezer/$deezerAlbumID.json")"
@@ -1542,8 +1526,8 @@ FuzzyDeezerSearch () {
 			fi
 
 			log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Fuzzy Search :: Deezer :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $deezerAlbumTitleClean :: Checking for Match..."
-			log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Fuzzy Search :: Deezer :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $deezerAlbumTitleClean :: Calculating Similarity..."
-			diff=$(levenshtein "${lidarrAlbumReleaseTitleClean,,}" "${deezerAlbumTitleClean,,}" 2>/dev/null)
+			log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Fuzzy Search :: Deezer :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $deezerAlbumTitleClean :: Calculating Damerau-Levenshtein distance..."
+			diff=$(python -c "from pyxdameraulevenshtein import damerau_levenshtein_distance; print(damerau_levenshtein_distance(\"${lidarrAlbumReleaseTitleClean,,}\", \"${deezerAlbumTitleClean,,}\"))" 2>/dev/null)
 			if [ "$diff" -le "$matchDistance" ]; then
 				log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Fuzzy Search :: Deezer :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $deezerAlbumTitleClean :: Deezer MATCH Found :: Calculated Difference = $diff"
 				log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Fuzzy Search :: Deezer :: $type :: $lidarrReleaseTitle :: Downloading $deezerAlbumTrackCount Tracks :: $deezerAlbumTitle ($downloadedReleaseYear)"
@@ -1611,19 +1595,9 @@ ArtistTidalSearch () {
 		downloadedReleaseYear="${downloadedReleaseDate:0:4}"
 		downloadedTrackCount=$(echo "$tidalArtistAlbumData"| jq -r .numberOfTracks)
 
-		# String Character Count test, quicker than the levenshtein method to allow faster processing
-		characterMath=$(( ${#tidalAlbumTitleClean} - ${#lidarrAlbumReleaseTitleClean} ))
-		if [ "$characterMath" -gt "$matchDistance" ]; then
-		    log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Artist Search :: Tidal :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $tidalAlbumTitleClean :: Not a match..."
-			continue
-		elif [ "$characterMath" -lt "0" ]; then
-		    log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Artist Search :: Tidal :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $tidalAlbumTitleClean :: Not a match..."
-			continue
-		fi
-
 		log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Artist Search :: Tidal :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $tidalAlbumTitleClean :: Checking for Match..."
-		log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Artist Search :: Tidal :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $tidalAlbumTitleClean :: Calculating Similarity..."
-		diff=$(levenshtein "${lidarrAlbumReleaseTitleClean,,}" "${tidalAlbumTitleClean,,}" 2>/dev/null)
+		log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Artist Search :: Tidal :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $tidalAlbumTitleClean :: Calculating Damerau-Levenshtein distance..."
+		diff=$(python -c "from pyxdameraulevenshtein import damerau_levenshtein_distance; print(damerau_levenshtein_distance(\"${lidarrAlbumReleaseTitleClean,,}\", \"${tidalAlbumTitleClean,,}\"))" 2>/dev/null)
 		if [ "$diff" -le "$matchDistance" ]; then
 			log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Artist Search :: Tidal :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $tidalAlbumTitleClean :: Tidal MATCH Found :: Calculated Difference = $diff"
 
@@ -1679,19 +1653,9 @@ FuzzyTidalSearch () {
 			downloadedReleaseYear="${downloadedReleaseDate:0:4}"
 			downloadedTrackCount=$(echo "$tidalAlbumData"| jq -r .numberOfTracks)
 
-			# String Character Count test, quicker than the levenshtein method to allow faster processing
-			characterMath=$(( ${#tidalAlbumTitleClean} - ${#lidarrAlbumReleaseTitleClean} ))
-			if [ "$characterMath" -gt "$matchDistance" ]; then
-			    log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Fuzzy Search :: Tidal :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $tidalAlbumTitleClean :: Not a match..."
-				continue
-			elif [ "$characterMath" -lt "0" ]; then
-			    log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Fuzzy Search :: Tidal :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $tidalAlbumTitleClean :: Not a match..."
-				continue
-			fi
-
 			log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Fuzzy Search :: Tidal :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $tidalAlbumTitleClean :: Checking for Match..."
-			log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Fuzzy Search :: Tidal :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $tidalAlbumTitleClean :: Calculating Similarity..."
-			diff=$(levenshtein "${lidarrAlbumReleaseTitleClean,,}" "${tidalAlbumTitleClean,,}" 2>/dev/null)
+			log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Fuzzy Search :: Tidal :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $tidalAlbumTitleClean :: Calculating Damerau-Levenshtein distance..."
+			diff=$(python -c "from pyxdameraulevenshtein import damerau_levenshtein_distance; print(damerau_levenshtein_distance(\"${lidarrAlbumReleaseTitleClean,,}\", \"${tidalAlbumTitleClean,,}\"))" 2>/dev/null)
 			if [ "$diff" -le "$matchDistance" ]; then
 				log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Fuzzy Search :: Tidal :: $type :: $lidarrReleaseTitle :: $lidarrAlbumReleaseTitleClean vs $tidalAlbumTitleClean :: Tidal MATCH Found :: Calculated Difference = $diff"
 				log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Fuzzy Search :: Tidal :: $type :: $lidarrReleaseTitle :: Downloading $downloadedTrackCount Tracks :: $tidalAlbumTitle ($downloadedReleaseYear)"
@@ -1785,45 +1749,6 @@ LidarrMissingAlbumSearch () {
 		touch /config/extended/logs/searched/lidarr/artist/$lidarrArtistMusicbrainzId
 		chmod 777 /config/extended/logs/searched/lidarr/artist/$lidarrArtistMusicbrainzId
 	done
-}
-
-function levenshtein {
-	if [ "$1" == "$2" ]; then
-		echo 0
-	else
-		if (( $# != 2 )); then
-			echo "Usage: $0 word1 word2" >&2
-		elif (( ${#1} < ${#2} )); then
-			levenshtein "$2" "$1"
-		else
-			local str1len=${#1}
-			local str2len=${#2}
-			local d
-
-			for (( i = 0; i <= (str1len+1)*(str2len+1); i++ )); do
-				d[i]=0
-			done
-
-			for (( i = 0; i <= str1len; i++ )); do
-				d[i+0*str1len]=$i
-			done
-
-			for (( j = 0; j <= str2len; j++ )); do
-				d[0+j*(str1len+1)]=$j
-			done
-
-			for (( j = 1; j <= str2len; j++ )); do
-				for (( i = 1; i <= str1len; i++ )); do
-					[ "${1:i-1:1}" = "${2:j-1:1}" ] && local cost=0 || local cost=1
-					del=$(( d[(i-1)+str1len*j]+1 ))
-					ins=$(( d[i+str1len*(j-1)]+1 ))
-					alt=$(( d[(i-1)+str1len*(j-1)]+cost ))
-					d[i+str1len*j]=$( echo -e "$del\n$ins\n$alt" | sort -n | head -1 )
-				done
-			done
-			echo ${d[str1len+str1len*(str2len)]}
-		fi
-	fi
 }
 
 audioFlacVerification () {
