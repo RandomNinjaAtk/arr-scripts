@@ -33,8 +33,8 @@ echo "************ install skyscraper ************"
 mkdir -p ${SKYSCRAPER_PATH}
 cd ${SKYSCRAPER_PATH}
 wget https://raw.githubusercontent.com/Gemba/skyscraper/master/update_skyscraper.sh
-
-
+sed -i 's/sudo //g' update_skyscraper.sh
+bash update_skyscraper.sh
 echo "************ RAHasher installation ************"
 mkdir -p ${RAHASHER_PATH}
 wget "https://github.com/RetroAchievements/RALibretro/releases/download/1.4.0/RAHasher-x64-Linux-1.6.0.zip" -O "${RAHASHER_PATH}/rahasher.zip"
