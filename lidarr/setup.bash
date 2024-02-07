@@ -30,6 +30,8 @@ pip install --upgrade --no-cache-dir \
   pyxDamerauLevenshtein \
   pyacoustid \
   requests \
+  colorama \
+  python-telegram-bot \
   pylast \
   mutagen \
   r128gain \
