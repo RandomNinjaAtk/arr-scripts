@@ -197,6 +197,9 @@ class LidarrExtendedAPI:
     # Uses DeezerPlatformProvider to check if the token is valid
     def check_token(self, token=None):
         logger.info('Checking ARL Token Validity...')
+        if token == '""':
+            logger.info(Fore.YELLOW+"No ARL Token set in Extended.conf"+Fore.WHITE)
+            exit(0)
         if token is None:
             print('Invalid ARL Token Entry')
             return False
