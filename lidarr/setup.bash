@@ -82,8 +82,8 @@ echo "Done"
 
 mkdir -p /custom-services.d/python
 echo "Download ARLChecker service..."
-curl https://raw.github.com/hockeygoalie35/arr-scripts/tree/main/lidarr/python/ARLChecker.py -o /custom-services.d/python/ARLChecker.py
-curl https://raw.github.com/hockeygoalie35/arr-scripts/tree/main/lidarr/ARLChecker -o /custom-services.d/ARLChecker
+curl https://raw.githubusercontent.com/hockeygoalie35/arr-scripts/main/lidarr/python/ARLChecker.py -o /custom-services.d/python/ARLChecker.py
+curl https://raw.githubusercontent.com/hockeygoalie35/arr-scripts/main/lidarr/ARLChecker -o /custom-services.d/ARLChecker
 
 
 
