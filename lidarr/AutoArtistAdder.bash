@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.9"
+scriptVersion="2.1"
 scriptName="AutoArtistAdder"
 
 ### Import Settings
@@ -19,6 +19,12 @@ verifyConfig () {
 
   if [ -z "$autoArtistAdderInterval" ]; then
     autoArtistAdderInterval="12h"
+  fi
+
+  if [ -z "$autoArtistAdderMonitored" ]; then 
+    autoArtistAdderMonitored="true"
+  elif [ "$autoArtistAdderMonitored" != "true" ]; then
+    autoArtistAdderMonitored="false"
   fi
 
 }
@@ -108,7 +114,7 @@ AddDeezerArtistToLidarr () {
 				\"foreignArtistId\": \"$foreignId\",
 				\"qualityProfileId\": $qualityProfileId,
 				\"metadataProfileId\": $metadataProfileId,
-				\"monitored\":true,
+				\"monitored\":$autoArtistAdderMonitored,
 				\"monitor\":\"all\",
 				\"rootFolderPath\": \"$path\",
 				\"addOptions\":{\"searchForMissingAlbums\":$lidarrSearchForMissing}
@@ -259,7 +265,7 @@ AddTidalArtistToLidarr () {
 				\"foreignArtistId\": \"$foreignId\",
 				\"qualityProfileId\": $qualityProfileId,
 				\"metadataProfileId\": $metadataProfileId,
-				\"monitored\":true,
+				\"monitored\":$autoArtistAdderMonitored,
 				\"monitor\":\"all\",
 				\"rootFolderPath\": \"$path\",
 				\"addOptions\":{\"searchForMissingAlbums\":$lidarrSearchForMissing}

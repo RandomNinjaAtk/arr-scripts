@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="3.5"
+scriptVersion="3.6"
 scriptName="Video"
 
 ### Import Settings
@@ -8,14 +8,26 @@ source /config/extended.conf
 source /config/extended/functions
 
 verifyConfig () {
-    videoContainer=mkv
+	if [ -z "$videoContainer" ]; then
+		videoContainer="mkv"
+	fi
+
+	if [ -z "$disableImvd" ]; then
+ 		disableImvd="fasle"
+        fi
 
 	if [ "$enableVideo" != "true" ]; then
 		log "Script is not enabled, enable by setting enableVideo to \"true\" by modifying the \"/config/extended.conf\" config file..."
 		log "Sleeping (infinity)"
 		sleep infinity
 	fi
-	
+
+        if [ "$disableImvd" = "true" ]; then
+		log "Script is not enabled, enable by setting disableImvd to \"false\" by modifying the \"/config/extended.conf\" config file..."
+		log "Sleeping (infinity)"
+		sleep infinity
+	fi
+ 
 	if [ -z "$downloadPath" ]; then
 		downloadPath="/config/extended/downloads"
 	fi

@@ -1,5 +1,6 @@
 #!/usr/bin/with-contenv bash
 SMA_PATH="/usr/local/sma"
+version="1.1"
 
 echo "*** install packages ***" && \
 apk add -U --upgrade --no-cache \
@@ -22,11 +23,11 @@ apk add -U --upgrade --no-cache \
 echo "*** install freyr client ***" && \
 apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/testing atomicparsley && \
 npm install -g miraclx/freyr-js &&\
-echo "*** install beets ***" && \
-apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/community beets && \
 echo "*** install python packages ***" && \
 pip install --upgrade --no-cache-dir \
+  beets \
   yq \
+  pyxDamerauLevenshtein \
   pyacoustid \
   requests \
   pylast \
@@ -46,7 +47,7 @@ touch ${SMA_PATH}/config/sma.log && \
 chgrp users ${SMA_PATH}/config/sma.log && \
 chmod g+w ${SMA_PATH}/config/sma.log && \
 echo "************ install pip dependencies ************" && \
-python3 -m pip install --upgrade pip && \	
+python3 -m pip install --upgrade pip && \
 pip3 install -r ${SMA_PATH}/setup/requirements.txt
 
 mkdir -p /custom-services.d

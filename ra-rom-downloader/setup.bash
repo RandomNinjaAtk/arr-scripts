@@ -1,5 +1,6 @@
 #!/usr/bin/with-contenv bash
 RAHASHER_PATH="/usr/local/RALibretro"
+SKYSCRAPER_PATH="/usr/local/skysource"
 echo "************ install dependencies ************"
 echo "************ install and upgrade packages ************"
 apt-get update
@@ -18,6 +19,22 @@ apt-get install -y \
   	python3-pip \
         rclone \
 	bsdmainutils
+echo "************ skyscraper ************"
+echo "************ install dependencies ************"
+echo "************ install packages ************"
+apt-get update
+apt-get install -y \
+  build-essential \
+  wget \
+  qt5-default
+apt-get purge --auto-remove -y
+apt-get clean
+echo "************ install skyscraper ************"
+mkdir -p ${SKYSCRAPER_PATH}
+cd ${SKYSCRAPER_PATH}
+wget https://raw.githubusercontent.com/Gemba/skyscraper/master/update_skyscraper.sh
+sed -i 's/sudo //g' update_skyscraper.sh
+bash update_skyscraper.sh
 echo "************ RAHasher installation ************"
 mkdir -p ${RAHASHER_PATH}
 wget "https://github.com/RetroAchievements/RALibretro/releases/download/1.4.0/RAHasher-x64-Linux-1.6.0.zip" -O "${RAHASHER_PATH}/rahasher.zip"
