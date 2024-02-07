@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bash
+scriptVersion="0.1"
+scriptName="ARLChecker"
+
+echo Starting ARL Token Check...
+python /custom-services.d/python/ARLChecker.py -c
+echo ARL Token Check Complete. Sleeping for 24hrs...
+sleep 24h

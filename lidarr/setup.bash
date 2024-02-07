@@ -51,6 +51,7 @@ python3 -m pip install --upgrade pip && \
 pip3 install -r ${SMA_PATH}/setup/requirements.txt
 
 mkdir -p /custom-services.d
+
 echo "Download QueueCleaner service..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/services/QueueCleaner -o /custom-services.d/QueueCleaner
 echo "Done"
@@ -77,6 +78,15 @@ echo "Done"
 
 echo "Download UnmappedFilesCleaner service..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/UnmappedFilesCleaner.bash -o /custom-services.d/UnmappedFilesCleaner
+echo "Done"
+
+mkdir -p /custom-services.d/python
+echo "Download ARLChecker service..."
+curl https://github.com/hockeygoalie35/arr-scripts/tree/main/lidarr/python/ARLChecker.py -o /custom-services.d/python/ARLChecker.py
+curl https://github.com/hockeygoalie35/arr-scripts/tree/main/lidarr/ARLChecker -o /custom-services.d/ARLChecker
+
+
+
 echo "Done"
 
 mkdir -p /config/extended
