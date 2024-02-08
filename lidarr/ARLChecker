@@ -1,8 +1,11 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="0.1"
+scriptVersion="0.5"
 scriptName="ARLChecker"
+
+### Import Settings
+source /config/extended.conf
 
 echo Starting ARL Token Check...
 python /custom-services.d/python/ARLChecker.py -c
 echo ARL Token Check Complete. Sleeping for 24hrs...
-sleep 1m
+sleep "$arlUpdateInterval"
