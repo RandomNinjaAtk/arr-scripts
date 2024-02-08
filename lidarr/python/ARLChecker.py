@@ -247,7 +247,7 @@ class LidarrExtendedAPI:
                 os.remove(file_to_delete)
 
     def report_status(self, status):
-        f = open("ARLStatus.txt", "w")
+        f = open("/custom-services.d/python/ARLStatus.txt", "w")
         now = datetime.strftime(datetime.now(),"%b-%d-%Y at %H:%M:%S")
         f.write(f"{now}: ARL Token is {status}.{' Please update arlToken in extended.conf' if status=='EXPIRED' else ''}")
         f.close()
