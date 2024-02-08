@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="0.5"
+scriptVersion="0.1"
 scriptName="ARLChecker"
 
 ### Import Settings

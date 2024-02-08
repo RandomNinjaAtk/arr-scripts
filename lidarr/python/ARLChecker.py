@@ -9,6 +9,7 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 import logging
 import os
+from datetime import datetime
 
 
 VERSION = 0.1
@@ -199,6 +200,7 @@ class LidarrExtendedAPI:
         logger.info('Checking ARL Token Validity...')
         if token == '""':
             logger.info(Fore.YELLOW+"No ARL Token set in Extended.conf"+Fore.WHITE)
+            self.report_status("NOT SET")
             exit(0)
         if token is None:
             print('Invalid ARL Token Entry')
@@ -216,10 +218,11 @@ class LidarrExtendedAPI:
                 logger.info(f'Lossless: {Fore.GREEN+"Y" if account.plan.lossless else Fore.RED+"N"}'+Fore.WHITE)
                 logger.info(f'Explicit: {Fore.GREEN+"Y" if account.plan.explicit else Fore.RED+"N"}'+Fore.WHITE)
                 logger.info('-------------------------------')
+                self.report_status('VALID')
                 return True
         except Exception as e:
             print(e)
-
+            self.report_status('EXPIRED')
             if self.telegram_bot_running:
                 return False
             if self.enable_telegram_bot:
@@ -242,6 +245,12 @@ class LidarrExtendedAPI:
             for file in os.listdir(path):
                 file_to_delete = os.path.join(path,file)
                 os.remove(file_to_delete)
+
+    def report_status(self, status):
+        f = open("ARLStatus.txt", "w")
+        now = datetime.strftime(datetime.now(),"%b-%d-%Y at %H:%M:%S")
+        f.write(f"{now}: ARL Token is {status}.{' Please update arlToken in extended.conf' if status=='EXPIRED' else ''}")
+        f.close()
 
     def start_telegram_bot(self):
         self.bot = TelegramBotControl(self,self.telegram_bot_token,self.telegram_user_chat_id)
@@ -322,6 +331,8 @@ class TelegramBotControl:
             await update.message.reply_text(text="Token expired or inactive. try another token.")
             return
 
+
+
 def main(arlToken = None):
     parser = ArgumentParser(prog='Account Checker', description='Check if Deezer ARL Token is valid')
     parser.add_argument('-c', '--check', help='Check if current ARL Token is active/valid',required=False, default=False, action='store_true')
@@ -364,4 +375,4 @@ def main(arlToken = None):
 
 
 if __name__ == '__main__':
-    main('dasdasd')
+    main('FAKETOKEN')
