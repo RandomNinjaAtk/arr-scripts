@@ -17,6 +17,20 @@ Container: <https://docs.linuxserver.io/images/docker-lidarr>
 4. Optional: Customize the configuration by modifying the following file `/config/extended.conf`
 5. Restart the container
 
+## Synology Users (DMS 7.x)
+
+1. Follow the steps above to install the container
+2. Copy any of the scripts you want to use from the left column to the custom-cont-init.d folder
+3. Select the running container using Container Manager
+4. Click on 'Action', then 'Open Terminal'
+5. When the window opens, click on 'Create'
+6. You will see 'bash' being listed under the running container
+7. Click on 'bash' and in the terminal window you'll see a command prompt
+8. Change to the custom-cont-init.d folder
+9. Use the 'ls' command to see all the scripts you downloaded in step 2
+10. Run the script-init.bash file by using the command, ./script-init.bash
+11. Once that script has finished, run any of the other scripts you downloaded in step 2
+
 ## Updating
 
 Updating is a bit more combersum. To update, do the following:
