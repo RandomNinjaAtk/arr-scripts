@@ -78,6 +78,10 @@ This configuration does its best to update everything automatically, but with ho
   * Automatically removes downloads that have a "warning" or "failed" status that will not auto-import into Lidarr, which enables Lidarr to automatically re-search for the album
 * Unmapped Folder Cleaner Script
   * Automatically deletes folders that are not mapped in Lidarr
+* ARLChecker Script
+  * Checks Deezer ARL set in extended.conf at set interval for validity
+  * Reports ARL status in text file
+  * Optional Telegram bot with ability to set token from the chat
 
 For more details, visit the [Wiki](https://github.com/RandomNinjaAtk/arr-scripts/wiki/Lidarr)
 
