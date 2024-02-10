@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="3.6"
+scriptVersion="3.7"
 scriptName="Video"
 
 ### Import Settings
@@ -13,7 +13,7 @@ verifyConfig () {
 	fi
 
 	if [ -z "$disableImvd" ]; then
- 		disableImvd="fasle"
+ 		disableImvd="false"
         fi
 
 	if [ "$enableVideo" != "true" ]; then
@@ -22,7 +22,7 @@ verifyConfig () {
 		sleep infinity
 	fi
 
-        if [ "$disableImvd" = "true" ]; then
+        if [ "$disableImvd" != "true" ]; then
 		log "Script is not enabled, enable by setting disableImvd to \"false\" by modifying the \"/config/extended.conf\" config file..."
 		log "Sleeping (infinity)"
 		sleep infinity
