@@ -1,11 +1,22 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="0.1"
+### Default values
+scriptVersion="1.1"
 scriptName="ARLChecker"
-
+sleepInterval='24h'
 ### Import Settings
 source /config/extended.conf
 
 echo Starting ARL Token Check...
-python /custom-services.d/python/ARLChecker.py -c
-echo ARL Token Check Complete. Sleeping for 24hrs...
-sleep "$arlUpdateInterval"
+python /custom-services.d/python/ARLChecker.py -c # run py script
+
+# If variable doesn't exist, or not set by user in extended.conf, fallback to 24h
+# See issue #189
+if [[ -v arlUpdateInterval ]] && [ "$arlUpdateInterval" != "" ];then
+	echo 'conf'
+	sleepInterval="$arlUpdateInterval"
+else
+	echo 'default'
+fi
+
+echo ARL Token Check Complete. Sleeping for ${sleepInterval}.
+sleep ${sleepInterval}
