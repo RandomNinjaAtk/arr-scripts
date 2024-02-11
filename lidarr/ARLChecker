@@ -2,20 +2,22 @@
 ### Default values
 scriptVersion="1.1"
 scriptName="ARLChecker"
-sleepInterval='24h'
+sleepInterval='10s'
 ### Import Settings
 source /config/extended.conf
 
 echo Starting ARL Token Check...
-python /custom-services.d/python/ARLChecker.py -c # run py script
+# run py script
+python /custom-services.d/python/ARLChecker.py -c
 
 # If variable doesn't exist, or not set by user in extended.conf, fallback to 24h
 # See issue #189
-if [[ -v arlUpdateInterval ]] && [ "$arlUpdateInterval" != "" ];then
-	echo 'conf'
+if [[ -v arlUpdateInterval ]] && [ "$arlUpdateInterval" != "" ]
+then
+	echo 'Found Interval in extended.conf'
 	sleepInterval="$arlUpdateInterval"
 else
-	echo 'default'
+	echo 'Interval Fallback'
 fi
 
 echo ARL Token Check Complete. Sleeping for ${sleepInterval}.
