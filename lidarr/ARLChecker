@@ -2,7 +2,7 @@
 ### Default values
 scriptVersion="1.1"
 scriptName="ARLChecker"
-sleepInterval='10s'
+sleepInterval='24h'
 ### Import Settings
 source /config/extended.conf
 
