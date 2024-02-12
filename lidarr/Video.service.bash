@@ -22,7 +22,7 @@ verifyConfig () {
 		sleep infinity
 	fi
 
-        if [ "$disableImvd" != "true" ]; then
+        if [ "$disableImvd" != "false" ]; then
 		log "Script is not enabled, enable by setting disableImvd to \"false\" by modifying the \"/config/extended.conf\" config file..."
 		log "Sleeping (infinity)"
 		sleep infinity
