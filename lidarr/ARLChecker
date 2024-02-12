@@ -1,10 +1,18 @@
 #!/usr/bin/with-contenv bash
 ### Default values
-scriptVersion="1.1"
+scriptVersion="1.2"
 scriptName="ARLChecker"
 sleepInterval='24h'
 ### Import Settings
 source /config/extended.conf
+#### Import Functions
+source /config/extended/functions
+
+if [ "$dlClientSource" == "tidal" ]; then
+    log "Script is not enabled, enable by setting dlClientSource to \"deezer\" or \"both\" by modifying the \"/config/extended.conf\" config file..."
+    log "Sleeping (infinity)"
+    sleep infinity
+fi
 
 echo Starting ARL Token Check...
 # run py script
