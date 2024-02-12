@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bash
 ### Default values
-scriptVersion="1.2"
+scriptVersion="1.3"
 scriptName="ARLChecker"
 sleepInterval='24h'
 ### Import Settings
@@ -14,7 +14,7 @@ if [ "$dlClientSource" == "tidal" ]; then
     sleep infinity
 fi
 
-echo Starting ARL Token Check...
+log "Starting ARL Token Check..."
 # run py script
 python /custom-services.d/python/ARLChecker.py -c
 
@@ -22,11 +22,11 @@ python /custom-services.d/python/ARLChecker.py -c
 # See issue #189
 if [[ -v arlUpdateInterval ]] && [ "$arlUpdateInterval" != "" ]
 then
-	echo 'Found Interval in extended.conf'
+	log "Found Interval in extended.conf"
 	sleepInterval="$arlUpdateInterval"
 else
-	echo 'Interval Fallback'
+	log "Interval Fallback"
 fi
 
-echo ARL Token Check Complete. Sleeping for ${sleepInterval}.
+log "ARL Token Check Complete. Sleeping for ${sleepInterval}."
 sleep ${sleepInterval}
