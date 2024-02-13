@@ -11,8 +11,7 @@ import logging
 import os
 from datetime import datetime
 
-# Pull script version from previous
-VERSION = '0.0.0'
+# Pull script version from bash script. will likely change this to a var passthrough
 with open("/custom-services.d/ARLChecker", "r") as r:
     for line in r:
         if 'scriptVersion' in line:
