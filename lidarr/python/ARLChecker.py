@@ -90,7 +90,7 @@ class DeezerPlatformProvider:
             )
             res.raise_for_status()
         except Exception as error:
-            logger.error(Fore.RED + 'Could not connect! Service down, API changed, wrong credentials or code-related issue.' + Fore.WHITE)
+            logger.error(Fore.RED + 'Could not connect! Service down, API changed, wrong credentials or code-related issue.' + Fore.LIGHTWHITE_EX)
             raise ConnectionError()
 
         self.session.cookies.clear()
@@ -98,17 +98,17 @@ class DeezerPlatformProvider:
         try:
             res = res.json()
         except Exception as error:
-            logger.error(Fore.RED + "Could not parse JSON response from DEEZER!" + Fore.WHITE)
+            logger.error(Fore.RED + "Could not parse JSON response from DEEZER!" + Fore.LIGHTWHITE_EX)
             raise ParseError()
 
         if 'error' in res and res['error']:
-            logger.error(Fore.RED + "Deezer returned the following error:{}".format(res["error"]) + Fore.WHITE)
+            logger.error(Fore.RED + "Deezer returned the following error:{}".format(res["error"]) + Fore.LIGHTWHITE_EX)
             raise ServiceError()
 
         res = res['results']
 
         if res['USER']['USER_ID'] == 0:
-            logger.error(Fore.RED+"ARL Token Expired. Update the token in extended.conf"+Fore.WHITE)
+            logger.error(Fore.RED+"ARL Token Expired. Update the token in extended.conf"+Fore.LIGHTWHITE_EX)
             raise AuthError()
 
         return Account(username, secret, res['COUNTRY'], Plan(
@@ -203,7 +203,7 @@ class LidarrExtendedAPI:
     def check_token(self, token=None):
         logger.info('Checking ARL Token Validity...')
         if token == '""':
-            logger.info(Fore.YELLOW+"No ARL Token set in Extended.conf"+Fore.WHITE)
+            logger.info(Fore.YELLOW+"No ARL Token set in Extended.conf"+Fore.LIGHTWHITE_EX)
             self.report_status("NOT SET")
             exit(0)
         if token is None:
@@ -213,14 +213,14 @@ class LidarrExtendedAPI:
             deezer_check = DeezerPlatformProvider()
             account = deezer_check.login('', token.replace('"',''))
             if account.plan:
-                logger.info(Fore.GREEN + f'Deezer Account Found.'+ Fore.WHITE)
+                logger.info(Fore.GREEN + f'Deezer Account Found.'+ Fore.LIGHTWHITE_EX)
                 logger.info('-------------------------------')
                 logger.info(f'Plan: {account.plan.name}')
                 logger.info(f'Expiration: {account.plan.expires}')
-                logger.info(f'Active: {Fore.GREEN+"Y" if account.plan.active else "N"}'+Fore.WHITE)
-                logger.info(f'Download: {Fore.GREEN+"Y" if account.plan.download else Fore.RED+"N"}'+Fore.WHITE)
-                logger.info(f'Lossless: {Fore.GREEN+"Y" if account.plan.lossless else Fore.RED+"N"}'+Fore.WHITE)
-                logger.info(f'Explicit: {Fore.GREEN+"Y" if account.plan.explicit else Fore.RED+"N"}'+Fore.WHITE)
+                logger.info(f'Active: {Fore.GREEN+"Y" if account.plan.active else "N"}'+Fore.LIGHTWHITE_EX)
+                logger.info(f'Download: {Fore.GREEN+"Y" if account.plan.download else Fore.RED+"N"}'+Fore.LIGHTWHITE_EX)
+                logger.info(f'Lossless: {Fore.GREEN+"Y" if account.plan.lossless else Fore.RED+"N"}'+Fore.LIGHTWHITE_EX)
+                logger.info(f'Explicit: {Fore.GREEN+"Y" if account.plan.explicit else Fore.RED+"N"}'+Fore.LIGHTWHITE_EX)
                 logger.info('-------------------------------')
                 self.report_status('VALID')
                 return True
@@ -357,9 +357,9 @@ def main(arlToken = None):
             arlToken_instance.check_token(arlToken_instance.arlToken)
         except Exception as e:
             if 'Chat not found' in str(e):
-                logger.error(Fore.RED + "Chat not found. Check your chat ID in extended.conf, or start a chat with your bot."+Fore.WHITE)
+                logger.error(Fore.RED + "Chat not found. Check your chat ID in extended.conf, or start a chat with your bot."+Fore.LIGHTWHITE_EX)
             elif 'The token' in str(e):
-                logger.error(Fore.RED + "Check your Bot Token in extended.conf."+Fore.WHITE)
+                logger.error(Fore.RED + "Check your Bot Token in extended.conf."+Fore.LIGHTWHITE_EX)
             else:
                 print(e)
             exit(1)
