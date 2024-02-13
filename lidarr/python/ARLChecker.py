@@ -11,8 +11,13 @@ import logging
 import os
 from datetime import datetime
 
+# Pull script version from previous
+VERSION = '0.0.0'
+with open(os.path.join(os.pardir, "ARLChecker"), "r") as r:
+    for line in r:
+        if 'scriptVersion' in line:
+            VERSION = re.search(r'"([A-Za-z0-9_\./\\-]*)"', line)[0].replace('"','')
 
-VERSION = 0.1
 
 # Logging Setup
 logging.basicConfig(
