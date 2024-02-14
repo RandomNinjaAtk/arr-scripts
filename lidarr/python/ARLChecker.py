@@ -17,12 +17,17 @@ with open("/custom-services.d/ARLChecker", "r") as r:
         if 'scriptVersion' in line:
             VERSION = re.search(r'"([A-Za-z0-9_\./\\-]*)"', line)[0].replace('"','')
 
+# Get current log file
+path = '\config\logs'
+latest_file = max([os.path.join(path, f) for f in os.listdir(path) if 'ARLChecker' in f],key=os.path.getctime)
 
 # Logging Setup
 logging.basicConfig(
     format=f'%(asctime)s :: ARLChecker :: {VERSION} :: %(levelname)s :: %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
-    level=logging.INFO
+    level=logging.INFO,
+    filename=latest_file,
+    filemode='a'
 )
 logger = logging.getLogger(__name__)
 
