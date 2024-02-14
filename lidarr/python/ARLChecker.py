@@ -3,7 +3,7 @@ from pathlib import Path
 from dataclasses import dataclass
 from requests import Session
 from argparse import ArgumentParser
-from sys import argv
+from sys import argv, stdout
 from colorama import Fore, init
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
@@ -17,12 +17,19 @@ with open("/custom-services.d/ARLChecker", "r") as r:
         if 'scriptVersion' in line:
             VERSION = re.search(r'"([A-Za-z0-9_\./\\-]*)"', line)[0].replace('"','')
 
+# Get current log file
+path = '/config/logs'
+latest_file = max([os.path.join(path, f) for f in os.listdir(path) if 'ARLChecker' in f],key=os.path.getctime)
 
 # Logging Setup
 logging.basicConfig(
     format=f'%(asctime)s :: ARLChecker :: {VERSION} :: %(levelname)s :: %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
-    level=logging.INFO
+    level=logging.INFO,
+    handlers=[
+        logging.StreamHandler(stdout),
+        logging.FileHandler(latest_file, mode="a")
+    ]
 )
 logger = logging.getLogger(__name__)
 
