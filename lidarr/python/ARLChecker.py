@@ -3,7 +3,7 @@ from pathlib import Path
 from dataclasses import dataclass
 from requests import Session
 from argparse import ArgumentParser
-from sys import argv
+from sys import argv, stdout
 from colorama import Fore, init
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
@@ -26,8 +26,10 @@ logging.basicConfig(
     format=f'%(asctime)s :: ARLChecker :: {VERSION} :: %(levelname)s :: %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
     level=logging.INFO,
-    filename=latest_file,
-    filemode='a'
+    handlers=[
+        logging.StreamHandler(stdout),
+        logging.FileHandler(latest_file, mode="a")
+    ]
 )
 logger = logging.getLogger(__name__)
 
