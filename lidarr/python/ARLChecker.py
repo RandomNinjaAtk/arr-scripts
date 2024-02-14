@@ -18,7 +18,7 @@ with open("/custom-services.d/ARLChecker", "r") as r:
             VERSION = re.search(r'"([A-Za-z0-9_\./\\-]*)"', line)[0].replace('"','')
 
 # Get current log file
-path = '\config\logs'
+path = '/config/logs'
 latest_file = max([os.path.join(path, f) for f in os.listdir(path) if 'ARLChecker' in f],key=os.path.getctime)
 
 # Logging Setup
