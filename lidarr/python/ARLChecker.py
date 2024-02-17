@@ -11,8 +11,16 @@ import logging
 import os
 from datetime import datetime
 
+CUSTOM_SERVICES_PATH = '/custom-services.d/'
+CUSTOM_INIT_PATH = '/custom-cont_init.d/'
+EXTENDED_CONF_PATH = '/config/extended.conf'
+NOT_FOUND_PATH = '/config/extended/logs/notfound'
+FAILED_DOWNLOADS_PATH = '/config/extended/logs/downloaded/failed/deezer'
+STATUS_FALLBACK_LOCATION = '/custom-services.d/python/ARLStatus.txt'
+
+
 # Pull script version from bash script. will likely change this to a var passthrough
-with open("/custom-services.d/ARLChecker", "r") as r:
+with open(CUSTOM_SERVICES_PATH+"ARLChecker", "r") as r:
     for line in r:
         if 'scriptVersion' in line:
             VERSION = re.search(r'"([A-Za-z0-9_\./\\-]*)"', line)[0].replace('"','')
@@ -136,7 +144,7 @@ class LidarrExtendedAPI:
         #self.parentDir = str(workingDir.parents[1])
         self.parentDir = str(workingDir.parents[3])
         print(self.parentDir)
-        self.extendedConfDir = self.parentDir + '/config/extended.conf'
+        self.extendedConfDir = self.parentDir + EXTENDED_CONF_PATH
         self.newARLToken = new_arl_token
         self.arlToken = None
         self.arlLineText = None
@@ -251,14 +259,14 @@ class LidarrExtendedAPI:
 
     #  After new token is set, clean up notfound and failed downloads to bypass the default 30 day wait
     def clear_not_found(self):
-        paths = [self.parentDir + '/config/extended/logs/notfound',self.parentDir+'/config/extended/logs/downloaded/failed/deezer']
+        paths = [self.parentDir + NOT_FOUND_PATH,self.parentDir+FAILED_DOWNLOADS_PATH]
         for path in paths:
             for file in os.listdir(path):
                 file_to_delete = os.path.join(path,file)
                 os.remove(file_to_delete)
 
     def report_status(self, status):
-        f = open("/custom-services.d/python/ARLStatus.txt", "w")
+        f = open(STATUS_FALLBACK_LOCATION, "w")
         now = datetime.strftime(datetime.now(),"%b-%d-%Y at %H:%M:%S")
         f.write(f"{now}: ARL Token is {status}.{' Please update arlToken in extended.conf' if status=='EXPIRED' else ''}")
         f.close()
@@ -383,6 +391,13 @@ def main(arlToken = None):
     else:
         parser.print_help()
 
+
+def enable_debug(debug_enable = False):
+    if debug_enable is True:
+        root = './env/'
+    else:
+        root = ''
+    return root
 
 
 if __name__ == '__main__':
