@@ -138,7 +138,11 @@ class DeezerPlatformProvider:
     
 class LidarrExtendedAPI:
     # sets new token to  extended.conf
-    def __init__(self, new_arl_token):
+    def __init__(self, new_arl_token, root_path=''):
+        # :param new_ark_token: if running with the -n flag, sets the supplied string as the new token
+        # :param root_path: change root of all path params to param, for debugging outside the Docker container.
+        # TODO: change these to be changed in main
+        self.root = root_path
         workingDir = Path(os.getcwd())
         print(workingDir)
         #self.parentDir = str(workingDir.parents[1])
