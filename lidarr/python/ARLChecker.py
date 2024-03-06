@@ -1,5 +1,4 @@
 import re
-from pathlib import Path
 from dataclasses import dataclass
 from requests import Session
 from argparse import ArgumentParser
@@ -12,14 +11,14 @@ import os
 from datetime import datetime
 
 # TODO: Breakout check function to be able to test new ARL tokens
-
-CUSTOM_SERVICES_PATH = '/custom-services.d/'
 CUSTOM_INIT_PATH = '/custom-cont_init.d/'
+CUSTOM_SERVICES_PATH = '/custom-services.d/'
+STATUS_FALLBACK_LOCATION = '/custom-services.d/python/ARLStatus.txt'
 EXTENDED_CONF_PATH = '/config/extended.conf'
 NOT_FOUND_PATH = '/config/extended/logs/notfound'
 FAILED_DOWNLOADS_PATH = '/config/extended/logs/downloaded/failed/deezer'
-STATUS_FALLBACK_LOCATION = '/custom-services.d/python/ARLStatus.txt'
 LOG_FILES_DIRECTORY = '/config/logs'
+DEBUG_ROOT_PATH = './env'
 
 # Web agent used to access Deezer
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:83.0) Gecko/20100101 Firefox/110.0'
@@ -228,7 +227,7 @@ class LidarrExtendedAPI:
 
     #  After new token is set, clean up notfound and failed downloads to bypass the default 30 day wait
     def clear_not_found(self):
-        paths = [self.parentDir + NOT_FOUND_PATH,self.parentDir+FAILED_DOWNLOADS_PATH]
+        paths = [self.root + NOT_FOUND_PATH,self.root+FAILED_DOWNLOADS_PATH]
         for path in paths:
             for file in os.listdir(path):
                 file_to_delete = os.path.join(path,file)
@@ -250,8 +249,6 @@ class LidarrExtendedAPI:
             file.writelines(self.fileText)
             file.close()
         self.log.info("Telegram Bot Disabled.")
-
-
 
 
 class TelegramBotControl:
@@ -308,7 +305,7 @@ class TelegramBotControl:
             if token_validity:
                 await context.bot.send_message(chat_id=update.effective_chat.id, text="ARL Updated! \U0001F44D")
                 try:
-                    await self.application.stop_running()
+                    self.application.stop_running()
                 except Exception:
                     pass
 
@@ -318,11 +315,11 @@ class TelegramBotControl:
 
 
 def parse_arguments():
-    parser = ArgumentParser(prog='Account Checker', description='Check if Deezer ARL Token is valid')
+    parser = ArgumentParser(prog='Account Checker', description='Lidarr Extended Deezer ARL Token Tools')
     parser.add_argument('-c', '--check', help='Check if currently set ARL Token is active/valid',required=False, default=False, action='store_true')
-    parser.add_argument('-t', '--test', help='Test new token for validity', required=False,default=False, action='store_true')
+    parser.add_argument('-t', '--test_token', help='Test any token for validity', type=str, required=False, default=False)
     parser.add_argument('-d', '--debug', help='For debug and development', required=False, default=False,action='store_true')
-    parser.add_argument('-n', '--new', help='Set new ARL Token',type = str, required=False, default=False)
+    parser.add_argument('-n', '--new_token', help='Set new ARL Token',type=str, required=False, default=False)
 
     if not argv[1:]:
         parser.print_help()
@@ -336,7 +333,7 @@ def get_version(root):
     with open(root+CUSTOM_SERVICES_PATH+"ARLChecker", "r") as r:
         for line in r:
             if 'scriptVersion' in line:
-                return re.search(r'"([A-Za-z0-9_\./\\-]*)"', line)[0].replace('"','')
+                return re.search(r'"([A-Za-z0-9_./\\-]*)"', line)[0].replace('"', '')
     logging.error('Script Version not found! Exiting...')
     exit(1)
 
@@ -363,7 +360,7 @@ def init_logging(version, log_file_path):
 
     # Initialize colorama
     init(autoreset=True)
-    logger.info('Logger initialized')
+    logger.info(Fore.LIGHTWHITE_EX + 'Logger initialized')
 
     return logger
 
@@ -371,16 +368,17 @@ def init_logging(version, log_file_path):
 def main():
     root = ''
     args = parse_arguments()
-    arl_checker_instance = LidarrExtendedAPI()
-
-    if args.debug:
-         root = './env'
-
-
+    if args.debug is True:  # If debug flag set, works with IDE structure
+        root = DEBUG_ROOT_PATH
     log = init_logging(get_version(root), get_active_log(root))
-    arl_checker_instance.root = root
-    #arl_checker_instance.log = log
+
     try:
+        if args.test is True:
+            log.info("Test flag not currently functioning. Exiting.")
+            exit(0)
+        arl_checker_instance = LidarrExtendedAPI()
+        arl_checker_instance.root = root
+
         if args.check is True:
             if arl_checker_instance.currentARLToken == '':
                 log.error("ARL Token not set. re-run with -n flag")
