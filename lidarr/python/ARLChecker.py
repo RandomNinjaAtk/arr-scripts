@@ -317,9 +317,10 @@ class TelegramBotControl:
 def parse_arguments():
     parser = ArgumentParser(prog='Account Checker', description='Lidarr Extended Deezer ARL Token Tools')
     parser.add_argument('-c', '--check', help='Check if currently set ARL Token is active/valid',required=False, default=False, action='store_true')
+    parser.add_argument('-n', '--new_token', help='Set new ARL Token', type=str, required=False, default=False)
     parser.add_argument('-t', '--test_token', help='Test any token for validity', type=str, required=False, default=False)
-    parser.add_argument('-d', '--debug', help='For debug and development', required=False, default=False,action='store_true')
-    parser.add_argument('-n', '--new_token', help='Set new ARL Token',type=str, required=False, default=False)
+    parser.add_argument('-d', '--debug', help='For debug and development, sets root path to match testing env. See DEBUG_ROOT_PATH', required=False, default=False,action='store_true')
+
 
     if not argv[1:]:
         parser.print_help()
