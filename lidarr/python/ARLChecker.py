@@ -98,7 +98,6 @@ class DeezerPlatformProvider:
         res = res['results']
 
         if res['USER']['USER_ID'] == 0:
-            self.log.error(Fore.RED+"ARL Token Expired. Update the token in extended.conf"+Fore.LIGHTWHITE_EX)
             raise AuthError()
 
         return Account(username, secret, res['COUNTRY'], Plan(
@@ -207,12 +206,15 @@ class LidarrExtendedAPI:
                 self.report_status('VALID')
                 return True
         except Exception as e:
-            print(e)
+            if type(e) == AuthError:
+                self.log.error(Fore.RED+"ARL Token Expired/Invalid. Update the token in extended.conf"+Fore.LIGHTWHITE_EX)
+            else:
+                self.log.error(e)
             self.report_status('EXPIRED')
             if self.telegram_bot_running:
                 return False
             if self.enable_telegram_bot:
-                self.log.info('Starting Telegram bot...Check Telegram and follow instructions.')
+                self.log.info(Fore.YELLOW + 'Starting Telegram bot...Check Telegram and follow instructions.' + Fore.LIGHTWHITE_EX)
                 self.telegram_bot_running = True
                 self.start_telegram_bot()
             exit(420)
@@ -261,6 +263,7 @@ class TelegramBotControl:
         # Send initial notification
         async def send_expired_token_notification(application):
             await application.bot.sendMessage(chat_id=self.telegram_chat_id,text='---\U0001F6A8WARNING\U0001F6A8-----\nARL TOKEN EXPIRED\n Update Token by running "/set_token <TOKEN>"\n You can find a new ARL at:\nhttps://rentry.org/firehawk52#deezer-arls\n\n\n Other Commands:\n/cancel - Cancel this session\n/disable - Disable Telegram Bot',disable_web_page_preview=True)
+            self.log.info(Fore.YELLOW + "Telegram Bot Sent ARL Token Expiry Message " + Fore.LIGHTWHITE_EX)
             # TODO: Get Chat ID/ test on new bot
 
         # start bot control
@@ -273,44 +276,54 @@ class TelegramBotControl:
         self.application.add_handler(disable_handler)
         self.application.run_polling(allowed_updates=Update.ALL_TYPES)
 
-    async  def disable_bot(self, update):
+    async  def disable_bot(self, update, context: ContextTypes.DEFAULT_TYPE):
         self.parent.disable_telegram_bot()
         await update.message.reply_text('Disabled Telegram Bot. \U0001F614\nIf you would like to re-enable,\nset telegramBotEnable to true\nin extended.conf')
+        self.log.info(Fore.YELLOW + 'Telegram Bot: Send Disable Bot Message :(' + Fore.LIGHTWHITE_EX)
         self.application.stop_running()
 
-    async def cancel(self, update):
+    async def cancel(self, update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text('Canceling...ARLToken is still expired.')
+        self.log.info(Fore.YELLOW + 'Telegram Bot: Canceling...ARLToken is still expired.' + Fore.LIGHTWHITE_EX)
         try:
             self.application.stop_running()
         except Exception:
             pass
     async def set_token(self, update, context: ContextTypes.DEFAULT_TYPE):
+        async def send_message(text, reply=False):
+            if reply is True:
+                await update.message.reply_text(text=text)
+            else:
+                await context.bot.send_message(chat_id=update.effective_chat.id, text=text)
+            self.log.info(Fore.YELLOW+"Telegram Bot: " + text + Fore.LIGHTWHITE_EX)
         try:
             new_token = update.message.text.split('/set_token ')[1]
             if new_token == '':
                 raise Exception
         except:
-            await update.message.reply_text('Invalid  Entry... please try again.')
+            await update.message.reply_text('Invalid  Entry... Please try again.')
             return
-        print(new_token)
-        self.log.info("Testing ARL Token Validity...")
+        self.log.info(Fore.YELLOW+f"Telegram Bot:Token received: {new_token}" + Fore.LIGHTWHITE_EX)
         token_validity = self.parent.check_token(new_token)
         if token_validity:
-            await context.bot.send_message(chat_id=update.effective_chat.id, text="ARL valid, applying...")
+            # await context.bot.send_message(chat_id=update.effective_chat.id, text="ARL valid, applying...")
+            # self.log.info(Fore.YELLOW+"TELEGRAM BOT SENT: ARL valid, applying..."+Fore.LIGHTWHITE_EX)
+            await send_message("ARL valid, applying...")
             self.parent.newARLToken = '"'+new_token+'"'
-            await context.bot.send_message(chat_id=update.effective_chat.id, text="Checking configuration")
+            self.parent.set_new_token()
+            await send_message("Checking configuration")
             # reparse extended.conf
             self.parent.parse_extended_conf()
-            token_validity = self.parent.check_token(self.parent.arlToken)
+            token_validity = self.parent.check_token(self.parent.currentARLToken)
             if token_validity:
-                await context.bot.send_message(chat_id=update.effective_chat.id, text="ARL Updated! \U0001F44D")
+                await send_message("ARL Token Updated! \U0001F44D",reply=True)
                 try:
                     self.application.stop_running()
                 except Exception:
                     pass
 
         else:  # If Token invalid
-            await update.message.reply_text(text="Token expired or inactive. try another token.")
+            await send_message("Token expired or invalid. Try another token.", reply=True)
             return
 
 
@@ -326,7 +339,7 @@ def parse_arguments():
         parser.print_help()
         parser.exit()
 
-    return parser.parse_args()
+    return parser, parser.parse_args()
 
 
 def get_version(root):
@@ -354,7 +367,7 @@ def init_logging(version, log_file_path):
         level=logging.INFO,
         handlers=[
             logging.StreamHandler(stdout),
-            logging.FileHandler(log_file_path, mode="a")
+            logging.FileHandler(log_file_path, mode="a", encoding='utf-8')
         ]
     )
     logger = logging.getLogger('ARLChecker')
@@ -368,13 +381,13 @@ def init_logging(version, log_file_path):
 
 def main():
     root = ''
-    args = parse_arguments()
+    parser, args = parse_arguments()
     if args.debug is True:  # If debug flag set, works with IDE structure
         root = DEBUG_ROOT_PATH
     log = init_logging(get_version(root), get_active_log(root))
 
     try:
-        if args.test is True:
+        if args.test_token is True:
             log.info("Test flag not currently functioning. Exiting.")
             exit(0)
         arl_checker_instance = LidarrExtendedAPI()
@@ -394,15 +407,15 @@ def main():
                 else:
                     log.error(e)
 
-        elif args.new:
+        elif args.new_token:
             if args.new == '':
-                print("Please pass new ARL token as an argument")
+                log.error('Please pass new ARL token as an argument')
                 exit(96)
             arl_checker_instance.newARLToken = '"'+args.new+'"'
             arl_checker_instance.set_new_token()
 
         else:
-            args.print_help()
+            parser.print_help()
     except Exception as e:
         logging.error(e, exc_info=True)
         exit(1)
