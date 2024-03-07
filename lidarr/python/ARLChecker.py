@@ -387,7 +387,7 @@ def main():
     log = init_logging(get_version(root), get_active_log(root))
 
     try:
-        if args.test_token is True:
+        if args.test_token:
             log.info("Test flag not currently functioning. Exiting.")
             exit(0)
         arl_checker_instance = LidarrExtendedAPI()
@@ -408,10 +408,11 @@ def main():
                     log.error(e)
 
         elif args.new_token:
-            if args.new == '':
+            if args.new_token == '':
                 log.error('Please pass new ARL token as an argument')
                 exit(96)
-            arl_checker_instance.newARLToken = '"'+args.new+'"'
+            arl_checker_instance.newARLToken = '"'+args.new_token+'"'
+            arl_checker_instance.parse_extended_conf()
             arl_checker_instance.set_new_token()
 
         else:
