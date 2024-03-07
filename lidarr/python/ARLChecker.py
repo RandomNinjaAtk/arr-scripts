@@ -10,7 +10,6 @@ import logging
 import os
 from datetime import datetime
 
-# TODO: Breakout check function to be able to test new ARL tokens
 CUSTOM_INIT_PATH = '/custom-cont_init.d/'
 CUSTOM_SERVICES_PATH = '/custom-services.d/'
 STATUS_FALLBACK_LOCATION = '/custom-services.d/python/ARLStatus.txt'
@@ -180,38 +179,22 @@ class LidarrExtendedAPI:
         else:
             self.log.info('Telegram bot is disabled. Set the flag in extended.conf to enable.')
 
-    # Uses DeezerPlatformProvider to check if the token is valid
-    def check_token(self, token=None):
-        self.log.info('Checking ARL Token Validity...')
-        if token == '""':
+    def check_token_wrapper(self): # adds Lidarr_extended specific logging and actions around check_token
+        self.log.info("Checking ARL Token from extended.conf")
+        if self.currentARLToken == '""':
             self.log.info(Fore.YELLOW+"No ARL Token set in Extended.conf"+Fore.LIGHTWHITE_EX)
             self.report_status("NOT SET")
             exit(0)
-        if token is None:
+        if self.currentARLToken is None:
             self.log.error('Invalid ARL Token Entry (None Object)')
             return False
-        try:
-            deezer_check = DeezerPlatformProvider()
-            account = deezer_check.login('', token.replace('"',''))
-            if account.plan:
-                self.log.info(Fore.GREEN + f'Deezer Account Found.'+ Fore.LIGHTWHITE_EX)
-                self.log.info('-------------------------------')
-                self.log.info(f'Plan: {account.plan.name}')
-                self.log.info(f'Expiration: {account.plan.expires}')
-                self.log.info(f'Active: {Fore.GREEN+"Y" if account.plan.active else "N"}'+Fore.LIGHTWHITE_EX)
-                self.log.info(f'Download: {Fore.GREEN+"Y" if account.plan.download else Fore.RED+"N"}'+Fore.LIGHTWHITE_EX)
-                self.log.info(f'Lossless: {Fore.GREEN+"Y" if account.plan.lossless else Fore.RED+"N"}'+Fore.LIGHTWHITE_EX)
-                self.log.info(f'Explicit: {Fore.GREEN+"Y" if account.plan.explicit else Fore.RED+"N"}'+Fore.LIGHTWHITE_EX)
-                self.log.info('-------------------------------')
-                self.report_status('VALID')
-                return True
-        except Exception as e:
-            if type(e) == AuthError:
-                self.log.error(Fore.RED+"ARL Token Expired/Invalid. Update the token in extended.conf"+Fore.LIGHTWHITE_EX)
-            else:
-                self.log.error(e)
+        validity_results = check_token(self.currentARLToken)
+        if validity_results is True:
+            self.report_status('VALID') # For text fallback method
+        else:
             self.report_status('EXPIRED')
-            if self.telegram_bot_running:
+            self.log.error(Fore.RED + 'Update the token in extended.conf' + Fore.LIGHTWHITE_EX)
+            if self.telegram_bot_running:  # Don't re-start the telegram bot if it's alread running after bot invalid token entry
                 return False
             if self.enable_telegram_bot:
                 self.log.info(Fore.YELLOW + 'Starting Telegram bot...Check Telegram and follow instructions.' + Fore.LIGHTWHITE_EX)
@@ -304,17 +287,15 @@ class TelegramBotControl:
             await update.message.reply_text('Invalid  Entry... Please try again.')
             return
         self.log.info(Fore.YELLOW+f"Telegram Bot:Token received: {new_token}" + Fore.LIGHTWHITE_EX)
-        token_validity = self.parent.check_token(new_token)
+        token_validity = check_token(new_token)
         if token_validity:
-            # await context.bot.send_message(chat_id=update.effective_chat.id, text="ARL valid, applying...")
-            # self.log.info(Fore.YELLOW+"TELEGRAM BOT SENT: ARL valid, applying..."+Fore.LIGHTWHITE_EX)
             await send_message("ARL valid, applying...")
             self.parent.newARLToken = '"'+new_token+'"'
             self.parent.set_new_token()
-            await send_message("Checking configuration")
+            await send_message("Checking configuration...")
             # reparse extended.conf
             self.parent.parse_extended_conf()
-            token_validity = self.parent.check_token(self.parent.currentARLToken)
+            token_validity = check_token(self.parent.currentARLToken)
             if token_validity:
                 await send_message("ARL Token Updated! \U0001F44D",reply=True)
                 try:
@@ -324,6 +305,33 @@ class TelegramBotControl:
 
         else:  # If Token invalid
             await send_message("Token expired or invalid. Try another token.", reply=True)
+            return
+
+
+def check_token(token=None):
+    log = logging.getLogger('ARLChecker')
+    log.info(f"ARL Token to check: {token}")
+    log.info('Checking ARL Token Validity...')
+    try:
+        deezer_check = DeezerPlatformProvider()
+        account = deezer_check.login('', token.replace('"',''))
+        if account.plan:
+            log.info(Fore.GREEN + f'Deezer Account Found.'+ Fore.LIGHTWHITE_EX)
+            log.info('-------------------------------')
+            log.info(f'Plan: {account.plan.name}')
+            log.info(f'Expiration: {account.plan.expires}')
+            log.info(f'Active: {Fore.GREEN+"Y" if account.plan.active else "N"}'+Fore.LIGHTWHITE_EX)
+            log.info(f'Download: {Fore.GREEN+"Y" if account.plan.download else Fore.RED+"N"}'+Fore.LIGHTWHITE_EX)
+            log.info(f'Lossless: {Fore.GREEN+"Y" if account.plan.lossless else Fore.RED+"N"}'+Fore.LIGHTWHITE_EX)
+            log.info(f'Explicit: {Fore.GREEN+"Y" if account.plan.explicit else Fore.RED+"N"}'+Fore.LIGHTWHITE_EX)
+            log.info('-------------------------------')
+            return True
+    except Exception as e:
+        if type(e) == AuthError:
+            log.error(Fore.RED + 'ARL Token Invalid/Expired.' + Fore.LIGHTWHITE_EX)
+            return False
+        else:
+            log.error(e)
             return
 
 
@@ -374,7 +382,7 @@ def init_logging(version, log_file_path):
 
     # Initialize colorama
     init(autoreset=True)
-    logger.info(Fore.LIGHTWHITE_EX + 'Logger initialized')
+    logger.info(Fore.GREEN + 'Logger initialized'+Fore.LIGHTWHITE_EX)
 
     return logger
 
@@ -388,17 +396,17 @@ def main():
 
     try:
         if args.test_token:
-            log.info("Test flag not currently functioning. Exiting.")
+            log.info(Fore.CYAN+"CLI Token Tester"+Fore.LIGHTWHITE_EX)
+            check_token(args.test_token)
             exit(0)
         arl_checker_instance = LidarrExtendedAPI()
         arl_checker_instance.root = root
-
         if args.check is True:
             if arl_checker_instance.currentARLToken == '':
                 log.error("ARL Token not set. re-run with -n flag")
             try:
                 arl_checker_instance.parse_extended_conf()
-                arl_checker_instance.check_token(arl_checker_instance.currentARLToken)
+                arl_checker_instance.check_token_wrapper()
             except Exception as e:
                 if 'Chat not found' in str(e):
                     log.error(Fore.RED + "Chat not found. Check your chat ID in extended.conf, or start a chat with your bot."+Fore.LIGHTWHITE_EX)
