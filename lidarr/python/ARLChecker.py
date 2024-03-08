@@ -22,6 +22,7 @@ DEBUG_ROOT_PATH = './env'
 # Web agent used to access Deezer
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:83.0) Gecko/20100101 Firefox/110.0'
 
+
 @dataclass
 class Plan:
     name: str
@@ -169,7 +170,6 @@ class LidarrExtendedAPI:
                 self.telegram_bot_token = re.search(re_search_pattern, line)[0].replace('"', '')
             if 'telegramUserChatID=' in line:
                 self.telegram_user_chat_id = re.search(re_search_pattern, line)[0].replace('"', '')
-                
 
         if self.enable_telegram_bot:
             self.log.info('Telegram bot is enabled.')
@@ -180,7 +180,7 @@ class LidarrExtendedAPI:
         else:
             self.log.info('Telegram bot is disabled. Set the flag in extended.conf to enable.')
 
-    def check_token_wrapper(self): # adds Lidarr_extended specific logging and actions around check_token
+    def check_token_wrapper(self):  # adds Lidarr_extended specific logging and actions around check_token
         self.log.info("Checking ARL Token from extended.conf")
         if self.currentARLToken == '""':
             self.log.info(Fore.YELLOW+"No ARL Token set in Extended.conf"+Fore.LIGHTWHITE_EX)
@@ -191,11 +191,11 @@ class LidarrExtendedAPI:
             return False
         validity_results = check_token(self.currentARLToken)
         if validity_results is True:
-            self.report_status('VALID') # For text fallback method
+            self.report_status('VALID')  # For text fallback method
         else:
             self.report_status('EXPIRED')
             self.log.error(Fore.RED + 'Update the token in extended.conf' + Fore.LIGHTWHITE_EX)
-            if self.telegram_bot_running:  # Don't re-start the telegram bot if it's alread running after bot invalid token entry
+            if self.telegram_bot_running:  # Don't re-start the telegram bot if it's already running after bot invalid token entry
                 return False
             if self.enable_telegram_bot:
                 self.log.info(Fore.YELLOW + 'Starting Telegram bot...Check Telegram and follow instructions.' + Fore.LIGHTWHITE_EX)
@@ -213,20 +213,20 @@ class LidarrExtendedAPI:
 
     #  After new token is set, clean up notfound and failed downloads to bypass the default 30 day wait
     def clear_not_found(self):
-        paths = [self.root + NOT_FOUND_PATH,self.root+FAILED_DOWNLOADS_PATH]
+        paths = [self.root + NOT_FOUND_PATH, self.root+FAILED_DOWNLOADS_PATH]
         for path in paths:
             for file in os.listdir(path):
-                file_to_delete = os.path.join(path,file)
+                file_to_delete = os.path.join(path, file)
                 os.remove(file_to_delete)
 
     def report_status(self, status):
         f = open(self.root+STATUS_FALLBACK_LOCATION, "w")
-        now = datetime.strftime(datetime.now(),"%b-%d-%Y at %H:%M:%S")
+        now = datetime.strftime(datetime.now(), "%b-%d-%Y at %H:%M:%S")
         f.write(f"{now}: ARL Token is {status}.{' Please update arlToken in extended.conf' if status=='EXPIRED' else ''}")
         f.close()
 
     def start_telegram_bot(self):
-        self.bot = TelegramBotControl(self,self.telegram_bot_token,self.telegram_user_chat_id)
+        self.bot = TelegramBotControl(self, self.telegram_bot_token, self.telegram_user_chat_id)
 
     def disable_telegram_bot(self):
         compiled = re.compile(re.escape('true'), re.IGNORECASE)
@@ -246,7 +246,7 @@ class TelegramBotControl:
 
         # Send initial notification
         async def send_expired_token_notification(application):
-            await application.bot.sendMessage(chat_id=self.telegram_chat_id,text='---\U0001F6A8WARNING\U0001F6A8-----\nARL TOKEN EXPIRED\n Update Token by running "/set_token <TOKEN>"\n You can find a new ARL at:\nhttps://rentry.org/firehawk52#deezer-arls\n\n\n Other Commands:\n/cancel - Cancel this session\n/disable - Disable Telegram Bot',disable_web_page_preview=True)
+            await application.bot.sendMessage(chat_id=self.telegram_chat_id, text='---\U0001F6A8WARNING\U0001F6A8-----\nARL TOKEN EXPIRED\n Update Token by running "/set_token <TOKEN>"\n You can find a new ARL at:\nhttps://rentry.org/firehawk52#deezer-arls\n\n\n Other Commands:\n/cancel - Cancel this session\n/disable - Disable Telegram Bot', disable_web_page_preview=True)
             self.log.info(Fore.YELLOW + "Telegram Bot Sent ARL Token Expiry Message " + Fore.LIGHTWHITE_EX)
             # TODO: Get Chat ID/ test on new bot
 
@@ -260,7 +260,7 @@ class TelegramBotControl:
         self.application.add_handler(disable_handler)
         self.application.run_polling(allowed_updates=Update.ALL_TYPES)
 
-    async  def disable_bot(self, update, context: ContextTypes.DEFAULT_TYPE):
+    async def disable_bot(self, update, context: ContextTypes.DEFAULT_TYPE):
         self.parent.disable_telegram_bot()
         await update.message.reply_text('Disabled Telegram Bot. \U0001F614\nIf you would like to re-enable,\nset telegramBotEnable to true\nin extended.conf')
         self.log.info(Fore.YELLOW + 'Telegram Bot: Send Disable Bot Message :(' + Fore.LIGHTWHITE_EX)
@@ -273,6 +273,7 @@ class TelegramBotControl:
             self.application.stop_running()
         except Exception:
             pass
+
     async def set_token(self, update, context: ContextTypes.DEFAULT_TYPE):
         async def send_message(text, reply=False):
             if reply is True:
@@ -298,7 +299,7 @@ class TelegramBotControl:
             self.parent.parse_extended_conf()
             token_validity = check_token(self.parent.currentARLToken)
             if token_validity:
-                await send_message("ARL Token Updated! \U0001F44D",reply=True)
+                await send_message("ARL Token Updated! \U0001F44D", reply=True)
                 try:
                     self.application.stop_running()
                 except Exception:
@@ -315,9 +316,9 @@ def check_token(token=None):
     log.info('Checking ARL Token Validity...')
     try:
         deezer_check = DeezerPlatformProvider()
-        account = deezer_check.login('', token.replace('"',''))
+        account = deezer_check.login('', token.replace('"', ''))
         if account.plan:
-            log.info(Fore.GREEN + f'Deezer Account Found.'+ Fore.LIGHTWHITE_EX)
+            log.info(Fore.GREEN + f'Deezer Account Found.' + Fore.LIGHTWHITE_EX)
             log.info('-------------------------------')
             log.info(f'Plan: {account.plan.name}')
             log.info(f'Expiration: {account.plan.expires}')
@@ -328,7 +329,7 @@ def check_token(token=None):
             log.info('-------------------------------')
             return True
     except Exception as e:
-        if type(e) == AuthError:
+        if type(e) is AuthError:
             log.error(Fore.RED + 'ARL Token Invalid/Expired.' + Fore.LIGHTWHITE_EX)
             return False
         else:
@@ -338,11 +339,10 @@ def check_token(token=None):
 
 def parse_arguments():
     parser = ArgumentParser(prog='Account Checker', description='Lidarr Extended Deezer ARL Token Tools')
-    parser.add_argument('-c', '--check', help='Check if currently set ARL Token is active/valid',required=False, default=False, action='store_true')
+    parser.add_argument('-c', '--check', help='Check if currently set ARL Token is active/valid', required=False, default=False, action='store_true')
     parser.add_argument('-n', '--new_token', help='Set new ARL Token', type=str, required=False, default=False)
     parser.add_argument('-t', '--test_token', help='Test any token for validity', type=str, required=False, default=False)
-    parser.add_argument('-d', '--debug', help='For debug and development, sets root path to match testing env. See DEBUG_ROOT_PATH', required=False, default=False,action='store_true')
-
+    parser.add_argument('-d', '--debug', help='For debug and development, sets root path to match testing env. See DEBUG_ROOT_PATH', required=False, default=False, action='store_true')
 
     if not argv[1:]:
         parser.print_help()
