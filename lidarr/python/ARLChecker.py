@@ -151,10 +151,10 @@ class LidarrExtendedAPI:
 
         # ARL Token wrong flag error handling.
         if arl_token_match is None:
-            self.log.error("ARL Token not found in extended.conf. Exiting")
+            self.log.error("ARL Token not found in extended.conf. Exiting.")
             exit(1)
         elif deezer_active is False:
-            self.log.error("Deezer not set as an active downloader in extended.conf. Exiting")
+            self.log.error("Deezer not set as an active downloader in extended.conf. Exiting.")
             file.close()
             exit(1)
         self.currentARLToken = arl_token_match[0]
@@ -173,6 +173,7 @@ class LidarrExtendedAPI:
 
         if self.enable_telegram_bot:
             self.log.info('Telegram bot is enabled.')
+
             if self.telegram_bot_token is None or self.telegram_user_chat_id is None:
                 self.log.error('Telegram bot token or user chat ID not set in extended.conf. Exiting')
                 exit(1)
@@ -408,7 +409,7 @@ def main():
                 arl_checker_instance.parse_extended_conf()
                 arl_checker_instance.check_token_wrapper()
             except Exception as e:
-                if 'Chat not found' in str(e):
+                if 'Chat not found' in str(e) or 'Chat_id' in str(e):
                     log.error(Fore.RED + "Chat not found. Check your chat ID in extended.conf, or start a chat with your bot."+Fore.LIGHTWHITE_EX)
                 elif 'The token' in str(e):
                     log.error(Fore.RED + "Check your Bot Token in extended.conf."+Fore.LIGHTWHITE_EX)
