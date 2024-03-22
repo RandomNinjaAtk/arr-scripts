@@ -36,13 +36,15 @@ verifyApiAccess () {
   do
     arrApiTest=""
     arrApiVersion=""
-    if [ "$arrPort" == "8989" ] || [ "$arrPort" == "7878" ]; then
+    if [ -z "$arrApiTest" ]; then
       arrApiVersion="v3"
-    elif [ "$arrPort" == "8686" ] || [ "$arrPort" == "8787" ]; then
-      arrApiVersion="v1"
+      arrApiTest="$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)"
     fi
-    arrApiTest=$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)
-    if [ "$arrApiTest" == "$arrName" ]; then
+    if [ -z "$arrApiTest" ]; then
+      arrApiVersion="v1"
+      arrApiTest="$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)"
+    fi
+    if [ ! -z "$arrApiTest" ]; then
       break
     else
       log "$arrName is not ready, sleeping until valid response..."
