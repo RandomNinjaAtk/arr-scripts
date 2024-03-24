@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.1"
+scriptVersion="1.2"
 scriptName="InvalidMoviesAutoCleaner"
 
 #### Import Settings
@@ -17,7 +17,7 @@ verifyConfig () {
   if [ "$enableInvalidMoviesAutoCleaner" != "true" ]; then
 	log "Script is not enabled, enable by setting enableInvalidMoviesAutoCleaner to \"true\" by modifying the \"/config/extended.conf\" config file..."
 	log "Sleeping (infinity)"
-	#sleep infinity
+	sleep infinity
   fi
 
   if [ -z "$invalidMoviesAutoCleanerScriptInterval" ]; then
