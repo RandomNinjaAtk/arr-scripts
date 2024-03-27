@@ -15,7 +15,7 @@ InstallRequirements () {
 	echo "*** install beets ***"
 	apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/community beets
 	echo "************ install python packages ************"
-	pip install --upgrade --no-cache-dir -U \
+	pip install --upgrade --no-cache-dir --break-system-packages -U \
 		m4b-merge \
 		pyacoustid \
 		requests \
