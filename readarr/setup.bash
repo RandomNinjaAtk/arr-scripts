@@ -5,7 +5,7 @@ apk add -U --update --no-cache \
   py3-pip \
   ffmpeg
 echo "************ install python packages ************"
-pip install --upgrade --no-cache-dir -U yq
+pip install --upgrade --no-cache-dir -U --break-system-packages yq
 
 mkdir -p /custom-services.d
 echo "Download AutoConfig service..."
