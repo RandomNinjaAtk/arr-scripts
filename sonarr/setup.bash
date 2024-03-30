@@ -13,11 +13,11 @@ apk add -U --update --no-cache \
 	libc-dev \
 	py3-pip \
 	gcc \
-	ffmpeg \
-	yt-dlp
+	ffmpeg
 echo "************ install python packages ************"
 pip install --upgrade --no-cache-dir -U --break-system-packages \
 	excludarr \
+        yt-dlp \
 	yq
 echo "************ setup SMA ************"
 echo "************ setup directory ************"
