@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.32"
+scriptVersion="2.33"
 scriptName="Audio"
 
 ### Import Settings
@@ -38,7 +38,11 @@ verifyConfig () {
   if [ -z "$ignoreInstrumentalRelease" ]; then
   	ignoreInstrumentalRelease="true"
   fi
-  
+
+  if [ -z "$downloadClientTimeOut" ]; then
+  	downloadClientTimeOut="10m" # if not set, set to 10 minutes
+  fi
+ 
   audioPath="$downloadPath/audio"
 
 }
@@ -155,7 +159,7 @@ Configuration () {
 }
 
 DownloadClientFreyr () {
-	freyr --no-bar --no-net-check -d $audioPath/incomplete deezer:album:$1 2>&1 | tee -a "/config/logs/$logFileName"
+	timeout $downloadClientTimeOut freyr --no-bar --no-net-check -d $audioPath/incomplete deezer:album:$1 2>&1 | tee -a "/config/logs/$logFileName"
  	# Resolve issue 94
  	if [ -d /root/.cache/FreyrCLI ]; then
   		rm -rf  /root/.cache/FreyrCLI/*
