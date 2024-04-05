@@ -1,5 +1,9 @@
 # README
 
+## Notice
+
+Please note that use of arr-scripts modified Lidarr's behavior and is not supported by the Lidarr community.
+
 ## Requirements
 
 Container: <https://docs.linuxserver.io/images/docker-lidarr>  
