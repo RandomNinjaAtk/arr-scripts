@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.33"
+scriptVersion="2.34"
 scriptName="Audio"
 
 ### Import Settings
@@ -7,8 +7,16 @@ source /config/extended.conf
 #### Import Functions
 source /config/extended/functions
 
-verifyConfig () {
+AddDownloadClient () {
+  if [ ! -d "$importPath" ]; then
+    mkdir -p "$importPath"
+	chmod 777 -R "$importPath"
+  fi
+  lidarrProcessIt=$(curl -s "$arrUrl/api/v1/downloadclient" --header "X-Api-Key:"${arrApiKey} -H "Content-Type: application/json" --data-raw '{"enable":true,"protocol":"usenet","priority":1,"removeCompletedDownloads":true,"removeFailedDownloads":true,"name":"Arr-Extended","fields":[{"name":"nzbFolder","value":"/config/extended/downloads/"},{"name":"watchFolder","value":"/config/extended/import/"}],"implementationName":"Usenet Blackhole","implementation":"UsenetBlackhole","configContract":"UsenetBlackholeSettings","infoLink":"https://wiki.servarr.com/lidarr/supported#usenetblackhole","tags":[]}')
 
+}
+
+verifyConfig () {
   if [ "$enableAudio" != "true" ]; then
     log "Script is not enabled, enable by setting enableAudio to \"true\" by modifying the \"/config/extended.conf\" config file..."
     log "Sleeping (infinity)"
@@ -21,6 +29,10 @@ verifyConfig () {
 
   if [ -z "$downloadPath" ]; then
     downloadPath="/config/extended/downloads"
+  fi
+
+  if [ -z "$importPath" ]; then
+    importPath="/config/extended/import"
   fi
 
   if [ -z "$failedDownloadAttemptThreshold" ]; then
@@ -411,6 +423,13 @@ DownloadProcess () {
 		chmod 777 /config/extended/logs/downloaded/failed/tidal
 	fi
 
+	if [ ! -d "$importPath" ]; then
+		mkdir -p "$importPath"
+		chmod 777 "$importPath"
+	fi
+
+	AddDownloadClient
+
 	downloadedAlbumTitleClean="$(echo "$4" | sed -e "s%[^[:alpha:][:digit:]._' ]% %g" -e "s/  */ /g" | sed 's/^[.]*//' | sed  's/[.]*$//g' | sed  's/^ *//g' | sed 's/ *$//g')"
     	
 	if find "$audioPath"/complete -type d -iname "$lidarrArtistNameSanitized-$downloadedAlbumTitleClean ($3)-*-$1-$2" | read; then
@@ -673,7 +692,7 @@ DownloadProcess () {
 	fi
 	
 	albumquality="$(find "$audioPath"/incomplete/ -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | head -n 1 | egrep -i -E -o "\.{1}\w*$" | sed  's/\.//g')"
-	downloadedAlbumFolder="$lidarrArtistNameSanitized-${downloadedAlbumTitleClean:0:100} ($3)-${albumquality^^}-$1-$2"
+	downloadedAlbumFolder="${lidarrArtistNameSanitized}-${downloadedAlbumTitleClean:0:100} (${3})"
 
 	find "$audioPath/incomplete" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -print0 | while IFS= read -r -d '' audio; do
         file="${audio}"
@@ -690,7 +709,16 @@ DownloadProcess () {
         
     done
 	chmod -R 777 "$audioPath"/complete
-	
+
+	mv "$audioPath/complete/$downloadedAlbumFolder" "$importPath"
+
+    if [ -d "$importPath/$downloadedAlbumFolder" ]; then
+	    LidarrProcessIt=$(curl -s "$arrUrl/api/v1/command" --header "X-Api-Key:"${arrApiKey} -H "Content-Type: application/json" --data-raw '{"name":"RefreshMonitoredDownloads"}')
+		log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: LIDARR IMPORT NOTIFICATION SENT! :: $1"
+		lidarrDownloadImportNotfication="true"
+		LidarrTaskStatusCheck
+	fi
+
 	if [ -d "$audioPath/complete/$downloadedAlbumFolder" ]; then
 		NotifyLidarrForImport "$audioPath/complete/$downloadedAlbumFolder"
 		lidarrDownloadImportNotfication="true"
@@ -1818,7 +1846,7 @@ log "Starting Script...."
 for (( ; ; )); do
 	let i++
  	logfileSetup
-    	verifyConfig
+    verifyConfig
 	getArrAppInfo
 	verifyApiAccess
 	AudioProcess
