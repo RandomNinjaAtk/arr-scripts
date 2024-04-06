@@ -1,7 +1,7 @@
 {
   "downloadLocation": "/config/extended/downloads/incomplete",
-  "tracknameTemplate": "%discnumber%%tracknumber% - %title%",
-  "albumTracknameTemplate": "%discnumber%%tracknumber% - %title%",
+  "tracknameTemplate": "%tracknumber% - %title%",
+  "albumTracknameTemplate": "%tracknumber% - %title%",
   "playlistTracknameTemplate": "%position% - %artist% - %title%",
   "createPlaylistFolder": true,
   "playlistNameTemplate": "%playlist%",
