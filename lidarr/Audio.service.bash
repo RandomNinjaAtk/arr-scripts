@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.38"
+scriptVersion="2.39"
 scriptName="Audio"
 
 ### Import Settings
@@ -7,7 +7,13 @@ source /config/extended.conf
 #### Import Functions
 source /config/extended/functions
 
+AddTag () {
+  log "adding arr-extended tag"
+  lidarrProcessIt=$(curl -s  "$arrUrl/api/v1/tag" --header "X-Api-Key:"${arrApiKey} -H "Content-Type: application/json" --data-raw '{"label":"arr-extended"}')
+}
+
 AddDownloadClient () {
+  AddTag
   if [ ! -d "$importPath" ]; then
     mkdir -p "$importPath"
 	chmod 777 -R "$importPath"
@@ -1845,7 +1851,7 @@ log "Starting Script...."
 for (( ; ; )); do
 	let i++
  	logfileSetup
-    verifyConfig
+        verifyConfig
 	getArrAppInfo
 	verifyApiAccess
 	AudioProcess
