@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.40"
+scriptVersion="2.41"
 scriptName="Audio"
 
 ### Import Settings
@@ -716,13 +716,6 @@ DownloadProcess () {
 	chmod -R 777 "$audioPath"/complete
 
 	mv "$audioPath/complete/$downloadedAlbumFolder" "$importPath"
-
-    if [ -d "$importPath/$downloadedAlbumFolder" ]; then
-	    LidarrProcessIt=$(curl -s "$arrUrl/api/v1/command" --header "X-Api-Key:"${arrApiKey} -H "Content-Type: application/json" --data-raw '{"name":"RefreshMonitoredDownloads"}')
-		log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: LIDARR IMPORT NOTIFICATION SENT! :: $1"
-		lidarrDownloadImportNotfication="true"
-		LidarrTaskStatusCheck
-	fi
 
 	if [ -d "$importPath/$downloadedAlbumFolder" ]; then
 		NotifyLidarrForImport "$importPath/$downloadedAlbumFolder"
