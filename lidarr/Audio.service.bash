@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.39"
+scriptVersion="2.40"
 scriptName="Audio"
 
 ### Import Settings
@@ -724,8 +724,8 @@ DownloadProcess () {
 		LidarrTaskStatusCheck
 	fi
 
-	if [ -d "$audioPath/complete/$downloadedAlbumFolder" ]; then
-		NotifyLidarrForImport "$audioPath/complete/$downloadedAlbumFolder"
+	if [ -d "$importPath/$downloadedAlbumFolder" ]; then
+		NotifyLidarrForImport "$importPath/$downloadedAlbumFolder"
 		lidarrDownloadImportNotfication="true"
 		LidarrTaskStatusCheck
 	fi
