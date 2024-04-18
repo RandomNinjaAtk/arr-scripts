@@ -17,6 +17,13 @@ Container: <https://docs.linuxserver.io/images/docker-lidarr>
 4. Optional: Customize the configuration by modifying the following file `/config/extended.conf`
 5. Restart the container
 
+## Uninstallation/Removal  
+1. Remove the 2 added volumes and delete the contents
+   `/custom-services.d` and `/custom-cont-init.d`
+2. Delete the `/config/extended.conf` file
+3. Delete the `/config/extended` folder and it's contents
+4. Remove any Arr app customizations manually.
+   
 ## Updating
 
 Updating is a bit more combersum. To update, do the following:
