@@ -24,6 +24,17 @@ Updating is a bit more combersum. To update, do the following:
 1. Restart the container, wait for it to fully load the application.
 1. Restart the container again, for the new scripts to activate.
 
+## Uninstallation/Removal  
+
+1. Remove the 2 added volumes and delete the contents
+   `/custom-services.d` and `/custom-cont-init.d`
+1. Delete the `/config/extended.conf` file
+1. Delete the `/config/extended` folder and it's contents
+1. Remove any Arr app customizations manually.
+
+## Support
+[Information](https://github.com/RandomNinjaAtk/arr-scripts/tree/main?tab=readme-ov-file#support-info)
+
 ## Features
 
 <table>
