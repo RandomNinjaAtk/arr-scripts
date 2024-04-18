@@ -29,7 +29,7 @@ This configuration does its best to update everything automatically, but with ho
 
 ## Uninstallation/Removal  
 
-1. Remove the 2 added volumes and delete the contents
+1. Remove the 2 added volumes and delete the contents<br>
    `/custom-services.d` and `/custom-cont-init.d`
 1. Delete the `/config/extended.conf` file
 1. Delete the `/config/extended` folder and it's contents
