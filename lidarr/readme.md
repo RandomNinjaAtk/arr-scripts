@@ -16,14 +16,7 @@ Container: <https://docs.linuxserver.io/images/docker-lidarr>
 3. Start your container and wait for the application to load
 4. Optional: Customize the configuration by modifying the following file `/config/extended.conf`
 5. Restart the container
-
-## Uninstallation/Removal  
-1. Remove the 2 added volumes and delete the contents
-   `/custom-services.d` and `/custom-cont-init.d`
-2. Delete the `/config/extended.conf` file
-3. Delete the `/config/extended` folder and it's contents
-4. Remove any Arr app customizations manually.
-   
+  
 ## Updating
 
 Updating is a bit more combersum. To update, do the following:
@@ -33,6 +26,14 @@ Updating is a bit more combersum. To update, do the following:
 3. Restart the container again, for the new scripts to activate.
 
 This configuration does its best to update everything automatically, but with how the core system is designed, the new scripts will not take affect until a second restart is completed because the container copies/uses the previous versions of the script for execution on the first restart.
+
+## Uninstallation/Removal  
+
+1. Remove the 2 added volumes and delete the contents
+   `/custom-services.d` and `/custom-cont-init.d`
+2. Delete the `/config/extended.conf` file
+3. Delete the `/config/extended` folder and it's contents
+4. Remove any Arr app customizations manually.
 
 ## Features
 
