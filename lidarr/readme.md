@@ -31,9 +31,13 @@ This configuration does its best to update everything automatically, but with ho
 
 1. Remove the 2 added volumes and delete the contents
    `/custom-services.d` and `/custom-cont-init.d`
-2. Delete the `/config/extended.conf` file
-3. Delete the `/config/extended` folder and it's contents
-4. Remove any Arr app customizations manually.
+1. Delete the `/config/extended.conf` file
+1. Delete the `/config/extended` folder and it's contents
+1. Remove any Arr app customizations manually.
+
+## Support
+[Information](https://github.com/RandomNinjaAtk/arr-scripts/tree/main?tab=readme-ov-file#support-info)
+
 
 ## Features
 
