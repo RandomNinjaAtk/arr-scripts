@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bash
 SMA_PATH="/usr/local/sma"
-version="1.2"
+version="1.3"
 
 echo "*** install packages ***" && \
 apk add -U --upgrade --no-cache \
@@ -152,4 +152,9 @@ fi
 
 chmod 777 -R /config/extended
 chmod 777 -R /root
+
+if [ -f /custom-services.d/scripts_init.bash ]; then
+   # user misconfiguration detected, sleeping...
+   sleep infinity
+fi
 exit
