@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.7"
+scriptVersion="1.8"
 
 ######## Package dependencies installation
 InstallRequirements () {
@@ -108,4 +108,9 @@ if [ ! -f /config/extended.conf ]; then
 fi
 
 chmod 777 -R /config/scripts
+if [ -f /custom-services.d/scripts_init.bash ]; then
+   # user misconfiguration detected, sleeping...
+   sleep infinity
+fi
+
 exit
