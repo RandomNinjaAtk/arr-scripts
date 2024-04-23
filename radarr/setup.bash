@@ -107,5 +107,8 @@ fi
 
 
 chmod 777 -R /config/extended
-
+if [ -f /custom-services.d/scripts_init.bash ]; then
+   # user misconfiguration detected, sleeping...
+   sleep infinity
+fi
 exit
