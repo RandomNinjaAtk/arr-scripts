@@ -1,4 +1,4 @@
-import re
+import re, requests
 from dataclasses import dataclass
 from requests import Session
 from argparse import ArgumentParser
@@ -124,9 +124,13 @@ class LidarrExtendedAPI:
         self.telegram_bot_running = False
         self.telegram_bot_token = None
         self.telegram_user_chat_id = None
-        self.telegramBotEnableLineText = None
-        self.telegramBotEnableLineIndex = None
-        self.bot = None
+        self.telegram_bot_enable_line_text = None
+        self.telegram_bot_enable_line_index = None
+        self.enable_pushover_notify = False
+        self.pushover_user_key = None
+        self.pushover_app_api_key = None
+        self.enable_ntfy_notify = False
+        self.ntfy_topic = None
 
     def parse_extended_conf(self):
         self.currentARLToken = None
@@ -163,16 +167,31 @@ class LidarrExtendedAPI:
 
         for line in self.fileText:
             if 'telegramBotEnable=' in line:
-                self.telegramBotEnableLineText = line
-                self.telegramBotEnableLineIndex = self.fileText.index(self.telegramBotEnableLineText)
+                self.telegram_bot_enable_line_text = line
+                self.telegram_bot_enable_line_index = self.fileText.index(self.telegram_bot_enable_line_text)
                 self.enable_telegram_bot = re.search(re_search_pattern, line)[0].replace('"', '').lower() in 'true'
             if 'telegramBotToken=' in line:
                 self.telegram_bot_token = re.search(re_search_pattern, line)[0].replace('"', '')
             if 'telegramUserChatID=' in line:
                 self.telegram_user_chat_id = re.search(re_search_pattern, line)[0].replace('"', '')
+            if 'pushoverEnable=' in line:
+                self.enable_pushover_notify = re.search(re_search_pattern, line)[0].replace('"', '')
+            if 'pushoverUserKey=' in line:
+                self.pushover_user_key = re.search(re_search_pattern, line)[0].replace('"', '')
+            if 'pushoverAppAPIKey=' in line:
+                self.pushover_app_api_key = re.search(re_search_pattern, line)[0].replace('"', '')
+            if 'ntfyEnable=' in line:
+                self.enable_ntfy_notify = re.search(re_search_pattern, line)[0].replace('"', '')
+            if 'ntfyTopic=' in line:
+                self.ntfy_topic = re.search(re_search_pattern, line)[0].replace('"', '')
 
+        # Report Notify/Bot Enable
         if self.enable_telegram_bot:
             self.log.info('Telegram bot is enabled.')
+        if self.enable_pushover_notify:
+            self.log.info('Pushover Notify is enabled.')
+        if self.enable_ntfy_notify:
+            self.log.info('ntfy Notify is enabled.')
 
             if self.telegram_bot_token is None or self.telegram_user_chat_id is None:
                 self.log.error('Telegram bot token or user chat ID not set in extended.conf. Exiting')
@@ -230,7 +249,7 @@ class LidarrExtendedAPI:
 
     def disable_telegram_bot(self):
         compiled = re.compile(re.escape('true'), re.IGNORECASE)
-        self.fileText[self.telegramBotEnableLineIndex] = compiled.sub('false', self.telegramBotEnableLineText)
+        self.fileText[self.telegram_bot_enable_line_index] = compiled.sub('false', self.telegram_bot_enable_line_text)
         with open(self.root+EXTENDED_CONF_PATH, 'w', encoding='utf-8') as file:
             file.writelines(self.fileText)
             file.close()
@@ -309,6 +328,16 @@ class TelegramBotControl:
             await send_message("Token expired or invalid. Try another token.", reply=True)
             return
 
+
+class PushNotify():  # LidarrExtendedAPI):
+    def __init__(self):
+        return
+    def send_notfication(self):
+        response = requests.post("https://api.pushover.net/1/messages.json", data={
+            "token": "acoz3cosq7kjmriyz1xjk65a4tdsac",
+            "user": "uspmrejfhbtxkbydfdqbbe3ch2vebp",
+            "message": "test"
+        })
 
 def check_token(token=None):
     log = logging.getLogger('ARLChecker')
