@@ -176,31 +176,36 @@ class LidarrExtendedAPI:
             if 'telegramUserChatID=' in line:
                 self.telegram_user_chat_id = re.search(re_search_pattern, line)[0].replace('"', '')
             if 'pushoverEnable=' in line:
-                self.enable_pushover_notify = re.search(re_search_pattern, line)[0].replace('"', '')
+                self.enable_pushover_notify = re.search(re_search_pattern, line)[0].replace('"', '').lower() in 'true'
             if 'pushoverUserKey=' in line:
                 self.pushover_user_key = re.search(re_search_pattern, line)[0].replace('"', '')
             if 'pushoverAppAPIKey=' in line:
                 self.pushover_app_api_key = re.search(re_search_pattern, line)[0].replace('"', '')
             if 'ntfyEnable=' in line:
-                self.enable_ntfy_notify = re.search(re_search_pattern, line)[0].replace('"', '')
+                self.enable_ntfy_notify = re.search(re_search_pattern, line)[0].replace('"', '').lower() in 'true'
             if 'ntfyServerTopic=' in line:
                 self.ntfy_sever_topic = re.search(re_search_pattern, line)[0].replace('"', '')
             if 'ntfyUserToken=' in line:
                 self.ntfy_user_token = re.search(re_search_pattern, line)[0].replace('"', '')
 
-        # Report Notify/Bot Enable
-        if self.enable_telegram_bot:
-            self.log.info('Telegram bot is enabled.')
-        if self.enable_pushover_notify:
-            self.log.info('Pushover Notify is enabled.')
-        if self.enable_ntfy_notify:
-            self.log.info('ntfy Notify is enabled.')
 
+        if self.enable_telegram_bot:
+            self.log.info(Fore.GREEN+'Telegram bot is enabled.'+Fore.LIGHTWHITE_EX)
             if self.telegram_bot_token is None or self.telegram_user_chat_id is None:
                 self.log.error('Telegram bot token or user chat ID not set in extended.conf. Exiting')
                 exit(1)
         else:
-            self.log.info('Telegram bot is disabled. Set the flag in extended.conf to enable.')
+            self.log.info('Telegram bot is disabled.')
+
+        # Report Notify/Bot Enable
+        if self.enable_pushover_notify:
+            self.log.info(Fore.GREEN+'Pushover notify is enabled.'+Fore.LIGHTWHITE_EX)
+        else:
+            self.log.info('Pushover notify is disabled.')
+        if self.enable_ntfy_notify:
+            self.log.info(Fore.GREEN+'ntfy notify is enabled.'+Fore.LIGHTWHITE_EX)
+        else:
+            self.log.info('ntfy notify is disabled.')
 
     def check_token_wrapper(self):  # adds Lidarr_extended specific logging and actions around check_token
         self.log.info("Checking ARL Token from extended.conf")
@@ -252,7 +257,16 @@ class LidarrExtendedAPI:
         f.close()
 
     def start_telegram_bot(self):
-        self.bot = TelegramBotControl(self, self.telegram_bot_token, self.telegram_user_chat_id)
+        try:
+            self.bot = TelegramBotControl(self, self.telegram_bot_token, self.telegram_user_chat_id)
+        except Exception as e:
+            if 'Chat not found' in str(e) or 'Chat_id' in str(e):
+                self.log.error(
+                    Fore.RED + "Telegram Bot: Chat not found. Check your chat ID in extended.conf, or start a chat with your bot." + Fore.LIGHTWHITE_EX)
+            elif 'The token' in str(e):
+                self.log.error(Fore.RED + "Telegram Bot: Check your Bot Token in extended.conf." + Fore.LIGHTWHITE_EX)
+            else:
+                self.log.error('Telegram Bot: '+e)
 
     def disable_telegram_bot(self):
         compiled = re.compile(re.escape('true'), re.IGNORECASE)
@@ -338,7 +352,7 @@ class TelegramBotControl:
 
 def pushover_notify(api_token,user_key,message):  # Send Notification to Pushover
     log = logging.getLogger('ARLChecker')  # Get Logging
-    log.info(Fore.YELLOW + 'Attempting Pushover Notification' + Fore.LIGHTWHITE_EX)
+    log.info(Fore.YELLOW + 'Attempting Pushover notification' + Fore.LIGHTWHITE_EX)
     response = requests.post("https://api.pushover.net/1/messages.json", data={
         "token": api_token,
         "user": user_key,
@@ -353,13 +367,18 @@ def pushover_notify(api_token,user_key,message):  # Send Notification to Pushove
 
 def ntfy_notify(server_plus_topic, message, token):  # Send Notification to ntfy topic
     log = logging.getLogger('ARLChecker')  # Get Logging
-    log.info(Fore.YELLOW + 'Attempted ntfy Notification' + Fore.LIGHTWHITE_EX)
-    requests.post(server_plus_topic,
-                  data=message.encode(encoding='utf-8'),
-                  headers={"Authorization":  f"Bearer {token}"}
-                  )
-
-
+    log.info(Fore.YELLOW + 'Attempting ntfy notification' + Fore.LIGHTWHITE_EX)
+    try:
+        requests.post(server_plus_topic,
+                      data=message.encode(encoding='utf-8'),
+                      headers={"Authorization":  f"Bearer {token}"}
+                      )
+        log.info(Fore.GREEN + 'ntfy notification sent successfully' + Fore.LIGHTWHITE_EX)
+    except Exception as e:
+        if "Failed to resolve" in str(e):
+            log.error(Fore.RED + "ntfy ERROR: Check if server and user token correct in extended.conf")
+        else:
+            print("NTFY ERROR: "+str(e))
 
 def check_token(token=None):
     log = logging.getLogger('ARLChecker')
@@ -456,16 +475,8 @@ def main():
         if args.check is True:
             if arl_checker_instance.currentARLToken == '':
                 log.error("ARL Token not set. re-run with -n flag")
-            try:
-                arl_checker_instance.parse_extended_conf()
-                arl_checker_instance.check_token_wrapper()
-            except Exception as e:
-                if 'Chat not found' in str(e) or 'Chat_id' in str(e):
-                    log.error(Fore.RED + "Chat not found. Check your chat ID in extended.conf, or start a chat with your bot."+Fore.LIGHTWHITE_EX)
-                elif 'The token' in str(e):
-                    log.error(Fore.RED + "Check your Bot Token in extended.conf."+Fore.LIGHTWHITE_EX)
-                else:
-                    log.error(e)
+            arl_checker_instance.parse_extended_conf()
+            arl_checker_instance.check_token_wrapper()
 
         elif args.new_token:
             if args.new_token == '':
