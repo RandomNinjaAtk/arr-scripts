@@ -130,7 +130,8 @@ class LidarrExtendedAPI:
         self.pushover_user_key = None
         self.pushover_app_api_key = None
         self.enable_ntfy_notify = False
-        self.ntfy_topic = None
+        self.ntfy_sever_topic = None
+        self.ntfy_user_token = None
 
     def parse_extended_conf(self):
         self.currentARLToken = None
@@ -182,8 +183,10 @@ class LidarrExtendedAPI:
                 self.pushover_app_api_key = re.search(re_search_pattern, line)[0].replace('"', '')
             if 'ntfyEnable=' in line:
                 self.enable_ntfy_notify = re.search(re_search_pattern, line)[0].replace('"', '')
-            if 'ntfyTopic=' in line:
-                self.ntfy_topic = re.search(re_search_pattern, line)[0].replace('"', '')
+            if 'ntfyServerTopic=' in line:
+                self.ntfy_sever_topic = re.search(re_search_pattern, line)[0].replace('"', '')
+            if 'ntfyUserToken=' in line:
+                self.ntfy_user_token = re.search(re_search_pattern, line)[0].replace('"', '')
 
         # Report Notify/Bot Enable
         if self.enable_telegram_bot:
@@ -219,7 +222,7 @@ class LidarrExtendedAPI:
             if self.enable_pushover_notify:
                 pushover_notify(self.pushover_app_api_key,self.pushover_user_key,'---\U0001F6A8WARNING\U0001F6A8-----\nARL TOKEN EXPIRED\n Update arlToken in extended.conf"\n You can find a new ARL at:\nhttps://rentry.org/firehawk52#deezer-arls')
             if self.enable_ntfy_notify:
-                ntfy_notify(self.ntfy_topic,'---\U0001F6A8WARNING\U0001F6A8-----\nARL TOKEN EXPIRED\n Update arlToken in extended.conf\n You can find a new ARL at:\n"https://rentry.org/firehawk52#deezer-arls"')
+                ntfy_notify(self.ntfy_sever_topic,'---\U0001F6A8WARNING\U0001F6A8-----\nARL TOKEN EXPIRED\n Update arlToken in extended.conf\n You can find a new ARL at:\nhttps://rentry.org/firehawk52#deezer-arls',self.ntfy_user_token)
             if self.enable_telegram_bot:
                 self.log.info(Fore.YELLOW + 'Starting Telegram bot...Check Telegram and follow instructions.' + Fore.LIGHTWHITE_EX)
                 self.telegram_bot_running = True
@@ -333,7 +336,7 @@ class TelegramBotControl:
             return
 
 
-def pushover_notify(api_token,user_key,message):
+def pushover_notify(api_token,user_key,message):  # Send Notification to Pushover
     log = logging.getLogger('ARLChecker')  # Get Logging
     log.info(Fore.YELLOW + 'Attempting Pushover Notification' + Fore.LIGHTWHITE_EX)
     response = requests.post("https://api.pushover.net/1/messages.json", data={
@@ -348,10 +351,13 @@ def pushover_notify(api_token,user_key,message):
             log.error(Fore.RED+f"Pushover Response: {message_error}"+ Fore.LIGHTWHITE_EX)
 
 
-def ntfy_notify(topic_name, message):
+def ntfy_notify(server_plus_topic, message, token):  # Send Notification to ntfy topic
     log = logging.getLogger('ARLChecker')  # Get Logging
     log.info(Fore.YELLOW + 'Attempted ntfy Notification' + Fore.LIGHTWHITE_EX)
-    requests.post(f"https://ntfy.sh/{topic_name}",data=message)
+    requests.post(server_plus_topic,
+                  data=message.encode(encoding='utf-8'),
+                  headers={"Authorization":  f"Bearer {token}"}
+                  )
 
 
 
