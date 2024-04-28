@@ -376,9 +376,9 @@ def ntfy_notify(server_plus_topic, message, token):  # Send Notification to ntfy
         log.info(Fore.GREEN + 'ntfy notification sent successfully' + Fore.RESET)
     except Exception as e:
         if "Failed to resolve" in str(e):
-            log.error(Fore.RED + "ntfy ERROR: Check if server and user token correct in extended.conf")
+            log.error(Fore.RED + "ntfy ERROR: Check if server and user token correct in extended.conf"+Fore.RESET)
         else:
-            print("NTFY ERROR: "+str(e))
+            log.error(Fore.RED + "NTFY ERROR: "+str(e)+Fore.RESET)
 
 def check_token(token=None):
     log = logging.getLogger('ARLChecker')
