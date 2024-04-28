@@ -80,7 +80,7 @@ class DeezerPlatformProvider:
             )
             res.raise_for_status()
         except Exception as error:
-            self.log.error(Fore.RED + 'Could not connect! Service down, API changed, wrong credentials or code-related issue.' + Fore.LIGHTWHITE_EX)
+            self.log.error(Fore.RED + 'Could not connect! Service down, API changed, wrong credentials or code-related issue.' + Fore.RESET)
             raise ConnectionError()
 
         self.session.cookies.clear()
@@ -88,11 +88,11 @@ class DeezerPlatformProvider:
         try:
             res = res.json()
         except Exception as error:
-            self.log.error(Fore.RED + "Could not parse JSON response from DEEZER!" + Fore.LIGHTWHITE_EX)
+            self.log.error(Fore.RED + "Could not parse JSON response from DEEZER!" + Fore.RESET)
             raise ParseError()
 
         if 'error' in res and res['error']:
-            self.log.error(Fore.RED + "Deezer returned the following error:{}".format(res["error"]) + Fore.LIGHTWHITE_EX)
+            self.log.error(Fore.RED + "Deezer returned the following error:{}".format(res["error"]) + Fore.RESET)
             raise ServiceError()
 
         res = res['results']
@@ -190,7 +190,7 @@ class LidarrExtendedAPI:
 
 
         if self.enable_telegram_bot:
-            self.log.info(Fore.GREEN+'Telegram bot is enabled.'+Fore.LIGHTWHITE_EX)
+            self.log.info(Fore.GREEN+'Telegram bot is enabled.'+Fore.RESET)
             if self.telegram_bot_token is None or self.telegram_user_chat_id is None:
                 self.log.error('Telegram bot token or user chat ID not set in extended.conf. Exiting')
                 exit(1)
@@ -199,18 +199,18 @@ class LidarrExtendedAPI:
 
         # Report Notify/Bot Enable
         if self.enable_pushover_notify:
-            self.log.info(Fore.GREEN+'Pushover notify is enabled.'+Fore.LIGHTWHITE_EX)
+            self.log.info(Fore.GREEN+'Pushover notify is enabled.'+Fore.RESET)
         else:
             self.log.info('Pushover notify is disabled.')
         if self.enable_ntfy_notify:
-            self.log.info(Fore.GREEN+'ntfy notify is enabled.'+Fore.LIGHTWHITE_EX)
+            self.log.info(Fore.GREEN+'ntfy notify is enabled.'+Fore.RESET)
         else:
             self.log.info('ntfy notify is disabled.')
 
     def check_token_wrapper(self):  # adds Lidarr_extended specific logging and actions around check_token
         self.log.info("Checking ARL Token from extended.conf")
         if self.currentARLToken == '""':
-            self.log.info(Fore.YELLOW+"No ARL Token set in Extended.conf"+Fore.LIGHTWHITE_EX)
+            self.log.info(Fore.YELLOW+"No ARL Token set in Extended.conf"+Fore.RESET)
             self.report_status("NOT SET")
             exit(0)
         if self.currentARLToken is None:
@@ -221,7 +221,7 @@ class LidarrExtendedAPI:
             self.report_status('VALID')  # For text fallback method
         else:
             self.report_status('EXPIRED')
-            self.log.error(Fore.RED + 'Update the token in extended.conf' + Fore.LIGHTWHITE_EX)
+            self.log.error(Fore.RED + 'Update the token in extended.conf' + Fore.RESET)
             if self.telegram_bot_running:  # Don't re-start the telegram bot if it's already running after bot invalid token entry
                 return False
             if self.enable_pushover_notify:
@@ -229,7 +229,7 @@ class LidarrExtendedAPI:
             if self.enable_ntfy_notify:
                 ntfy_notify(self.ntfy_sever_topic,'---\U0001F6A8WARNING\U0001F6A8-----\nARL TOKEN EXPIRED\n Update arlToken in extended.conf\n You can find a new ARL at:\nhttps://rentry.org/firehawk52#deezer-arls',self.ntfy_user_token)
             if self.enable_telegram_bot:
-                self.log.info(Fore.YELLOW + 'Starting Telegram bot...Check Telegram and follow instructions.' + Fore.LIGHTWHITE_EX)
+                self.log.info(Fore.YELLOW + 'Starting Telegram bot...Check Telegram and follow instructions.' + Fore.RESET)
                 self.telegram_bot_running = True
                 self.start_telegram_bot()
             exit(420)
@@ -262,9 +262,9 @@ class LidarrExtendedAPI:
         except Exception as e:
             if 'Chat not found' in str(e) or 'Chat_id' in str(e):
                 self.log.error(
-                    Fore.RED + "Telegram Bot: Chat not found. Check your chat ID in extended.conf, or start a chat with your bot." + Fore.LIGHTWHITE_EX)
+                    Fore.RED + "Telegram Bot: Chat not found. Check your chat ID in extended.conf, or start a chat with your bot." + Fore.RESET)
             elif 'The token' in str(e):
-                self.log.error(Fore.RED + "Telegram Bot: Check your Bot Token in extended.conf." + Fore.LIGHTWHITE_EX)
+                self.log.error(Fore.RED + "Telegram Bot: Check your Bot Token in extended.conf." + Fore.RESET)
             else:
                 self.log.error('Telegram Bot: '+e)
 
@@ -287,7 +287,7 @@ class TelegramBotControl:
         # Send initial notification
         async def send_expired_token_notification(application):
             await application.bot.sendMessage(chat_id=self.telegram_chat_id, text='---\U0001F6A8WARNING\U0001F6A8-----\nARL TOKEN EXPIRED\n Update Token by running "/set_token <TOKEN>"\n You can find a new ARL at:\nhttps://rentry.org/firehawk52#deezer-arls\n\n\n Other Commands:\n/cancel - Cancel this session\n/disable - Disable Telegram Bot', disable_web_page_preview=True)
-            self.log.info(Fore.YELLOW + "Telegram Bot Sent ARL Token Expiry Message " + Fore.LIGHTWHITE_EX)
+            self.log.info(Fore.YELLOW + "Telegram Bot Sent ARL Token Expiry Message " + Fore.RESET)
             # TODO: Get Chat ID/ test on new bot
 
         # start bot control
@@ -303,12 +303,12 @@ class TelegramBotControl:
     async def disable_bot(self, update, context: ContextTypes.DEFAULT_TYPE):
         self.parent.disable_telegram_bot()
         await update.message.reply_text('Disabled Telegram Bot. \U0001F614\nIf you would like to re-enable,\nset telegramBotEnable to true\nin extended.conf')
-        self.log.info(Fore.YELLOW + 'Telegram Bot: Send Disable Bot Message :(' + Fore.LIGHTWHITE_EX)
+        self.log.info(Fore.YELLOW + 'Telegram Bot: Send Disable Bot Message :(' + Fore.RESET)
         self.application.stop_running()
 
     async def cancel(self, update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text('Canceling...ARLToken is still expired.')
-        self.log.info(Fore.YELLOW + 'Telegram Bot: Canceling...ARLToken is still expired.' + Fore.LIGHTWHITE_EX)
+        self.log.info(Fore.YELLOW + 'Telegram Bot: Canceling...ARLToken is still expired.' + Fore.RESET)
         try:
             self.application.stop_running()
         except Exception:
@@ -320,7 +320,7 @@ class TelegramBotControl:
                 await update.message.reply_text(text=text)
             else:
                 await context.bot.send_message(chat_id=update.effective_chat.id, text=text)
-            self.log.info(Fore.YELLOW+"Telegram Bot: " + text + Fore.LIGHTWHITE_EX)
+            self.log.info(Fore.YELLOW+"Telegram Bot: " + text + Fore.RESET)
         try:
             new_token = update.message.text.split('/set_token ')[1]
             if new_token == '':
@@ -328,7 +328,7 @@ class TelegramBotControl:
         except:
             await update.message.reply_text('Invalid  Entry... Please try again.')
             return
-        self.log.info(Fore.YELLOW+f"Telegram Bot:Token received: {new_token}" + Fore.LIGHTWHITE_EX)
+        self.log.info(Fore.YELLOW+f"Telegram Bot:Token received: {new_token}" + Fore.RESET)
         token_validity = check_token(new_token)
         if token_validity:
             await send_message("ARL valid, applying...")
@@ -352,28 +352,28 @@ class TelegramBotControl:
 
 def pushover_notify(api_token,user_key,message):  # Send Notification to Pushover
     log = logging.getLogger('ARLChecker')  # Get Logging
-    log.info(Fore.YELLOW + 'Attempting Pushover notification' + Fore.LIGHTWHITE_EX)
+    log.info(Fore.YELLOW + 'Attempting Pushover notification' + Fore.RESET)
     response = requests.post("https://api.pushover.net/1/messages.json", data={
         "token": api_token,
         "user": user_key,
         "message": message
     })
     if response.json()['status'] == 1:
-        log.info(Fore.GREEN+"Pushover notification sent successfully"+Fore.LIGHTWHITE_EX)
+        log.info(Fore.GREEN+"Pushover notification sent successfully"+Fore.RESET)
     else:
         for message_error in response.json()['errors']:
-            log.error(Fore.RED+f"Pushover Response: {message_error}"+ Fore.LIGHTWHITE_EX)
+            log.error(Fore.RED+f"Pushover Response: {message_error}"+ Fore.RESET)
 
 
 def ntfy_notify(server_plus_topic, message, token):  # Send Notification to ntfy topic
     log = logging.getLogger('ARLChecker')  # Get Logging
-    log.info(Fore.YELLOW + 'Attempting ntfy notification' + Fore.LIGHTWHITE_EX)
+    log.info(Fore.YELLOW + 'Attempting ntfy notification' + Fore.RESET)
     try:
         requests.post(server_plus_topic,
                       data=message.encode(encoding='utf-8'),
                       headers={"Authorization":  f"Bearer {token}"}
                       )
-        log.info(Fore.GREEN + 'ntfy notification sent successfully' + Fore.LIGHTWHITE_EX)
+        log.info(Fore.GREEN + 'ntfy notification sent successfully' + Fore.RESET)
     except Exception as e:
         if "Failed to resolve" in str(e):
             log.error(Fore.RED + "ntfy ERROR: Check if server and user token correct in extended.conf")
@@ -388,19 +388,19 @@ def check_token(token=None):
         deezer_check = DeezerPlatformProvider()
         account = deezer_check.login('', token.replace('"', ''))
         if account.plan:
-            log.info(Fore.GREEN + f'Deezer Account Found.' + Fore.LIGHTWHITE_EX)
+            log.info(Fore.GREEN + f'Deezer Account Found.' + Fore.RESET)
             log.info('-------------------------------')
             log.info(f'Plan: {account.plan.name}')
             log.info(f'Expiration: {account.plan.expires}')
-            log.info(f'Active: {Fore.GREEN+"Y" if account.plan.active else "N"}'+Fore.LIGHTWHITE_EX)
-            log.info(f'Download: {Fore.GREEN+"Y" if account.plan.download else Fore.RED+"N"}'+Fore.LIGHTWHITE_EX)
-            log.info(f'Lossless: {Fore.GREEN+"Y" if account.plan.lossless else Fore.RED+"N"}'+Fore.LIGHTWHITE_EX)
-            log.info(f'Explicit: {Fore.GREEN+"Y" if account.plan.explicit else Fore.RED+"N"}'+Fore.LIGHTWHITE_EX)
+            log.info(f'Active: {Fore.GREEN+"Y" if account.plan.active else "N"}'+Fore.RESET)
+            log.info(f'Download: {Fore.GREEN+"Y" if account.plan.download else Fore.RED+"N"}'+Fore.RESET)
+            log.info(f'Lossless: {Fore.GREEN+"Y" if account.plan.lossless else Fore.RED+"N"}'+Fore.RESET)
+            log.info(f'Explicit: {Fore.GREEN+"Y" if account.plan.explicit else Fore.RED+"N"}'+Fore.RESET)
             log.info('-------------------------------')
             return True
     except Exception as e:
         if type(e) is AuthError:
-            log.error(Fore.RED + 'ARL Token Invalid/Expired.' + Fore.LIGHTWHITE_EX)
+            log.error(Fore.RED + 'ARL Token Invalid/Expired.' + Fore.RESET)
             return False
         else:
             log.error(e)
@@ -453,7 +453,7 @@ def init_logging(version, log_file_path):
 
     # Initialize colorama
     init(autoreset=True)
-    logger.info(Fore.GREEN + 'Logger initialized'+Fore.LIGHTWHITE_EX)
+    logger.info(Fore.GREEN + 'Logger initialized'+Fore.RESET)
 
     return logger
 
@@ -467,7 +467,7 @@ def main():
 
     try:
         if args.test_token:
-            log.info(Fore.CYAN+"CLI Token Tester"+Fore.LIGHTWHITE_EX)
+            log.info(Fore.CYAN+"CLI Token Tester"+Fore.RESET)
             check_token(args.test_token)
             exit(0)
         arl_checker_instance = LidarrExtendedAPI()
