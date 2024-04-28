@@ -1,4 +1,5 @@
-import re, requests
+import re
+import requests
 from dataclasses import dataclass
 from requests import Session
 from argparse import ArgumentParser
@@ -126,6 +127,7 @@ class LidarrExtendedAPI:
         self.telegram_user_chat_id = None
         self.telegram_bot_enable_line_text = None
         self.telegram_bot_enable_line_index = None
+        self.bot = None
         self.enable_pushover_notify = False
         self.pushover_user_key = None
         self.pushover_app_api_key = None
@@ -188,7 +190,6 @@ class LidarrExtendedAPI:
             if 'ntfyUserToken=' in line:
                 self.ntfy_user_token = re.search(re_search_pattern, line)[0].replace('"', '')
 
-
         if self.enable_telegram_bot:
             self.log.info(Fore.GREEN+'Telegram bot is enabled.'+Fore.RESET)
             if self.telegram_bot_token is None or self.telegram_user_chat_id is None:
@@ -225,9 +226,9 @@ class LidarrExtendedAPI:
             if self.telegram_bot_running:  # Don't re-start the telegram bot if it's already running after bot invalid token entry
                 return False
             if self.enable_pushover_notify:
-                pushover_notify(self.pushover_app_api_key,self.pushover_user_key,'---\U0001F6A8WARNING\U0001F6A8-----\nARL TOKEN EXPIRED\n Update arlToken in extended.conf"\n You can find a new ARL at:\nhttps://rentry.org/firehawk52#deezer-arls')
+                pushover_notify(self.pushover_app_api_key, self.pushover_user_key, '---\U0001F6A8WARNING\U0001F6A8-----\nARL TOKEN EXPIRED\n Update arlToken in extended.conf"\n You can find a new ARL at:\nhttps://rentry.org/firehawk52#deezer-arls')
             if self.enable_ntfy_notify:
-                ntfy_notify(self.ntfy_sever_topic,'---\U0001F6A8WARNING\U0001F6A8-----\nARL TOKEN EXPIRED\n Update arlToken in extended.conf\n You can find a new ARL at:\nhttps://rentry.org/firehawk52#deezer-arls',self.ntfy_user_token)
+                ntfy_notify(self.ntfy_sever_topic, '---\U0001F6A8WARNING\U0001F6A8-----\nARL TOKEN EXPIRED\n Update arlToken in extended.conf\n You can find a new ARL at:\nhttps://rentry.org/firehawk52#deezer-arls', self.ntfy_user_token)
             if self.enable_telegram_bot:
                 self.log.info(Fore.YELLOW + 'Starting Telegram bot...Check Telegram and follow instructions.' + Fore.RESET)
                 self.telegram_bot_running = True
@@ -266,7 +267,7 @@ class LidarrExtendedAPI:
             elif 'The token' in str(e):
                 self.log.error(Fore.RED + "Telegram Bot: Check your Bot Token in extended.conf." + Fore.RESET)
             else:
-                self.log.error('Telegram Bot: '+e)
+                self.log.error('Telegram Bot: ' + str(e))
 
     def disable_telegram_bot(self):
         compiled = re.compile(re.escape('true'), re.IGNORECASE)
@@ -350,7 +351,7 @@ class TelegramBotControl:
             return
 
 
-def pushover_notify(api_token,user_key,message):  # Send Notification to Pushover
+def pushover_notify(api_token, user_key, message):  # Send Notification to Pushover
     log = logging.getLogger('ARLChecker')  # Get Logging
     log.info(Fore.YELLOW + 'Attempting Pushover notification' + Fore.RESET)
     response = requests.post("https://api.pushover.net/1/messages.json", data={
@@ -379,6 +380,7 @@ def ntfy_notify(server_plus_topic, message, token):  # Send Notification to ntfy
             log.error(Fore.RED + "ntfy ERROR: Check if server and user token correct in extended.conf"+Fore.RESET)
         else:
             log.error(Fore.RED + "NTFY ERROR: "+str(e)+Fore.RESET)
+
 
 def check_token(token=None):
     log = logging.getLogger('ARLChecker')
