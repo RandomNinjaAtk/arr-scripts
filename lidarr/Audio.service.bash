@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.43"
+scriptVersion="2.44"
 scriptName="Audio"
 
 ### Import Settings
@@ -13,13 +13,15 @@ AddTag () {
 }
 
 AddDownloadClient () {
-  downloadClientCheck=$(curl -s  "$arrUrl/api/v1/downloadclient" --header "X-Api-Key:"${arrApiKey} -H "Content-Type: application/json")
+  downloadClientsData=$(curl -s  "$arrUrl/api/v1/downloadclient" --header "X-Api-Key:"${arrApiKey} -H "Content-Type: application/json")
+  downloadClientCheck="$(echo $downloadClientsData | grep "Arr-Extended")"
   if [ -z "$downloadClientCheck" ]; then
     AddTag
     if [ ! -d "$importPath" ]; then
       mkdir -p "$importPath"
       chmod 777 -R "$importPath"
     fi
+	log "Adding download Client"
     lidarrProcessIt=$(curl -s "$arrUrl/api/v1/downloadclient" --header "X-Api-Key:"${arrApiKey} -H "Content-Type: application/json" --data-raw "{\"enable\":true,\"protocol\":\"usenet\",\"priority\":10,\"removeCompletedDownloads\":true,\"removeFailedDownloads\":true,\"name\":\"Arr-Extended\",\"fields\":[{\"name\":\"nzbFolder\",\"value\":\"/config/extended/downloads/\"},{\"name\":\"watchFolder\",\"value\":\"$importPath\"}],\"implementationName\":\"Usenet Blackhole\",\"implementation\":\"UsenetBlackhole\",\"configContract\":\"UsenetBlackholeSettings\",\"infoLink\":\"https://wiki.servarr.com/lidarr/supported#usenetblackhole\",\"tags\":[]}")
  fi
 }
@@ -65,6 +67,7 @@ verifyConfig () {
  
   audioPath="$downloadPath/audio"
 
+
 }
 
 Configuration () {
@@ -101,6 +104,7 @@ Configuration () {
 	fi
 
 	verifyApiAccess
+	AddDownloadClient
 
 	if [ "$addDeezerTopArtists" == "true" ]; then
 		log "Add Deezer Top $topLimit Artists is enabled"
@@ -1859,7 +1863,7 @@ log "Starting Script...."
 for (( ; ; )); do
 	let i++
  	logfileSetup
-        verifyConfig
+    verifyConfig
 	getArrAppInfo
 	verifyApiAccess
 	AudioProcess
