@@ -94,6 +94,7 @@ This configuration does its best to update everything automatically, but with ho
   * Checks Deezer ARL set in extended.conf at set interval for validity
   * Reports ARL status in text file
   * Optional Telegram bot with ability to set token from the chat
+  * Optional Pushover and ntfy notification upon ARL token expiration
 
 For more details, visit the [Wiki](https://github.com/RandomNinjaAtk/arr-scripts/wiki/Lidarr)
 
