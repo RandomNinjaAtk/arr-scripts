@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="1.2"
+scriptVersion="1.3"
 scriptName="Video"
 
 #### Import Settings
@@ -151,8 +151,9 @@ VideoSmaProcess (){
 					else
 					  arrUrl="$radarrArrUrl"
 					  arrApiKey="$radarrArrApiKey"
-					fi
-					arrItemId=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=20&sortDirection=ascending&sortKey=timeleft&includeUnknownMovieItems=true&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id) | .movieId')
+					fi 
+     					refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
+					arrItemId=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=50&sortDirection=ascending&sortKey=timeleft&includeUnknownMovieItems=true&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id) | .movieId')
 					arrItemData=$(curl -s "$arrUrl/api/v3/movie/$arrItemId?apikey=$arrApiKey")
 					onlineSourceId="$(echo "$arrItemData" | jq -r ".tmdbId")"
 					log "$count of $fileCount :: Radarr Movie ID = $arrItemId"
@@ -167,7 +168,8 @@ VideoSmaProcess (){
 					  arrUrl="$sonarrArrUrl"
 					  arrApiKey="$sonarrArrApiKey"
 					fi
-					arrQueueItemData=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=20&sortDirection=ascending&sortKey=timeleft&includeUnknownSeriesItems=true&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id)')
+					refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
+					arrQueueItemData=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=50&sortDirection=ascending&sortKey=timeleft&includeUnknownSeriesItems=true&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id)')
 					arrSeriesId="$(echo $arrQueueItemData | jq -r .seriesId)"
 					arrEpisodeId="$(echo $arrQueueItemData | jq -r .episodeId)"
 					arrSeriesData=$(curl -s "$arrUrl/api/v3/series/$arrSeriesId?apikey=$arrApiKey")
