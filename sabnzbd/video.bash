@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="1.3"
+scriptVersion="1.4"
 scriptName="Video"
 
 #### Import Settings
@@ -122,6 +122,23 @@ VideoFileCheck () {
 	fi
 }
 
+ArrWaitForTaskCompletion () {
+  alerted=no
+  until false
+  do
+    taskCount=$(curl -s "$arrUrl/api/v3/command?apikey=${arrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | wc -l)
+	if [ "$taskCount" -ge "1" ]; then
+	  if [ "$alerted" == "no" ]; then
+		alerted=yes
+		log "$count of $fileCount :: STATUS :: ARR APP BUSY :: Pausing/waiting for all active Arr app tasks to end..."
+	  fi
+	  sleep 2
+	else
+	  break
+	fi
+  done
+}
+
 VideoSmaProcess (){
 	count=0
 	fileCount=$(find "$1" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | wc -l)
@@ -151,8 +168,10 @@ VideoSmaProcess (){
 					else
 					  arrUrl="$radarrArrUrl"
 					  arrApiKey="$radarrArrApiKey"
-					fi 
-     					refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
+					fi
+					log "$count of $fileCount :: Refreshing Radarr app Queue"
+     				refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
+					ArrWaitForTaskCompletion
 					arrItemId=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=50&sortDirection=ascending&sortKey=timeleft&includeUnknownMovieItems=true&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id) | .movieId')
 					arrItemData=$(curl -s "$arrUrl/api/v3/movie/$arrItemId?apikey=$arrApiKey")
 					onlineSourceId="$(echo "$arrItemData" | jq -r ".tmdbId")"
@@ -168,7 +187,9 @@ VideoSmaProcess (){
 					  arrUrl="$sonarrArrUrl"
 					  arrApiKey="$sonarrArrApiKey"
 					fi
+					log "$count of $fileCount :: Refreshing Sonarr app Queue"
 					refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
+					ArrWaitForTaskCompletion
 					arrQueueItemData=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=50&sortDirection=ascending&sortKey=timeleft&includeUnknownSeriesItems=true&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id)')
 					arrSeriesId="$(echo $arrQueueItemData | jq -r .seriesId)"
 					arrEpisodeId="$(echo $arrQueueItemData | jq -r .episodeId)"
