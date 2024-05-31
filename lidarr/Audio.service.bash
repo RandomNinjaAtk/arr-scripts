@@ -178,7 +178,7 @@ Configuration () {
 		log "Beets Tagging Disabled"
 	fi
 
- 	log "Failed Download Attempt Theshold: $failedDownloadAttemptThreshold"
+ 	log "Failed Download Attempt Threshold: $failedDownloadAttemptThreshold"
 	
 }
 
@@ -828,7 +828,7 @@ ProcessWithBeets () {
 	fi	
 
 	if [ ! -f "/config/extended/logs/downloaded/musicbrainz_matched/$matchedTagsAlbumReleaseGroupId" ]; then
-		log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Marking MusicBrainz Release Group ($matchedTagsAlbumReleaseGroupId) as succesfully downloaded..."
+		log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Marking MusicBrainz Release Group ($matchedTagsAlbumReleaseGroupId) as successfully downloaded..."
 		touch "/config/extended/logs/downloaded/musicbrainz_matched/$matchedTagsAlbumReleaseGroupId"
 
 	fi
@@ -1108,7 +1108,7 @@ GetMissingCutOffList () {
       rm /config/extended/cache/notfound.txt /config/extended/cache/tocheck.txt
 
 			lidarrCutoffRecords=$(ls /config/extended/cache/lidarr/list/*-cutoff 2>/dev/null | wc -l)
-			log "$page :: cutoff :: ${lidarrCutoffRecords} ablums found to process!"
+			log "$page :: cutoff :: ${lidarrCutoffRecords} albums found to process!"
 			wantedListAlbumTotal=$lidarrCutoffRecords
 
 			if [ ${lidarrCutoffRecords} -gt 0 ]; then
