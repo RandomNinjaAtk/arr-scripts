@@ -1,5 +1,4 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.7"
 scriptName="QueueCleaner"
 
 #### Import Settings
@@ -13,79 +12,81 @@ getArrAppInfo
 verifyApiAccess
 
 verifyConfig () {
-	#### Import Settings
-	source /config/extended.conf
-	
-	if [ "$enableQueueCleaner" != "true" ]; then
-		log "Script is not enabled, enable by setting enableQueueCleaner to \"true\" by modifying the \"/config/extended.conf\" config file..."
-		log "Sleeping (infinity)"
-		sleep infinity
-	fi
+    #### Import Settings
+    source /config/extended.conf
 
-	if [ -z "$queueCleanerScriptInterval" ]; then
-	    queueCleanerScriptInterval="15m"
-	fi
+    if [ "$enableQueueCleaner" != "true" ]; then
+        log "Script is not enabled, enable by setting enableQueueCleaner to \"true\" by modifying the \"/config/extended.conf\" config file..."
+        log "Sleeping (infinity)"
+        sleep infinity
+    fi
+
+    if [ -z "$queueCleanerScriptInterval" ]; then
+        queueCleanerScriptInterval="15m"
+    fi
+
+    if [ -z "$blacklistStalledDownloads" ]; then
+        blacklistStalledDownloads="false"
+    fi
+}
+
+deleteItemFromQueue() {
+    local queueId=$1
+    local itemTitle=$(echo "$arrQueueData" | jq -r "select(.id==$queueId) | .title")
+    log "$queueId ($itemTitle) :: Removing from $arrName..."
+    curl -sX DELETE "$arrUrl/api/$arrApiVersion/queue/$queueId?removeFromClient=true&blocklist=true&apikey=${arrApiKey}"
 }
 
 QueueCleanerProcess () {
-  # Sonarr
-  if [ "$arrPort" == "8989" ]; then
-    arrQueueData="$(curl -s "$arrUrl/api/v3/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownSeriesItems=true&apikey=${arrApiKey}" | jq -r .records[])"
-  fi
+    local arrQueueData arrQueueCompletedIds arrQueueFailedIds arrQueuedIds
+    local arrQueueIdsCompletedCount arrQueueIdsFailedCount arrQueueIdsCount
 
-  # Radarr
-  if [ "$arrPort" == "7878" ]; then
-     arrQueueData="$(curl -s "$arrUrl/api/v3/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownMovieItems=true&apikey=${arrApiKey}" | jq -r .records[])"
-  fi
+    case "$arrPort" in
+        "8989") 
+            arrQueueData="$(curl -s "$arrUrl/api/v3/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownSeriesItems=true&apikey=${arrApiKey}" | jq -r .records[])"
+            ;;
+        "7878")
+            arrQueueData="$(curl -s "$arrUrl/api/v3/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownMovieItems=true&apikey=${arrApiKey}" | jq -r .records[])"
+            ;;
+        "8686")
+            arrQueueData="$(curl -s "$arrUrl/api/v1/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownArtistItems=true&apikey=${arrApiKey}" | jq -r .records[])"
+            ;;
+        "8787")
+            arrQueueData="$(curl -s "$arrUrl/api/v1/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownAuthorItems=true&apikey=${arrApiKey}" | jq -r .records[])"
+            ;;
+    esac
 
-  # Lidarr
-  if [ "$arrPort" == "8686" ]; then
-    arrQueueData="$(curl -s "$arrUrl/api/v1/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownArtistItems=true&apikey=${arrApiKey}" | jq -r .records[])"
-  fi
-  
-  # Readarr
-  if [ "$arrPort" == "8787" ]; then
-    arrQueueData="$(curl -s "$arrUrl/api/v1/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownAuthorItems=true&apikey=${arrApiKey}" | jq -r .records[])"
-  fi
-  
-  arrQueueCompletedIds=$(echo "$arrQueueData" | jq -r 'select(.status=="completed") | select(.trackedDownloadStatus=="warning") | .id')
-  arrQueueIdsCompletedCount=$(echo "$arrQueueData" | jq -r 'select(.status=="completed") | select(.trackedDownloadStatus=="warning") | .id' | wc -l)
-  arrQueueFailedIds=$(echo "$arrQueueData" | jq -r 'select(.status=="failed") | .id')
-  arrQueueIdsFailedCount=$(echo "$arrQueueData" | jq -r 'select(.status=="failed") | .id' | wc -l)
-  arrQueuedIds=$(echo "$arrQueueCompletedIds"; echo "$arrQueueFailedIds")
-  arrQueueIdsCount=$(( $arrQueueIdsCompletedCount + $arrQueueIdsFailedCount ))
+    arrQueueCompletedIds=$(echo "$arrQueueData" | jq -r 'select(.status=="completed") | select(.trackedDownloadStatus=="warning") | .id')
+    arrQueueIdsCompletedCount=$(echo "$arrQueueData" | jq -r 'select(.status=="completed") | select(.trackedDownloadStatus=="warning") | .id' | wc -l)
+    arrQueueFailedIds=$(echo "$arrQueueData" | jq -r 'select(.status=="failed") | .id')
+    arrQueueIdsFailedCount=$(echo "$arrQueueData" | jq -r 'select(.status=="failed") | .id' | wc -l)
+    arrQueuedIds=$(echo "$arrQueueCompletedIds"; echo "$arrQueueFailedIds")
+    arrQueueIdsCount=$(( arrQueueIdsCompletedCount + arrQueueIdsFailedCount ))
 
-  if [ $arrQueueIdsCount -eq 0 ]; then
-    log "No items in queue to clean up"
-  else
-    for queueId in $(echo $arrQueuedIds); do
-      arrQueueItemData="$(echo "$arrQueueData" | jq -r "select(.id==$queueId)")"
-      arrQueueItemTitle="$(echo "$arrQueueItemData" | jq -r .title)"
-      if [ "$arrPort" == "8989" ]; then
-        arrEpisodeId="$(echo "$arrQueueItemData" | jq -r .episodeId)"
-        arrEpisodeData="$(curl -s "$arrUrl/api/v3/episode/$arrEpisodeId?apikey=${arrApiKey}")"
-        arrEpisodeTitle="$(echo "$arrEpisodeData" | jq -r .title)"
-        arrEpisodeSeriesId="$(echo "$arrEpisodeData" | jq -r .seriesId)"
-        if [ "$arrEpisodeTitle" == "TBA" ]; then
-          log "$queueId ($arrQueueItemTitle) :: ERROR :: Episode title is \"$arrEpisodeTitle\" and prevents auto-import, refreshing series..."
-          refreshSeries=$(curl -s "$arrUrl/api/$arrApiVersion/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw "{\"name\":\"RefreshSeries\",\"seriesId\":$arrEpisodeSeriesId}")
-          continue
-        fi
-      fi
-      log "$queueId ($arrQueueItemTitle) :: Removing Failed Queue Item from $arrName..."
-      deleteItem=$(curl -sX DELETE "$arrUrl/api/$arrApiVersion/queue/$queueId?removeFromClient=true&blocklist=true&apikey=${arrApiKey}")
+    if [ $arrQueueIdsCount -eq 0 ]; then
+        log "No items in queue to clean up"
+    else
+        for queueId in $(echo $arrQueuedIds); do
+            deleteItemFromQueue $queueId
+        done
+    fi
+
+    # Clear stalled downloads
+    stalledItems=$(echo "$arrQueueData" | jq -r 'select(.status=="stalled") | .id')
+    for stalledId in $stalledItems; do
+        stalledItemTitle=$(echo "$arrQueueData" | jq -r "select(.id==$stalledId) | .title")
+        log "$stalledId ($stalledItemTitle) :: Removing Stalled Queue Item..."
+        deleteItemFromQueue $stalledId
     done
-  fi
 }
 
 for (( ; ; )); do
-  let i++
-  logfileSetup
-  verifyConfig
-  log "Starting..."
-  QueueCleanerProcess
-  log "Sleeping $queueCleanerScriptInterval..."
-  sleep $queueCleanerScriptInterval
+    logfileSetup
+    verifyConfig
+    log "Starting..."
+    QueueCleanerProcess
+    log "Sleeping $queueCleanerScriptInterval..."
+    sleep $queueCleanerScriptInterval
 done
 
 exit
