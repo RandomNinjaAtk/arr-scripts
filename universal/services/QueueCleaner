@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.8"
+scriptVersion="1.9"
 scriptName="QueueCleaner"
 
 #### Import Settings
@@ -29,25 +29,32 @@ verifyConfig () {
 
 QueueCleanerProcess () {
   arrQueueData=""
+  arrApp=""
+
   # Sonarr
   if [ -z "$arrQueueData" ]; then
     arrQueueData="$(curl -s "$arrUrl/api/v3/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownSeriesItems=true&apikey=${arrApiKey}" | jq -r .records[])"
+    arrApp="sonarr"
   fi
 
   # Radarr
   if [ -z "$arrQueueData" ]; then
     arrQueueData="$(curl -s "$arrUrl/api/v3/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownMovieItems=true&apikey=${arrApiKey}" | jq -r .records[])"
+    arrApp="radarr"
   fi
 
   # Lidarr
   if [ -z "$arrQueueData" ]; then
     arrQueueData="$(curl -s "$arrUrl/api/v1/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownArtistItems=true&apikey=${arrApiKey}" | jq -r .records[])"
+    arrApp="lidarr"
   fi
   
   # Readarr
   if [ -z "$arrQueueData" ]; then
     arrQueueData="$(curl -s "$arrUrl/api/v1/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownAuthorItems=true&apikey=${arrApiKey}" | jq -r .records[])"
+    arrApp="readarr"
   fi
+
   arrQueueIdCount=$(echo "$arrQueueData" | jq -r ".id" | wc -l)
   arrQueueCompletedIds=$(echo "$arrQueueData" | jq -r 'select(.status=="completed") | select(.trackedDownloadStatus=="warning") | .id')
   arrQueueIdsCompletedCount=$(echo -n "$arrQueueCompletedIds" | wc -l)
@@ -70,7 +77,7 @@ QueueCleanerProcess () {
     for queueId in $(echo $arrQueuedIds); do
       arrQueueItemData="$(echo "$arrQueueData" | jq -r "select(.id==$queueId)")"
       arrQueueItemTitle="$(echo "$arrQueueItemData" | jq -r .title)"
-      if [ "$arrPort" == "8989" ]; then
+      if [ "$arrApp" == "sonarr" ]; then
         arrEpisodeId="$(echo "$arrQueueItemData" | jq -r .episodeId)"
         arrEpisodeData="$(curl -s "$arrUrl/api/v3/episode/$arrEpisodeId?apikey=${arrApiKey}")"
         arrEpisodeTitle="$(echo "$arrEpisodeData" | jq -r .title)"
