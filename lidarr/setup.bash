@@ -24,7 +24,7 @@ apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/testing atomicpa
 npm install -g miraclx/freyr-js &&\
 echo "*** install python packages ***" && \
 pip install --upgrade --no-cache-dir --break-system-packages \
-  jellyfish==1.0.4 \
+  jellyfish \
   beautifulsoup4 \
   yt-dlp \
   beets \
