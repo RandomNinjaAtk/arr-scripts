@@ -1,9 +1,14 @@
-plugins: chroma embedart lastgenre importadded
+plugins: chroma embedart lastgenre importadded lyrics
 art_filename: folder
 threaded: yes
 per_disc_numbering: yes
 id3v23: no
 asciify_paths: true
+
+lyrics:
+    auto: yes
+    sources: lrclib genius tekstowo
+    synced: yes
 
 match:
     strong_rec_thresh: 0.10 # 0.04
