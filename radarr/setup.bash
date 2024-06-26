@@ -23,6 +23,20 @@ echo "************ setup SMA ************"
 if [ -d "${SMA_PATH}"  ]; then
   rm -rf "${SMA_PATH}"
 fi
+echo "*********SMA WORKAROUND ************"
+pip3 install --break-system-packages \
+  requests \
+  idna \
+  requests-cache \
+  babelfish \
+  tmdbsimple \
+  mutagen \
+  guessit \
+  subliminal \
+  python-dateutil \
+  stevedore \
+  cleanit \
+  plexapi
 echo "************ setup directory ************" && \
 mkdir -p ${SMA_PATH} && \
 echo "************ download repo ************" && \
