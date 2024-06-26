@@ -16,10 +16,13 @@ apk add -U --update --no-cache \
   ffmpeg && \
 echo "************ install python packages ************" && \
 pip install --upgrade --no-cache-dir -U  --break-system-packages \
-		excludarr \
-                yt-dlp \
-		yq && \
-echo "************ setup SMA ************" && \
+  excludarr \
+  yt-dlp \
+  yq && \
+echo "************ setup SMA ************"
+if [ -d "${SMA_PATH}"  ]; then
+  rm -rf "${SMA_PATH}"
+fi
 echo "************ setup directory ************" && \
 mkdir -p ${SMA_PATH} && \
 echo "************ download repo ************" && \
