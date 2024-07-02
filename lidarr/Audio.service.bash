@@ -22,7 +22,7 @@ AddDownloadClient () {
       chmod 777 -R "$importPath"
     fi
 	log "Adding download Client"
-    lidarrProcessIt=$(curl -s "$arrUrl/api/v1/downloadclient" --header "X-Api-Key:"${arrApiKey} -H "Content-Type: application/json" --data-raw "{\"enable\":true,\"protocol\":\"usenet\",\"priority\":10,\"removeCompletedDownloads\":true,\"removeFailedDownloads\":true,\"name\":\"Arr-Extended\",\"fields\":[{\"name\":\"nzbFolder\",\"value\":\"/config/extended/downloads/\"},{\"name\":\"watchFolder\",\"value\":\"$importPath\"}],\"implementationName\":\"Usenet Blackhole\",\"implementation\":\"UsenetBlackhole\",\"configContract\":\"UsenetBlackholeSettings\",\"infoLink\":\"https://wiki.servarr.com/lidarr/supported#usenetblackhole\",\"tags\":[]}")
+    lidarrProcessIt=$(curl -s "$arrUrl/api/v1/downloadclient" --header "X-Api-Key:"${arrApiKey} -H "Content-Type: application/json" --data-raw "{\"enable\":true,\"protocol\":\"usenet\",\"priority\":10,\"removeCompletedDownloads\":true,\"removeFailedDownloads\":true,\"name\":\"Arr-Extended\",\"fields\":[{\"name\":\"nzbFolder\",\"value\":\"$downloadPath\"},{\"name\":\"watchFolder\",\"value\":\"$importPath\"}],\"implementationName\":\"Usenet Blackhole\",\"implementation\":\"UsenetBlackhole\",\"configContract\":\"UsenetBlackholeSettings\",\"infoLink\":\"https://wiki.servarr.com/lidarr/supported#usenetblackhole\",\"tags\":[]}")
  fi
 }
 
