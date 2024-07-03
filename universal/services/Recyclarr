@@ -8,6 +8,10 @@ source /config/extended.conf
 source /config/extended/functions
 #### Create Log File
 logfileSetup
+
+# Redirect all output to the log file
+exec &> >(tee -a "/config/logs/$logFileName")
+
 #### Check Arr App
 getArrAppInfo
 verifyApiAccess
@@ -37,20 +41,19 @@ RecyclarrProcess () {
   fi
   /recyclarr/recyclarr sync -c $recyclarrConfig --app-data /config/extended/recyclarr-data
 
-
   log "Complete"
 }
 
 # Loop Script
 for (( ; ; )); do
-	let i++
-	logfileSetup
-    	verifyConfig
-	getArrAppInfo
-	verifyApiAccess
-	RecyclarrProcess
-	log "Script sleeping for $recyclarrScriptInterval..."
-	sleep $recyclarrScriptInterval
+  let i++
+  logfileSetup
+  verifyConfig
+  getArrAppInfo
+  verifyApiAccess
+  RecyclarrProcess
+  log "Script sleeping for $recyclarrScriptInterval..."
+  sleep $recyclarrScriptInterval
 done
 
 exit
