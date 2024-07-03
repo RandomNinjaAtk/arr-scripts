@@ -9,8 +9,10 @@ source /config/extended/functions
 #### Create Log File
 logfileSetup
 
+logfile="/config/logs/$logFileName"
+
 # Redirect all output to the log file
-exec &> >(tee -a "/config/logs/$logFileName")
+exec &> >(tee -a "$logfile")
 
 #### Check Arr App
 getArrAppInfo
@@ -28,12 +30,12 @@ verifyConfig () {
   fi
 }
 
-RecyclarrProcess () {
+RecyclarrProcess () {  
   # Configure Yaml with URL and API Key
   sed -i "s%arrUrl%$arrUrl%g" "/config/extended/recyclarr.yaml"
-  sed -i "s%arrApi%$arrApiKey%g" "/config/extended/recyclarr.yaml"
+  sed -i "s%arrApi%$arrApiKey%g" "/config/extended/recyclarr.yaml"   
   
-  # Update arr app
+  # update arr app
   log "Updating Arr via Recyclarr"
   if [ ! -d /config/extended/recyclarr-data ]; then
     mkdir -p /config/extended/recyclarr-data
@@ -41,9 +43,9 @@ RecyclarrProcess () {
   fi
 
   # Run Recyclarr and capture the output
-  while IFS= read -r line; do
-    log "$line"
-  done < <(/recyclarr/recyclarr sync -c $recyclarrConfig --app-data /config/extended/recyclarr-data 2>&1)
+  /recyclarr/recyclarr sync -c $recyclarrConfig --app-data /config/extended/recyclarr-data 2>&1 | tee -a "$logfile" | while IFS= read -r line; do
+    echo "$(date "+%F %T") :: $scriptName :: $scriptVersion :: $line"
+  done >> "$logfile"
 
   log "Complete"
 }
