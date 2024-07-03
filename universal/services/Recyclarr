@@ -41,9 +41,9 @@ RecyclarrProcess () {
   fi
 
   # Run Recyclarr and capture the output
-  /recyclarr/recyclarr sync -c $recyclarrConfig --app-data /config/extended/recyclarr-data 2>&1 | while IFS= read -r line; do
+  while IFS= read -r line; do
     log "$line"
-  done
+  done < <(/recyclarr/recyclarr sync -c $recyclarrConfig --app-data /config/extended/recyclarr-data 2>&1)
 
   log "Complete"
 }
