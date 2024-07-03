@@ -9,12 +9,12 @@ source /config/extended/functions
 #### Create Log File
 logfileSetup
 
-# Redirect all output to a temporary log file to avoid duplicate logs
-exec &> >(tee -a /tmp/recyclarr_temp.log)
+logfile="/config/logs/$logFileName"
 
-#### Check Arr App
-getArrAppInfo
-verifyApiAccess
+log() {
+  m_time=$(date "+%F %T")
+  echo "$m_time :: $scriptName :: $scriptVersion :: $1" | tee -a "$logfile"
+}
 
 verifyConfig () {
   if [ "$enableRecyclarr" != "true" ]; then
@@ -28,13 +28,13 @@ verifyConfig () {
   fi
 }
 
-RecyclarrProcess () {  
+RecyclarrProcess () {
   # Configure Yaml with URL and API Key
   sed -i "s%arrUrl%$arrUrl%g" "/config/extended/recyclarr.yaml"
-  sed -i "s%arrApi%$arrApiKey%g" "/config/extended/recyclarr.yaml"   
+  sed -i "s%arrApi%$arrApiKey%g" "/config/extended/recyclarr.yaml"
   
-  # Update arr app
   log "Updating Arr via Recyclarr"
+  
   if [ ! -d /config/extended/recyclarr-data ]; then
     mkdir -p /config/extended/recyclarr-data
     chmod 777 /config/extended/recyclarr-data
@@ -42,23 +42,14 @@ RecyclarrProcess () {
 
   # Run Recyclarr and capture the output
   /recyclarr/recyclarr sync -c $recyclarrConfig --app-data /config/extended/recyclarr-data 2>&1 | while IFS= read -r line; do
-    log "$line"
+    echo "$(date "+%F %T") :: $scriptName :: $scriptVersion :: $line" | tee -a "$logfile"
   done
-
+  
   log "Complete"
 }
 
-# Move the temporary log file to the final log file
-move_logs() {
-  while IFS= read -r line; do
-    echo "$(date "+%F %T") :: $scriptName :: $scriptVersion :: $line" >> "/config/logs/$logFileName"
-  done < /tmp/recyclarr_temp.log
-  rm /tmp/recyclarr_temp.log
-}
-
-# Loop Script
+# Main Loop
 for (( ; ; )); do
-  let i++
   logfileSetup
   verifyConfig
   getArrAppInfo
@@ -66,7 +57,6 @@ for (( ; ; )); do
   RecyclarrProcess
   log "Script sleeping for $recyclarrScriptInterval..."
   sleep $recyclarrScriptInterval
-  move_logs
 done
 
 exit
