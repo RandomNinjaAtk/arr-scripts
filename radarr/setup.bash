@@ -20,7 +20,7 @@ pip install --upgrade --no-cache-dir -U  --break-system-packages \
   yt-dlp \
   yq && \
 echo "************ setup SMA ************"
-if [ -d "${SMA_PATH}"  ]; then
+if [ -d "${SMA_PATH}" ]; then
   rm -rf "${SMA_PATH}"
 fi
 echo "*********SMA WORKAROUND ************"
@@ -50,11 +50,16 @@ chmod g+w ${SMA_PATH}/config/sma.log && \
 echo "************ install pip dependencies ************" && \
 python3 -m pip install --break-system-packages --upgrade pip && \
 pip3 install --break-system-packages -r ${SMA_PATH}/setup/requirements.txt || true
+
+echo "************ install qtfaststart ************"
+pip3 install qtfaststart || echo "qtfaststart installation failed, continuing..."
+
 echo "************ install recyclarr ************" && \
 mkdir -p /recyclarr && \
 wget "https://github.com/recyclarr/recyclarr/releases/latest/download/recyclarr-linux-musl-x64.tar.xz" -O "/recyclarr/recyclarr.tar.xz" && \
 tar -xf /recyclarr/recyclarr.tar.xz -C /recyclarr &>/dev/null && \
 chmod 777 /recyclarr/recyclarr
+
 apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/community dotnet8-runtime
 
 mkdir -p /custom-services.d
@@ -83,26 +88,25 @@ echo "Download Script Functions..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/functions.bash -o /config/extended/functions
 echo "Done"
 
-
 if [ ! -f /config/extended/naming.json ]; then
-	echo "Download Naming script..."
-	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/naming.json -o /config/extended/naming.json 
-	echo "Done"
+  echo "Download Naming script..."
+  curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/naming.json -o /config/extended/naming.json
+  echo "Done"
 fi
 
 mkdir -p /config/extended
 echo "Download PlexNotify script..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/PlexNotify.bash -o /config/extended/PlexNotify.bash 
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/PlexNotify.bash -o /config/extended/PlexNotify.bash
 echo "Done"
 
 echo "Download Extras script..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/Extras.bash -o /config/extended/Extras.bash 
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/Extras.bash -o /config/extended/Extras.bash
 echo "Done"
 
 if [ ! -f /config/extended/sma.ini ]; then
-	echo "Download SMA config..."
-	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/sma.ini -o /config/extended/sma.ini 
-	echo "Done"
+  echo "Download SMA config..."
+  curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/sma.ini -o /config/extended/sma.ini
+  echo "Done"
 fi
 
 echo "Download Recyclarr service..."
@@ -110,18 +114,17 @@ curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal
 echo "Done"
 
 if [ ! -f /config/extended/recyclarr.yaml ]; then
-	echo "Download Recyclarr config..."
-	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/recyclarr.yaml -o /config/extended/recyclarr.yaml
-	echo "Done"
+  echo "Download Recyclarr config..."
+  curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/recyclarr.yaml -o /config/extended/recyclarr.yaml
+  echo "Done"
 fi
 
 if [ ! -f /config/extended.conf ]; then
-	echo "Download Extended config..."
-	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/extended.conf -o /config/extended.conf
-	chmod 777 /config/extended.conf
-	echo "Done"
+  echo "Download Extended config..."
+  curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/extended.conf -o /config/extended.conf
+  chmod 777 /config/extended.conf
+  echo "Done"
 fi
-
 
 chmod 777 -R /config/extended
 if [ -f /custom-services.d/scripts_init.bash ]; then
