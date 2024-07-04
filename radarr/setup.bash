@@ -15,6 +15,7 @@ apk add -U --update --no-cache \
   gcc \
   ffmpeg && \
 echo "************ install python packages ************" && \
+pip install --upgrade pip==24.1 && \
 pip install --upgrade --no-cache-dir -U  --break-system-packages \
   excludarr \
   yt-dlp \
@@ -48,14 +49,20 @@ touch ${SMA_PATH}/config/sma.log && \
 chgrp users ${SMA_PATH}/config/sma.log && \
 chmod g+w ${SMA_PATH}/config/sma.log && \
 echo "************ install pip dependencies ************" && \
-python3 -m pip install --break-system-packages --upgrade pip && \	
-pip3 install --break-system-packages -r ${SMA_PATH}/setup/requirements.txt && \
+python3 -m pip install --break-system-packages --upgrade pip==24.1 && \
+pip3 install --break-system-packages -r ${SMA_PATH}/setup/requirements.txt || true
+
+echo "************ install qtfaststart ************" && \
+git clone https://github.com/danielgtaylor/qtfaststart.git /tmp/qtfaststart && \
+cd /tmp/qtfaststart && \
+python3 setup.py install
+
 echo "************ install recyclarr ************" && \
 mkdir -p /recyclarr && \
 wget "https://github.com/recyclarr/recyclarr/releases/latest/download/recyclarr-linux-musl-x64.tar.xz" -O "/recyclarr/recyclarr.tar.xz" && \
 tar -xf /recyclarr/recyclarr.tar.xz -C /recyclarr &>/dev/null && \
-chmod 777 /recyclarr/recyclarr
-apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/community dotnet7-runtime
+chmod 777 /recyclarr/recyclarr && \
+apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/community dotnet8-runtime
 
 mkdir -p /custom-services.d
 echo "Download QueueCleaner service..."
@@ -83,11 +90,10 @@ echo "Download Script Functions..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/functions.bash -o /config/extended/functions
 echo "Done"
 
-
 if [ ! -f /config/extended/naming.json ]; then
-	echo "Download Naming script..."
-	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/naming.json -o /config/extended/naming.json 
-	echo "Done"
+  echo "Download Naming script..."
+  curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/naming.json -o /config/extended/naming.json 
+  echo "Done"
 fi
 
 mkdir -p /config/extended
@@ -100,28 +106,27 @@ curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/Ex
 echo "Done"
 
 if [ ! -f /config/extended/sma.ini ]; then
-	echo "Download SMA config..."
-	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/sma.ini -o /config/extended/sma.ini 
-	echo "Done"
+  echo "Download SMA config..."
+  curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/sma.ini -o /config/extended/sma.ini 
+  echo "Done"
 fi
 
 echo "Download Recyclarr service..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/services/Recyclarr -o /custom-services.d/Recyclarr
+curl https://raw.githubusercontent.com/billsbdb3/arr-scripts/main/universal/services/Recyclarr -o /custom-services.d/Recyclarr
 echo "Done"
 
 if [ ! -f /config/extended/recyclarr.yaml ]; then
-	echo "Download Recyclarr config..."
-	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/recyclarr.yaml -o /config/extended/recyclarr.yaml
-	echo "Done"
+  echo "Download Recyclarr config..."
+  curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/recyclarr.yaml -o /config/extended/recyclarr.yaml
+  echo "Done"
 fi
 
 if [ ! -f /config/extended.conf ]; then
-	echo "Download Extended config..."
-	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/extended.conf -o /config/extended.conf
-	chmod 777 /config/extended.conf
-	echo "Done"
+  echo "Download Extended config..."
+  curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/extended.conf -o /config/extended.conf
+  chmod 777 /config/extended.conf
+  echo "Done"
 fi
-
 
 chmod 777 -R /config/extended
 if [ -f /custom-services.d/scripts_init.bash ]; then
