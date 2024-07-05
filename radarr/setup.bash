@@ -112,7 +112,7 @@ if [ ! -f /config/extended/sma.ini ]; then
 fi
 
 echo "Download Recyclarr service..."
-curl https://raw.githubusercontent.com/billsbdb3/arr-scripts/main/universal/services/Recyclarr -o /custom-services.d/Recyclarr
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/services/Recyclarr -o /custom-services.d/Recyclarr
 echo "Done"
 
 if [ ! -f /config/extended/recyclarr.yaml ]; then
