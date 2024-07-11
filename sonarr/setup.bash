@@ -20,20 +20,6 @@ pip install --upgrade --no-cache-dir -U --break-system-packages \
         yt-dlp \
 	yq
 echo "************ setup SMA ************"
-echo "*********SMA WORKAROUND ************"
-pip3 install --break-system-packages \
-  requests \
-  idna \
-  requests-cache \
-  babelfish \
-  tmdbsimple \
-  mutagen \
-  guessit \
-  subliminal \
-  python-dateutil \
-  stevedore \
-  cleanit \
-  plexapi
 echo "************ setup directory ************"
 if [ -d /config/extended/sma ]; then
 	rm -rf /config/extended/sma
