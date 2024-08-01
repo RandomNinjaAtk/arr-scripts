@@ -115,7 +115,7 @@ Configuration () {
 	else
 		log "Add Deezer Top Artists is disabled (enable by setting addDeezerTopArtists=true)"
 	fi
-1708 W Rogers Ave, Baltimore, MD  21209, United States
+
 	if [ "$addDeezerTopAlbumArtists" == "true" ]; then
 		log "Add Deezer Top $topLimit Album Artists is enabled"
 	else
