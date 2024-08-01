@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.44"
+scriptVersion="2.45"
 scriptName="Audio"
 
 ### Import Settings
@@ -64,6 +64,10 @@ verifyConfig () {
   if [ -z "$downloadClientTimeOut" ]; then
   	downloadClientTimeOut="10m" # if not set, set to 10 minutes
   fi
+
+  if [ -z "$preferSpecialEditions" ]; then
+    preferSpecialEditions="true"
+  fi 
  
   audioPath="$downloadPath/audio"
 
@@ -111,7 +115,7 @@ Configuration () {
 	else
 		log "Add Deezer Top Artists is disabled (enable by setting addDeezerTopArtists=true)"
 	fi
-
+1708 W Rogers Ave, Baltimore, MD  21209, United States
 	if [ "$addDeezerTopAlbumArtists" == "true" ]; then
 		log "Add Deezer Top $topLimit Album Artists is enabled"
 	else
@@ -176,6 +180,12 @@ Configuration () {
 		fi
 	else
 		log "Beets Tagging Disabled"
+	fi
+
+	if [ "$preferSpecialEditions" == "true" ]; then
+      log "Prefer Special Editions Enabled"
+	else
+      log "Prefer Special Editions Disabled"
 	fi
 
  	log "Failed Download Attempt Threshold: $failedDownloadAttemptThreshold"
@@ -1291,7 +1301,11 @@ SearchProcess () {
 		# Get Release Titles
 		OLDIFS="$IFS"
 		IFS=$'\n'
-		lidarrReleaseTitles=$(cat /temp-release-list | awk '{ print length, $0 }' | sort -u -n -s -r | cut -d" " -f2-)
+		if [ "$preferSpecialEditions" == "true" ]; then
+		  lidarrReleaseTitles=$(cat /temp-release-list | awk '{ print length, $0 }' | sort -u -n -s -r | cut -d" " -f2-)
+	    else
+		  lidarrReleaseTitles=$(cat /temp-release-list | awk '{ print length, $0 }' | sort -u -n -s | cut -d" " -f2-)
+		fi
 		lidarrReleaseTitles=($(echo "$lidarrReleaseTitles"))
 		IFS="$OLDIFS"
 
