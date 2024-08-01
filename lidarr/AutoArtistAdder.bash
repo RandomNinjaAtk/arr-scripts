@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.1"
+scriptVersion="2.3"
 scriptName="AutoArtistAdder"
 
 ### Import Settings
@@ -31,6 +31,15 @@ verifyConfig () {
 
 
 sleepTimer=0.5
+
+GetTag () {
+  tagId="$(curl -s "$arrUrl/api/v1/tag?apikey=${arrApiKey}" | jq -r '.[] |select(.label=="arr-extended") | .id')"
+}
+
+AddTag () {
+  log "adding arr-extended tag"
+  lidarrProcessIt=$(curl -s  "$arrUrl/api/v1/tag" --header "X-Api-Key:"${arrApiKey} -H "Content-Type: application/json" --data-raw '{"label":"arr-extended"}')
+}
 
 
 NotifyWebhook () {
@@ -109,6 +118,7 @@ AddDeezerArtistToLidarr () {
 			qualityProfileId=$(echo $qualityProfileId | cut -d' ' -f1)
 			metadataProfileId="$(echo "$data" | jq -r ".defaultMetadataProfileId")"
 			metadataProfileId=$(echo $metadataProfileId | cut -d' ' -f1)
+			GetTag
 			data="{
 				\"artistName\": \"$artistName\",
 				\"foreignArtistId\": \"$foreignId\",
@@ -117,6 +127,7 @@ AddDeezerArtistToLidarr () {
 				\"monitored\":$autoArtistAdderMonitored,
 				\"monitor\":\"all\",
 				\"rootFolderPath\": \"$path\",
+				\"tags\": [ $tagId ],
 				\"addOptions\":{\"searchForMissingAlbums\":$lidarrSearchForMissing}
 				}"
 			if echo "$lidarrArtistIds" | grep "^${foreignId}$" | read; then
@@ -159,7 +170,14 @@ AddDeezerRelatedArtists () {
 			log "$artistNumber of $lidarrArtistTotal :: $wantedAlbumListSource :: $lidarrArtistName :: Artist is not monitored :: skipping..."
 			continue
 		fi
-
+        if [ $preventRelatedArtistsLoop == "true" ]; then
+		    GetTag
+			if echo "$lidarrArtistData" | jq -r .tags[] | grep "$tagId" | read; then
+			  log "$artistNumber of $lidarrArtistTotal :: $lidarrArtistName :: This artist was added via related artist, skipping..."
+			  continue
+			fi
+		fi
+		
 		for dId in ${!deezerArtistIds[@]}; do
 			deezerArtistId="${deezerArtistIds[$dId]}"
 			deezerRelatedArtistData=$(curl -sL --fail "https://api.deezer.com/artist/$deezerArtistId/related?limit=$numberOfRelatedArtistsToAddPerArtist"| jq -r ".data | sort_by(.nb_fan) | reverse | .[]")
@@ -211,7 +229,14 @@ AddTidalRelatedArtists () {
 			log "$artistNumber of $lidarrArtistTotal :: $lidarrArtistName :: Artist is not monitored :: skipping..."
 			continue
 		fi
-		
+		if [ $preventRelatedArtistsLoop == "true" ]; then
+		    GetTag
+			if echo "$lidarrArtistData" | jq -r .tags[] | grep "$tagId" | read; then
+			  log "$artistNumber of $lidarrArtistTotal :: $lidarrArtistName :: This artist was added via related artist, skipping..."
+			  continue
+			fi
+		fi
+				
 		for Id in ${!serviceArtistIds[@]}; do
 			serviceArtistId="${serviceArtistIds[$Id]}"
 			serviceRelatedArtistData=$(curl -sL --fail "https://api.tidal.com/v1/pages/single-module-page/ae223310-a4c2-4568-a770-ffef70344441/4/b4b95795-778b-49c5-a34f-59aac055b662/1?artistId=$serviceArtistId&countryCode=$tidalCountryCode&deviceType=BROWSER" -H 'x-tidal-token: CzET4vdadNUFQ5JU' | jq -r .rows[].modules[].pagedList.items[])
@@ -260,6 +285,7 @@ AddTidalArtistToLidarr () {
 			qualityProfileId=$(echo $qualityProfileId | cut -d' ' -f1)
 			metadataProfileId="$(echo "$data" | jq -r ".defaultMetadataProfileId")"
 			metadataProfileId=$(echo $metadataProfileId | cut -d' ' -f1)
+			GetTag
 			data="{
 				\"artistName\": \"$artistName\",
 				\"foreignArtistId\": \"$foreignId\",
@@ -268,6 +294,7 @@ AddTidalArtistToLidarr () {
 				\"monitored\":$autoArtistAdderMonitored,
 				\"monitor\":\"all\",
 				\"rootFolderPath\": \"$path\",
+				\"tags\": [ $tagId ],
 				\"addOptions\":{\"searchForMissingAlbums\":$lidarrSearchForMissing}
 				}"
 			if echo "$lidarrArtistIds" | grep "^${foreignId}$" | read; then
@@ -294,6 +321,7 @@ for (( ; ; )); do
   verifyConfig
   getArrAppInfo
   verifyApiAccess
+  AddTag
   
   if [ -z $lidarrSearchForMissing ]; then
   	lidarrSearchForMissing=true
