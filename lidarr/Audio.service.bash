@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.45"
+scriptVersion="2.46"
 scriptName="Audio"
 
 ### Import Settings
@@ -842,28 +842,16 @@ ProcessWithBeets () {
 		touch "/config/extended/logs/downloaded/musicbrainz_matched/$matchedTagsAlbumReleaseGroupId"
 
 	fi
-
-	getLidarrAlbumId=$(curl -s "$arrUrl/api/v1/search?term=lidarr%3A${matchedTagsAlbumReleaseGroupId}&apikey=$arrApiKey" | jq -r .[].album.releases[].albumId | sort -u)
-	checkLidarrAlbumData="$(curl -s "$arrUrl/api/v1/album/$getLidarrAlbumId?apikey=${arrApiKey}")"
-	checkLidarrAlbumPercentOfTracks=$(echo "$checkLidarrAlbumData" | jq -r ".statistics.percentOfTracks")
-
-	if [ "$checkLidarrAlbumPercentOfTracks" = "null" ]; then
-		checkLidarrAlbumPercentOfTracks=0
+	
+	if [ "$wantedAlbumListSource" == "missing" ]; then
+		log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: ERROR :: Already Imported Album (Missing)"
+		rm -rf "$audioPath/incomplete"/*
+		touch /config/extended/beets-error
+		return
+	else
+		log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Importing Album (Cutoff)"
 		return
 	fi
-
-	if [ ${checkLidarrAlbumPercentOfTracks%%.*} -ge 100 ]; then
-		if [ "$wantedAlbumListSource" == "missing" ]; then
-			log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: ERROR :: Already Imported Album (Missing)"
-			rm -rf "$audioPath/incomplete"/*
-			touch /config/extended/beets-error
-			return
-		else
-			log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Importing Album (Cutoff)"
-			return
-		fi
-	fi
-	
 	
 }
 
@@ -1741,36 +1729,6 @@ FuzzyTidalSearch () {
 	else
 		log "$1 :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Fuzzy Search :: Tidal :: $type :: $lidarrReleaseTitle :: ERROR :: No results found..."
 	fi	
-}
-
-CheckLidarrBeforeImport () {
-
-	alreadyImported=false		
-	checkLidarrAlbumData="$(curl -s "$arrUrl/api/v1/album/$1?apikey=${arrApiKey}")"
-	checkLidarrAlbumPercentOfTracks=$(echo "$checkLidarrAlbumData" | jq -r ".statistics.percentOfTracks")
-	log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Checking Lidarr for existing files"
-	log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: $checkLidarrAlbumPercentOfTracks% Tracks found"
-	if [ "$checkLidarrAlbumPercentOfTracks" == "null" ]; then
-		checkLidarrAlbumPercentOfTracks=0
-		return
-	fi
-	if [ "${checkLidarrAlbumPercentOfTracks%%.*}" -ge "100" ]; then
-		if [ "$wantedAlbumListSource" == "missing" ]; then
-			log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Already Imported Album (Missing), skipping..."
-			alreadyImported=true
-			return
-		fi
-
-		if [ "$wantedAlbumListSource" == "cutoff" ]; then
-			checkLidarrAlbumFiles="$(curl -s "$arrUrl/api/v1/trackFile?albumId=$1?apikey=${arrApiKey}")"
-			checkLidarrAlbumQualityCutoffNotMet=$(echo "$checkLidarrAlbumFiles" | jq -r ".[].qualityCutoffNotMet")
-			if echo "$checkLidarrAlbumQualityCutoffNotMet" | grep "true" | read; then
-				log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Already Imported Album (CutOff - $checkLidarrAlbumQualityCutoffNotMet), skipping..."
-				alreadyImported=true
-				return
-			fi
-		fi
-	fi
 }
 
 LidarrTaskStatusCheck () {
