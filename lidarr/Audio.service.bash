@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.46"
+scriptVersion="2.47"
 scriptName="Audio"
 
 ### Import Settings
@@ -650,10 +650,6 @@ DownloadProcess () {
 		fi
 		log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Processing files with beets..."
 		ProcessWithBeets "$audioPath/incomplete"
-
-		if [ -f /config/extended/beets-error ]; then
-			return
-		fi 
 	fi
 
 	# Embed Lyrics into Flac files
@@ -841,16 +837,6 @@ ProcessWithBeets () {
 		log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Marking MusicBrainz Release Group ($matchedTagsAlbumReleaseGroupId) as successfully downloaded..."
 		touch "/config/extended/logs/downloaded/musicbrainz_matched/$matchedTagsAlbumReleaseGroupId"
 
-	fi
-	
-	if [ "$wantedAlbumListSource" == "missing" ]; then
-		log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: ERROR :: Already Imported Album (Missing)"
-		rm -rf "$audioPath/incomplete"/*
-		touch /config/extended/beets-error
-		return
-	else
-		log "$page :: $wantedAlbumListSource :: $processNumber of $wantedListAlbumTotal :: $lidarrArtistName :: $lidarrAlbumTitle :: $lidarrAlbumType :: Importing Album (Cutoff)"
-		return
 	fi
 	
 }
