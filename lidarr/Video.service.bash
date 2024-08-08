@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="3.7"
+scriptVersion="3.8"
 scriptName="Video"
 
 ### Import Settings
@@ -679,6 +679,8 @@ VideoProcess () {
                   fi 
   
                   mv $videoDownloadPath/incomplete/* "$videoPath/$lidarrArtistFolderNoDisambig"/
+		  # clean/clear download folder
+   		  rm -rf "$videoDownloadPath"/incomplete/*
               done
   
           fi
