@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.3"
+scriptVersion="1.4"
 scriptName="UnmappedFilesCleaner"
 
 #### Import Settings
@@ -8,6 +8,9 @@ source /config/extended.conf
 source /config/extended/functions
 
 verifyConfig () {
+  ### Import Settings
+  source /config/extended.conf
+  
   if [ "$enableUnmappedFilesCleaner" != "true" ]; then
     log "Script is not enabled, enable by setting enableUnmappedFilesCleaner to \"true\" by modifying the \"/config/extended.conf\" config file..."
     log "Sleeping (infinity)"
