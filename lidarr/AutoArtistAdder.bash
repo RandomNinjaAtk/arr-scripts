@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.3"
+scriptVersion="2.4"
 scriptName="AutoArtistAdder"
 
 ### Import Settings
@@ -8,6 +8,8 @@ source /config/extended.conf
 source /config/extended/functions
 
 verifyConfig () {
+  ### Import Settings
+  source /config/extended.conf
  
   if echo "$addDeezerTopArtists $addDeezerTopAlbumArtists $addDeezerTopTrackArtists $addRelatedArtists" | grep -i "true" | read; then
     sleep 0.01
