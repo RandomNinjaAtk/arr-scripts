@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.0"
+scriptVersion="2.1"
 scriptName="TidalVideoDownloader"
 
 #### Import Settings
@@ -9,7 +9,10 @@ source /config/extended/functions
 
 
 verifyConfig () {
-    videoContainer=mkv
+	### Import Settings
+	source /config/extended.conf
+
+        videoContainer=mkv
 
 	if [ "$enableVideo" != "true" ]; then
 		log "Script is not enabled, enable by setting enableVideo to \"true\" by modifying the \"/config/extended.conf\" config file..."
