@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.9"
+scriptVersion="2.0"
 scriptName="TidalVideoDownloader"
 
 #### Import Settings
@@ -260,7 +260,10 @@ VideoProcess () {
 			videoArtists="$(echo "$videoData" | jq -r ".artists[]")"
 			videoArtistsIds="$(echo "$videoArtists" | jq -r ".id")"
 			videoType=""
-			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Processing..."
+   			# clean/clear download folder
+   			rm -rf "$videoDownloadPath"/*
+      
+      			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Processing..."
 
 			if echo "$videoTitle" | grep -i "official" | grep -i "video" | read; then
 				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Official Music Video Match Found!"
@@ -496,6 +499,9 @@ VideoProcess () {
 			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Logging completed download $id to: /config/extended/logs/tidal-video/$id"
 			touch /config/extended/logs/tidal-video/$id
 			chmod 666 "/config/extended/logs/tidal-video/$id"
+
+			# clean/clear download folder
+   			rm -rf "$videoDownloadPath"/*
 		done
 	done
 }
