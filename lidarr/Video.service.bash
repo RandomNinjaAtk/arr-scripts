@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="3.8"
+scriptVersion="3.9"
 scriptName="Video"
 
 ### Import Settings
@@ -8,6 +8,8 @@ source /config/extended.conf
 source /config/extended/functions
 
 verifyConfig () {
+        ### Import Settings
+	source /config/extended.conf
 	if [ -z "$videoContainer" ]; then
 		videoContainer="mkv"
 	fi
