@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.47"
+scriptVersion="2.48"
 scriptName="Audio"
 
 ### Import Settings
@@ -27,6 +27,8 @@ AddDownloadClient () {
 }
 
 verifyConfig () {
+  ### Import Settings
+  source /config/extended.conf
   if [ "$enableAudio" != "true" ]; then
     log "Script is not enabled, enable by setting enableAudio to \"true\" by modifying the \"/config/extended.conf\" config file..."
     log "Sleeping (infinity)"
@@ -1821,7 +1823,7 @@ log "Starting Script...."
 for (( ; ; )); do
 	let i++
  	logfileSetup
-    verifyConfig
+        verifyConfig
 	getArrAppInfo
 	verifyApiAccess
 	AudioProcess
