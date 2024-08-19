@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.3"
+scriptVersion="1.4"
 arrEventType="$radarr_eventtype"
 arrItemId=$radarr_movie_id
 tmdbApiKey="3b7751e3179f796565d88fdb2fcdf426"
@@ -232,8 +232,10 @@ do
         if [ -f "$tempFolder/$finalFileName.mkv" ]; then
 	      log "$itemTitle :: $i of $tmdbVideosListDataIdsCount :: $tmdbExtraType :: $tmdbExtraTitle :: Moving file to final destination"
 	      mv "$tempFolder/$finalFileName.mkv" "$finalPath/$finalFileName.mkv"
-          chmod 666 "$finalPath/$finalFileName.mkv"
-	      rm -rf "$tempFolder"
+              chmod 666 "$finalPath/$finalFileName.mkv"
+	      if [ -d "$tempFolder" ]; then
+	        rm -rf "$tempFolder"
+	      fi
         fi
 
         updatePlex="true"
