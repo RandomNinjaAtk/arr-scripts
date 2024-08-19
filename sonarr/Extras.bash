@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.9"
+scriptVersion="2.0"
 arrEventType="$sonarr_eventtype"
 arrItemId=$sonarr_series_id
 tmdbApiKey="3b7751e3179f796565d88fdb2fcdf426"
@@ -136,28 +136,47 @@ DownloadExtras () {
 
             videoLanguages="$(echo "$extrasLanguages" | sed "s/-[[:alpha:]][[:alpha:]]//g")"
 
+	    tempFolder="/config/extended/temp"
+	    if [ -d "$tempFolder" ]; then
+	      rm -rf "$tempFolder"
+	      sleep 0.01
+	    fi
+	
+	    if [ ! -d "$tempFolder" ]; then
+	      mkdir -p "$tempFolder" 
+	    fi
+
             log "$itemTitle :: $i of $tmdbVideosListDataIdsCount :: $tmdbExtraType :: $tmdbExtraTitle ($tmdbExtraKey) :: Downloading (yt-dlp :: $videoFormat)..."
             if [ ! -z "$cookiesFile" ]; then
-                yt-dlp -f "$videoFormat" --no-video-multistreams --cookies "$cookiesFile" -o "$finalPath/$finalFileName" --write-sub --sub-lang $videoLanguages --embed-subs --merge-output-format mkv --no-mtime --geo-bypass $ytdlpExtraOpts "https://www.youtube.com/watch?v=$tmdbExtraKey"  2>&1 | tee -a /config/logs/$scriptName.txt
+                yt-dlp -f "$videoFormat" --no-video-multistreams --cookies "$cookiesFile" -o "$tempFolder/$finalFileName" --write-sub --sub-lang $videoLanguages --embed-subs --merge-output-format mkv --no-mtime --geo-bypass $ytdlpExtraOpts "https://www.youtube.com/watch?v=$tmdbExtraKey"  2>&1 | tee -a /config/logs/$scriptName.txt
             else
-                yt-dlp -f "$videoFormat" --no-video-multistreams -o "$finalPath/$finalFileName" --write-sub --sub-lang $videoLanguages --embed-subs --merge-output-format mkv --no-mtime --geo-bypass $ytdlpExtraOpts "https://www.youtube.com/watch?v=$tmdbExtraKey"  2>&1 | tee -a /config/logs/$scriptName.txt
+                yt-dlp -f "$videoFormat" --no-video-multistreams -o "$tempFolder/$finalFileName" --write-sub --sub-lang $videoLanguages --embed-subs --merge-output-format mkv --no-mtime --geo-bypass $ytdlpExtraOpts "https://www.youtube.com/watch?v=$tmdbExtraKey"  2>&1 | tee -a /config/logs/$scriptName.txt
             fi
-            if [ -f "$finalPath/$finalFileName.mkv" ]; then
+            if [ -f "$tempFolder/$finalFileName.mkv" ]; then
                 log "$itemTitle :: $i of $tmdbVideosListDataIdsCount :: $tmdbExtraType :: $tmdbExtraTitle ($tmdbExtraKey) :: Compete"
-                chmod 666 "$finalPath/$finalFileName.mkv"
             else
                 log "$itemTitle :: $i of $tmdbVideosListDataIdsCount :: $tmdbExtraType :: $tmdbExtraTitle ($tmdbExtraKey) :: ERROR :: Download Failed"
                 continue
             fi
 
-            if python3 /config/extended/sma/manual.py --config "/config/extended/sma.ini" -i "$finalPath/$finalFileName.mkv" -nt; then
+            if python3 /config/extended/sma/manual.py --config "/config/extended/sma.ini" -i "$tempFolder/$finalFileName.mkv" -nt; then
                 log "$itemTitle :: $i of $tmdbVideosListDataIdsCount :: $tmdbExtraType :: $tmdbExtraTitle :: Processed with SMA..."
                 rm  /config/extended/sma/config/*log*
             else
                 log "$itemTitle :: $i of $tmdbVideosListDataIdsCount :: $tmdbExtraType :: $tmdbExtraTitle :: ERROR :: SMA Processing Error"
                 rm "$finalPath/$finalFileName.mkv"
-                log "$itemTitle :: $i of $tmdbVideosListDataIdsCount :: $tmdbExtraType :: $tmdbExtraTitle :: INFO: deleted: $finalPath/$finalFileName.mkv"
+                log "$itemTitle :: $i of $tmdbVideosListDataIdsCount :: $tmdbExtraType :: $tmdbExtraTitle :: INFO: deleted: $tempFolder/$finalFileName.mkv"
             fi
+	    
+	    if [ -f "$tempFolder/$finalFileName.mkv" ]; then
+	      log "$itemTitle :: $i of $tmdbVideosListDataIdsCount :: $tmdbExtraType :: $tmdbExtraTitle :: Moving file to final destination"
+	      mv "$tempFolder/$finalFileName.mkv" "$finalPath/$finalFileName.mkv"
+              chmod 666 "$finalPath/$finalFileName.mkv"
+	      if [ -d "$tempFolder" ]; then
+	        rm -rf "$tempFolder"
+              fi
+           fi
+	
             updatePlex="true"
         done
     done
