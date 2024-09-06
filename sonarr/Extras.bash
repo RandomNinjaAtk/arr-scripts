@@ -5,6 +5,7 @@ arrItemId=$sonarr_series_id
 tmdbApiKey="3b7751e3179f796565d88fdb2fcdf426"
 autoScan="false"
 updatePlex="false"
+updateEmby="false"
 ytdlpExtraOpts="--user-agent facebookexternalhit/1.1"
 scriptName="Extras"
 
@@ -178,6 +179,7 @@ DownloadExtras () {
            fi
 	
             updatePlex="true"
+            updateEmby="true"
         done
     done
 
@@ -214,6 +216,28 @@ NotifyPlex () {
     fi
 }
 
+NotifyEmby () {
+    # Process item with EmbyNotify.bash if EmbyToken is configured
+    if [ ! -z "$embyApiKey" ]; then
+        # Always update Emby if extra is downloaded
+        if [ "$updateEmby" == "true" ]; then
+            log "$itemTitle :: Using EmbyNotify.bash to update Emby...."
+            bash /config/extended/EmbyNotify.bash "$itemPath"
+            exit
+        fi
+        
+        # Do not notify Emby if this script was triggered by the AutoExtras.bash and no Extras were downloaded
+        if [ "$autoScan" == "true" ]; then 
+            log "$itemTitle :: Skipping Emby notification, not needed...."
+            exit
+        else
+            log "$itemTitle :: Using EmbyNotify.bash to update Emby...."
+            bash /config/extended/EmbyNotify.bash "$itemPath"
+            exit
+        fi
+    fi
+}
+
 # Check if series has been previously processed
 if [ -f "/config/extended/logs/extras/$tmdbId" ]; then
     # Delete log file older than 7 days, to allow re-processing
@@ -223,10 +247,12 @@ fi
 if [ -f "/config/extended/logs/extras/$tmdbId" ]; then
     log "$itemTitle :: Already processed Extras, waiting 7 days to re-check..."
     NotifyPlex
+    NotifyEmby
     exit
 else
     DownloadExtras
     NotifyPlex
+    NotifyEmby
 fi
 
 exit
