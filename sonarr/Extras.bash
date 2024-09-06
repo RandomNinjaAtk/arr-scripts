@@ -217,7 +217,7 @@ NotifyPlex () {
 }
 
 NotifyEmby () {
-    # Process item with EmbyNotify.bash if EmbyToken is configured
+    # Process item with EmbyNotify.bash if embyApiKey is configured
     if [ ! -z "$embyApiKey" ]; then
         # Always update Emby if extra is downloaded
         if [ "$updateEmby" == "true" ]; then

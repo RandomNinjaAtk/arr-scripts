@@ -5,6 +5,7 @@ arrItemId=$radarr_movie_id
 tmdbApiKey="3b7751e3179f796565d88fdb2fcdf426"
 autoScan="false"
 updatePlex="false"
+updateEmby="false"
 ytdlpExtraOpts="--user-agent facebookexternalhit/1.1"
 scriptName="Extras"
 
@@ -239,6 +240,7 @@ do
         fi
 
         updatePlex="true"
+        updateEmby="true"
 
         if [ "$extrasSingle" == "true" ]; then
             log "$itemTitle :: $i of $tmdbVideosListDataIdsCount :: $tmdbExtraType :: Finished processing single trailer download" 
@@ -265,6 +267,25 @@ if [ ! -z "$plexToken" ]; then
     else
         log "Using PlexNotify.bash to update Plex...."
         bash /config/extended/PlexNotify.bash "$itemPath"
+        exit
+    fi
+fi
+# Process item with EmbyNotify.bash if embyApiKey is configured
+if [ ! -z "$embyApiKey" ]; then
+    # Always update Emby if extra is downloaded
+    if [ "$updateEmby" == "true" ]; then
+        log "Using EmbyNotify.bash to update Emby...."
+        bash /config/extended/EmbyNotify.bash "$itemPath"
+        exit
+    fi
+    
+    # Do not notify emby if this script was triggered by the AutoExtras.bash and no Extras were downloaded
+    if [ "$autoScan" == "true" ]; then 
+        log "Skipping Emby notification, not needed...."
+        exit
+    else
+        log "Using EmbyNotify.bash to update Emby...."
+        bash /config/extended/EmbyNotify.bash "$itemPath"
         exit
     fi
 fi
