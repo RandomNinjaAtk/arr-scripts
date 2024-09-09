@@ -133,14 +133,6 @@ if [ ! -f /config/extended/tidal-dl.json ]; then
   echo "Done"
 fi
 
-echo "Download Deemix config..."
-curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/deemix_config.json" -o /config/extended/deemix_config.json
-echo "Done"
-
-echo "Download Tidal config..."
-curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/tidal-dl.json" -o /config/extended/tidal-dl.json
-echo "Done"
-
 echo "Download LyricExtractor script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/LyricExtractor.bash -o /config/extended/LyricExtractor.bash
 echo "Done"
