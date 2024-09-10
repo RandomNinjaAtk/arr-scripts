@@ -97,4 +97,55 @@ for key in ${!plexKeys[@]}; do
 	fi
 done
 
+# Jellyfin Integration
+
+jellyfinConnectionError () {
+	log "ERROR :: Cannot communicate with Jellyfin"
+	log "ERROR :: Please check your jellyfinUrl and jellyfinToken"
+	log "ERROR :: Configured jellyfinUrl \"$jellyfinUrl\""
+	log "ERROR :: Configured jellyfinToken \"$jellyfinToken\""
+	log "ERROR :: Exiting..."
+	exit
+}
+
+# Validate Jellyfin connection
+log "Attempting to connect to Jellyfin..."
+if curl -s "$jellyfinUrl/Library/MediaFolders?api_key=$jellyfinToken" &>/dev/null; then
+	log "Jellyfin Connection Established"
+else
+	jellyfinConnectionError
+fi
+
+# Get Jellyfin Media Folders
+log "Fetching Jellyfin media folders..."
+jellyfinLibraries=$(curl -s "$jellyfinUrl/Library/MediaFolders?api_key=$jellyfinToken")
+if [ -z "$jellyfinLibraries" ]; then
+    log "ERROR :: Failed to fetch Jellyfin media folders. Check the API or Jellyfin server."
+    exit 1
+fi
+jellyfinFolders=$(echo "$jellyfinLibraries" | jq -r '.Items[].Path')
+
+# Log Jellyfin folders for debugging
+log "Jellyfin media folders fetched: $jellyfinFolders"
+
+# Jellyfin Library Path Matching
+pathMatched="false"
+for jellyfinPath in $jellyfinFolders; do
+	if [[ "$arrRootFolderPath" == "$jellyfinPath"* ]]; then
+		log "$notifiedBy :: Jellyfin path matched: $jellyfinPath"
+		pathMatched="true"
+		break
+	fi
+done
+
+# Trigger Jellyfin Library Scan if match found
+if [ "$pathMatched" == "true" ]; then
+	log "Triggering Jellyfin library scan..."
+	curl -s -X POST "$jellyfinUrl/Library/Refresh?api_key=$jellyfinToken"
+	log "$notifiedBy :: Jellyfin Scan notification sent!"
+else
+	log "$notifiedBy :: ERROR: No Jellyfin Library found containing path \"$arrRootFolderPath\""
+	log "$notifiedBy :: ERROR: Add \"$arrRootFolderPath\" as a folder to a Jellyfin Library"
+fi
+
 exit
