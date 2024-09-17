@@ -87,6 +87,10 @@ echo "Download PlexNotify script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/PlexNotify.bash -o /config/extended/PlexNotify.bash 
 echo "Done"
 
+echo "Download EmbyNotify script..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/EmbyNotify.bash -o /config/extended/EmbyNotify.bash 
+echo "Done"
+
 echo "Download DailySeriesEpisodeTrimmer script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/DailySeriesEpisodeTrimmer.bash -o /config/extended/DailySeriesEpisodeTrimmer.bash 
 echo "Done"
