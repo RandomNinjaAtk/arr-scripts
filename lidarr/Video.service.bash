@@ -224,7 +224,7 @@ DownloadVideo () {
 
     ytdlpConfigurableArgs=""
     if [ ! -z "$cookiesFile" ]; then
-      ytdlpConfigurableArgs='${ytdlpConfigurableArgs} --cookies "$cookiesFile '
+      ytdlpConfigurableArgs='${ytdlpConfigurableArgs} --cookies "$cookiesFile" '
     fi
 
     if [ "$videoInfoJson" == "true" ]; then
