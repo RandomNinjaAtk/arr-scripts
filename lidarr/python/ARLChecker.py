@@ -10,6 +10,7 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 import logging
 import os
 from datetime import datetime
+import prettylogging
 
 CUSTOM_INIT_PATH = '/custom-cont_init.d/'
 CUSTOM_SERVICES_PATH = '/custom-services.d/'
@@ -22,6 +23,10 @@ DEBUG_ROOT_PATH = './env'
 
 # Web agent used to access Deezer
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:83.0) Gecko/20100101 Firefox/110.0'
+
+log_settings = prettylogging.Prettylogger(logger_name='ARLChecker')
+log = log_settings.logger
+log.debug('Logger initialized')
 
 
 @dataclass
@@ -465,11 +470,14 @@ def main():
     parser, args = parse_arguments()
     if args.debug is True:  # If debug flag set, works with IDE structure
         root = DEBUG_ROOT_PATH
-    log = init_logging(get_version(root), get_active_log(root))
-
+    # Update log params
+    log_settings.version = get_version(root)
+    log_settings.log_file = get_active_log(root)
+    log_settings.update_format()
+    log.info("Pretty logging!")
     try:
         if args.test_token:
-            log.info(Fore.CYAN+"CLI Token Tester"+Fore.RESET)
+            log.info("CLI Token Tester")
             check_token(args.test_token)
             exit(0)
         arl_checker_instance = LidarrExtendedAPI()
