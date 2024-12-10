@@ -94,6 +94,10 @@ echo "Download Extras script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/Extras.bash -o /config/extended/Extras.bash 
 echo "Done"
 
+echo "Download TdarrScan script..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/TdarrScan.bash -o /config/extended/TdarrScan.bash 
+echo "Done"
+
 if [ ! -f /config/extended/sma.ini ]; then
 	echo "Download SMA config..."
 	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/sma.ini -o /config/extended/sma.ini 
