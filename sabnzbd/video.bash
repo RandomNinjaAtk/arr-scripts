@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="1.4"
+scriptVersion="1.5"
 scriptName="Video"
 
 #### Import Settings
@@ -170,8 +170,8 @@ VideoSmaProcess (){
 					  arrApiKey="$radarrArrApiKey"
 					fi
 					log "$count of $fileCount :: Refreshing Radarr app Queue"
-     				refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
-					ArrWaitForTaskCompletion
+     					refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
+					# ArrWaitForTaskCompletion
 					arrItemId=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=50&sortDirection=ascending&sortKey=timeleft&includeUnknownMovieItems=true&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id) | .movieId')
 					arrItemData=$(curl -s "$arrUrl/api/v3/movie/$arrItemId?apikey=$arrApiKey")
 					onlineSourceId="$(echo "$arrItemData" | jq -r ".tmdbId")"
@@ -189,7 +189,7 @@ VideoSmaProcess (){
 					fi
 					log "$count of $fileCount :: Refreshing Sonarr app Queue"
 					refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
-					ArrWaitForTaskCompletion
+					# ArrWaitForTaskCompletion
 					arrQueueItemData=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=50&sortDirection=ascending&sortKey=timeleft&includeUnknownSeriesItems=true&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id)')
 					arrSeriesId="$(echo $arrQueueItemData | jq -r .seriesId)"
 					arrEpisodeId="$(echo $arrQueueItemData | jq -r .episodeId)"
