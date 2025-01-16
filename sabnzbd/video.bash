@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="1.7"
+scriptVersion="1.8"
 scriptName="Video"
 
 #### Import Settings
@@ -11,7 +11,6 @@ log () {
 }
 
 set -e
-set -o pipefail
 
 # auto-clean up log file to reduce space usage
 if [ -f "/config/scripts/video.txt" ]; then
@@ -126,18 +125,18 @@ ArrWaitForTaskCompletion () {
   alerted=no
   until false
   do
-    arrtasks=$(curl -s "$arrUrl/api/v3/command?apikey=${arrApiKey}" | jq -r '.[] | select(.status=="started") | .name')
-    taskCount=$(echo $arrtasks | wc -l)
-    arrProcessMonitoredDownloadsCount=$(echo $arrtasks | grep "ProcessMonitoredDownloads" | wc -l)
-    if [ "$taskCount" -ge 3 ]  || [ "$arrProcessMonitoredDownloadsCount" -ge 1 ]; then
-      if [ "$alerted" == "no" ]; then
-	alerted=yes
-	log "$count of $fileCount :: STATUS :: ARR APP BUSY :: Pausing/waiting for all active Arr app tasks to end..."
-      fi
-      sleep 2
-    else
-      break
-    fi
+    log "$count of $fileCount :: STATUS :: Checking ARR App Status"
+    taskCount=$(curl -s "$arrUrl/api/v3/command?apikey=${arrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | wc -l)
+	arrDownloadTaskCount=$(curl -s "$arrUrl/api/v3/command?apikey=${arrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | grep "ProcessMonitoredDownloads" | wc -l)
+	if [ "$taskCount" -ge "3" ] || [ "$arrDownloadTaskCount" -ge "1" ]; then
+	  if [ "$alerted" == "no" ]; then
+		alerted=yes
+		log "$count of $fileCount :: STATUS :: ARR APP BUSY :: Pausing/waiting for all active Arr app tasks to end..."
+	  fi
+	  sleep 2
+	else
+	  break
+	fi
   done
 }
 
