@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="3.9"
+scriptVersion="4.0"
 scriptName="Video"
 
 ### Import Settings
@@ -542,12 +542,22 @@ VideoProcess () {
       log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: Checking for IMVDB Slug"
       artistImvdbUrl=$(echo $lidarrArtistData | jq -r '.links[] | select(.name=="imvdb") | .url')
       artistImvdbSlug=$(basename "$artistImvdbUrl")
-  
-      if [ ! -z "$artistImvdbSlug" ]; then
-        log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Slug :: $artistImvdbSlug"
-      else
-      	log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ERROR :: Slug Not Found, skipping..."
-  	continue
+
+      if [ -z "$artistImvdbSlug" ]; then
+          log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ERROR :: No IMVDB artist link found, skipping..."
+          # Create log of missing IMVDB url...
+          if [ ! -d "/config/extended/logs/video/imvdb-link-missing" ]; then
+              mkdir -p "/config/extended/logs/video/imvdb-link-missing"
+              chmod 777 "/config/extended/logs/video"
+              chmod 777 "/config/extended/logs/video/imvdb-link-missing"
+          fi
+          if [ -d "/config/extended/logs/video/imvdb-link-missing" ]; then
+              log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Logging missing IMVDB artist in folder: /config/extended/logs/video/imvdb-link-missing"
+              touch "/config/extended/logs/video/imvdb-link-missing/${lidarrArtistFolderNoDisambig}--mbid-${lidarrArtistMusicbrainzId}"
+	  fi
+       else
+         log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Slug :: $artistImvdbSlug"
+	 continue
       fi
 
       if [ -d /config/extended/logs/video/complete ]; then
@@ -571,20 +581,8 @@ VideoProcess () {
               continue            
           fi
       fi
-  
-      if [ -z "$artistImvdbSlug" ]; then
-          log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: No IMVDB artist link found, skipping..."
-          # Create log of missing IMVDB url...
-          if [ ! -d "/config/extended/logs/video/imvdb-link-missing" ]; then
-              mkdir -p "/config/extended/logs/video/imvdb-link-missing"
-              chmod 777 "/config/extended/logs/video"
-              chmod 777 "/config/extended/logs/video/imvdb-link-missing"
-          fi
-          if [ -d "/config/extended/logs/video/imvdb-link-missing" ]; then
-              log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Logging missing IMVDB artist in folder: /config/extended/logs/video/imvdb-link-missing"
-              touch "/config/extended/logs/video/imvdb-link-missing/${lidarrArtistFolderNoDisambig}--mbid-${lidarrArtistMusicbrainzId}"
-          fi       
-      else
+      
+      if [ ! -z "$artistImvdbSlug" ]; then
       	# Remove missing IMVDB log file, now that it is found...
       	if [ -f "/config/extended/logs/video/imvdb-link-missing/${lidarrArtistFolderNoDisambig}--mbid-${lidarrArtistMusicbrainzId}" ]; then
   		rm "/config/extended/logs/video/imvdb-link-missing/${lidarrArtistFolderNoDisambig}--mbid-${lidarrArtistMusicbrainzId}"
