@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="1.8"
+scriptVersion="1.9"
 scriptName="Video"
 
 #### Import Settings
@@ -159,17 +159,8 @@ VideoSmaProcess (){
 				if [ ${enableSmaTagging} = true ]; then
 				arrItemId=""
 				arrItemData=""
-				arrUrl=""
-				arrApiKey=""
 				log "$count of $fileCount :: Getting Media ID"
 				if echo $category | grep radarr | read; then
-				    if echo $category | grep radarr4k | read; then
-					  arrUrl="$radarr4kArrUrl"
-					  arrApiKey="$radarr4kArrApiKey"
-					else
-					  arrUrl="$radarrArrUrl"
-					  arrApiKey="$radarrArrApiKey"
-					fi
 					log "$count of $fileCount :: Refreshing Radarr app Queue"
      					refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
 					ArrWaitForTaskCompletion
@@ -181,13 +172,6 @@ VideoSmaProcess (){
 					onlineData="-tmdb $onlineSourceId"
 				fi
 				if echo $category | grep sonarr | read; then
-				    if echo $category | grep sonarr4k | read; then
-					  arrUrl="$sonarr4kArrUrl"
-					  arrApiKey="$sonarr4kArrApiKey"
-					else
-					  arrUrl="$sonarrArrUrl"
-					  arrApiKey="$sonarrArrApiKey"
-					fi
 					log "$count of $fileCount :: Refreshing Sonarr app Queue"
 					refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
 					ArrWaitForTaskCompletion
@@ -250,6 +234,10 @@ function Main {
 	if [ "$category"  == "sonarr4k" ]; then
 	  arrUrl="$sonarr4kArrUrl"
       arrApiKey="$sonarr4kArrApiKey"
+    fi
+	if [ "$category"  == "sonarranime" ]; then
+	  arrUrl="$sonarranimeArrUrl"
+      arrApiKey="$sonarranimeArrApiKey"
     fi
 
 	Configuration
