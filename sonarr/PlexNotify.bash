@@ -91,9 +91,9 @@ for key in ${!plexKeys[@]}; do
 	plexKey="${plexKeys[$key]}"
 	plexKeyData="$(echo "$plexLibraryData" | jq -r "select(.\"@key\"==\"$plexKey\")")"
 	if echo "$plexKeyData" | grep "path" | grep "$arrRootFolderPath" | read; then
-		plexFolderEncoded="$(jq -R -r @uri <<<"$arrFolderPath")"
-		curl -s "$plexUrl/library/sections/$plexKey/refresh?path=$plexFolderEncoded&X-Plex-Token=$plexToken"
-		log  "$notfidedBy :: Plex Scan notification sent! ($arrFolderPath)"
+                plexFileEncoded="$(jq -R -r @uri <<<"$sonarr_episodefile_path")"
+                curl -s "$plexUrl/library/sections/$plexKey/refresh?path=$plexFileEncoded&X-Plex-Token=$plexToken"
+                log  "$notfidedBy :: Plex Scan notification sent! ($sonarr_episodefile_path)"
 	fi
 done
 
