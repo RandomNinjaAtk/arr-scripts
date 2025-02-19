@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.9"
+scriptVersion="2.0"
 scriptName="QueueCleaner"
 
 #### Import Settings
@@ -57,11 +57,11 @@ QueueCleanerProcess () {
 
   arrQueueIdCount=$(echo "$arrQueueData" | jq -r ".id" | wc -l)
   arrQueueCompletedIds=$(echo "$arrQueueData" | jq -r 'select(.status=="completed") | select(.trackedDownloadStatus=="warning") | .id')
-  arrQueueIdsCompletedCount=$(echo -n "$arrQueueCompletedIds" | wc -l)
+  arrQueueIdsCompletedCount=$(echo "$arrQueueData" | jq -r 'select(.status=="completed") | select(.trackedDownloadStatus=="warning") | .id' | wc -l)
   arrQueueFailedIds=$(echo "$arrQueueData" | jq -r 'select(.status=="failed") | .id')
-  arrQueueIdsFailedCount=$(echo -n "$arrQueueFailedIds" | wc -l)
+  arrQueueIdsFailedCount=$(echo "$arrQueueData" | jq -r 'select(.status=="failed") | .id' | wc -l)
   arrQueueStalledIds=$(echo "$arrQueueData" | jq -r 'select(.status=="stalled") | .id')
-  arrQueueIdsStalledount=$(echo -n "$arrQueueStalledIds" | wc -l)
+  arrQueueIdsStalledount=$(echo "$arrQueueData" | jq -r 'select(.status=="stalled") | .id' | wc -l)
   arrQueuedIds=$(echo "$arrQueueCompletedIds"; echo "$arrQueueFailedIds"; echo "$arrQueueStalledIds")
   arrQueueIdsCount=$(( $arrQueueIdsCompletedCount + $arrQueueIdsFailedCount + $arrQueueIdsStalledount ))
 
@@ -70,6 +70,7 @@ QueueCleanerProcess () {
   #echo "$arrQueueCompletedIds"
   #echo "$arrQueueFailedIds"
   #echo "$arrQueueStalledIds"
+  #exit
 
   if [ $arrQueueIdsCount -eq 0 ]; then
     log "$arrQueueIdCount items in queue, no items in queue to clean up"
