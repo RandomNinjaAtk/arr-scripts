@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="1.9"
+scriptVersion="2.0"
 scriptName="Video"
 
 #### Import Settings
@@ -118,6 +118,17 @@ VideoFileCheck () {
 	else
 		log "ERROR: No video files found for processing"
 		exit 1
+	fi
+}
+
+DeleteLocalArtwork () {
+	# check for local artwork files files
+	if find "$1" -type f -regex ".*/.*\.\(jpg\|jpeg\|png\)" | read; then
+	    log "Local Artwork found, removing local artwork"
+	    find "$1" -type f -regex ".*/.*\.\(jpg\|jpeg\|png\)" -delete
+		sleep 0.1
+	else
+		log "No local artwork found for removal"
 	fi
 }
 
@@ -242,6 +253,7 @@ function Main {
 
 	Configuration
 	VideoFileCheck "$folderpath"
+	DeleteLocalArtwork "$folderpath"
 	VideoLanguageCheck "$folderpath"
 	VideoFileCheck "$folderpath"
 	if [ ${enableSma} = true ]; then
