@@ -50,7 +50,7 @@ fi
 wget "$recyclarr_url" -O "/recyclarr/recyclarr.tar.xz" && \
 tar -xf /recyclarr/recyclarr.tar.xz -C /recyclarr &>/dev/null && \
 chmod 777 /recyclarr/recyclarr
-apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/community dotnet8-runtime
+apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/community dotnet9-runtime
 
 mkdir -p /custom-services.d
 echo "Download QueueCleaner service..."
