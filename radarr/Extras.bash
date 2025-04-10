@@ -59,7 +59,7 @@ exec &> >(tee -a "/config/logs/Extras.txt")
 
 if [ "$arrEventType" == "Test" ]; then
 	log "Tested Successfully"
-	exit 0	
+	exit 0
 fi
 
 if [ "$enableExtras" != "true" ]; then
@@ -104,7 +104,7 @@ for filter in "${filters[@]}"
 do
     if [ "$useProxy" != "true" ]; then
     	tmdbVideosListData=$(curl -s "https://api.themoviedb.org/3/movie/$tmdbId/videos?api_key=$tmdbApiKey&language=$filter" | jq -r '.results[] | select(.site=="YouTube")')
-    else 
+    else
         tmdbVideosListData=$(curl -x $proxyUrl:$proxyPort --proxy-user $proxyUsername:$proxyPassword -s "https://api.themoviedb.org/3/movie/$tmdbId/videos?api_key=$tmdbApiKey&language=$filter" | jq -r '.results[] | select(.site=="YouTube")')
     fi
     log "$itemTitle :: Searching for \"$filter\" extras..."
@@ -153,7 +153,7 @@ do
         else
 	    extraFolderName="other"
         fi
-        
+
         if [ "$extrasSingle" == "true" ]; then
             log "$itemTitle :: $i of $tmdbVideosListDataIdsCount :: $tmdbExtraType :: Single Trailer Enabled..."
             if [ "$extrasKodiCompatibility" == "true" ] ; then
@@ -161,7 +161,7 @@ do
                 finalFileName="$itemFileNameNoExt-trailer"
             else
                 finalPath="$itemPath/$extraFolderName"
-		if [ -f "$finalPath/$tmdbExtraTitleClean.mkv" ]; then 
+		if [ -f "$finalPath/$tmdbExtraTitleClean.mkv" ]; then
 			rm "$finalPath/$tmdbExtraTitleClean.mkv"
 		fi
 		finalFileName="$itemFolder"
@@ -184,11 +184,11 @@ do
         if [ -f "$finalPath/$finalFileName.mkv" ]; then
             log "$itemTitle :: $i of $tmdbViscriptsdeosListDataIdsCount :: $tmdbExtraType :: $tmdbExtraTitle ($tmdbExtraKey) :: Already Downloaded, skipping..."
             if [ "$extrasSingle" == "true" ]; then
-                log "$itemTitle :: $i of $tmdbVideosListDataIdsCount :: $tmdbExtraType :: Finished processing single trailer download" 
+                log "$itemTitle :: $i of $tmdbVideosListDataIdsCount :: $tmdbExtraType :: Finished processing single trailer download"
                 break
             fi
             continue
-        elif [ -f "$finalPath/movie-trailer.mkv" ]; then 
+        elif [ -f "$finalPath/movie-trailer.mkv" ]; then
             if [ "$extrasKodiCompatibility" == "true" ] ; then
                 log "$itemTitle :: $i of $tmdbVideosListDataIdsCount :: $tmdbExtraType :: Removing old \"movie-trailer.mkv\" to replace with Kodi naming..."
                 rm "$finalPath/movie-trailer.mkv"
@@ -224,10 +224,10 @@ do
         updatePlex="true"
 
         if [ "$extrasSingle" == "true" ]; then
-            log "$itemTitle :: $i of $tmdbVideosListDataIdsCount :: $tmdbExtraType :: Finished processing single trailer download" 
+            log "$itemTitle :: $i of $tmdbVideosListDataIdsCount :: $tmdbExtraType :: Finished processing single trailer download"
             break
         fi
-        
+
     done
 
 done
@@ -240,9 +240,9 @@ if [ ! -z "$plexToken" ]; then
         bash /config/extended/PlexNotify.bash "$itemPath"
         exit
     fi
-    
+
     # Do not notify plex if this script was triggered by the AutoExtras.bash and no Extras were downloaded
-    if [ "$autoScan" == "true" ]; then 
+    if [ "$autoScan" == "true" ]; then
         log "Skipping plex notification, not needed...."
         exit
     else

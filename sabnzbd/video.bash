@@ -34,7 +34,7 @@ function Configuration {
 	else
 		log "Require Matching Language :: Disabled"
 	fi
-	
+
 	if [ ${enableSma} = true ]; then
 		log "Sickbeard MP4 Automator (SMA): ENABLED"
 		if [ ${enableSmaTagging} = true ]; then
@@ -47,7 +47,7 @@ function Configuration {
 	else
 		log "Sickbeard MP4 Automator (SMA): DISABLED"
 	fi
-	
+
 	if [ -z "enableSmaTagging" ]; then
 		enableSmaTagging=FALSE
 	fi
@@ -81,7 +81,7 @@ VideoLanguageCheck () {
 			videoAudioTracksLanguageCount=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"audio\") | select(.tags.language==\"${filter}\") | .index" | wc -l)
 			videoSubtitleTracksLanguageCount=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"subtitle\") | select(.tags.language==\"${filter}\") | .index" | wc -l)
 			log "$count of $fileCount :: $videoAudioTracksLanguageCount \"$filter\" Audio Tracks Found!"
-			log "$count of $fileCount :: $videoSubtitleTracksLanguageCount \"$filter\" Subtitle Tracks Found!"			
+			log "$count of $fileCount :: $videoSubtitleTracksLanguageCount \"$filter\" Subtitle Tracks Found!"
 			if [ "$preferredLanguage" == "false" ]; then
 				if echo "$videoAudioLanguages" | grep -i "$filter" | read; then
 					preferredLanguage=true
@@ -104,8 +104,8 @@ VideoLanguageCheck () {
 			fi
 		fi
 
-		
-		
+
+
 		log "$count of $fileCount :: Processing complete for: ${fileName}!"
 
 	done
@@ -149,7 +149,7 @@ VideoSmaProcess (){
 		fileName="$(basename "$file")"
 		extension="${fileName##*.}"
 		log "$count of $fileCount :: Processing $fileName"
-		if [ -f "$file" ]; then	
+		if [ -f "$file" ]; then
 			if [ -f /config/scripts/sma/config/sma.log ]; then
 				rm /config/scripts/sma/config/sma.log
 			fi
@@ -207,7 +207,7 @@ VideoSmaProcess (){
 			  onlineSourceId=""
 			  onlineData=""
 			fi
-			
+
 			# Manual run of Sickbeard MP4 Automator
 				if python3 /config/scripts/sma/manual.py --config "/config/scripts/sma.ini" -i "$file" $tagging $onlineData; then
 					log "$count of $fileCount :: Complete!"
@@ -259,7 +259,7 @@ function Main {
 		VideoSmaProcess "$folderpath" "$category"
 	fi
 	VideoFileCheck "$folderpath"
-	VideoLanguageCheck "$folderpath"	
+	VideoLanguageCheck "$folderpath"
 	VideoFileCheck "$folderpath"
 
 	duration=$SECONDS
@@ -267,6 +267,6 @@ function Main {
 }
 
 
-Main "$@" 
+Main "$@"
 
 exit $?

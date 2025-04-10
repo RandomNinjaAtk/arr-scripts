@@ -109,8 +109,8 @@ class DeezerPlatformProvider:
             res['USER']['OPTIONS']['web_sound_quality']['lossless'],
             res['USER']['EXPLICIT_CONTENT_LEVEL']
         ))
-    
-    
+
+
 class LidarrExtendedAPI:
     # sets new token to  extended.conf
     def __init__(self):

@@ -28,7 +28,7 @@ chmod 666 "/config/logs/BeetsPostProcessor.txt"
 
 if [ "$lidarr_eventtype" == "Test" ]; then
 	log "Tested Successfully"
-	exit 0	
+	exit 0
 fi
 
 getAlbumArtist="$(curl -s "$lidarrUrl/api/v1/album/$lidarr_album_id" -H "X-Api-Key: ${lidarrApiKey}" | jq -r .artist.artistName)"
@@ -40,7 +40,7 @@ if echo "$getFolderPath" | grep "$getAlbumArtistPath" | read; then
 	if [ ! -d "$getFolderPath" ]; then
 		log "ERROR :: \"$getFolderPath\" Folder is missing :: Exiting..."
 	fi
-else 
+else
 	log "ERROR :: $getAlbumArtistPath not found within \"$getFolderPath\" :: Exiting..."
 	exit
 fi
@@ -49,7 +49,7 @@ ProcessWithBeets () {
 
 	SECONDS=0
 	log "$1 :: Start Processing..."
-	
+
 
 	# Input
 	# $1 Download Folder to process
@@ -57,12 +57,12 @@ ProcessWithBeets () {
 		rm /config/extended/library-postprocessor.blb
 		sleep 0.5
 	fi
-	if [ -f /config/extended/extended/logs/beets.log ]; then 
+	if [ -f /config/extended/extended/logs/beets.log ]; then
 		rm /config/extended/extended/logs/beets.log
 		sleep 0.5
 	fi
 
-	if [ -f "/config/extended/beets-postprocessor-match" ]; then 
+	if [ -f "/config/extended/beets-postprocessor-match" ]; then
 		rm "/config/extended/beets-postprocessor-match"
 		sleep 0.5
 	fi
@@ -73,10 +73,10 @@ ProcessWithBeets () {
 	beet -c /config/extended/beets-config-postprocessor.yaml -l /config/extended/library-postprocessor.blb -d "$1" import -qC "$1"
 	if [ $(find "$1" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -newer "/config/extended/beets-postprocessor-match" | wc -l) -gt 0 ]; then
 		log "$1 :: SUCCESS :: Matched with beets!"
-		
+
 		# Fix tags
 		log "$1 :: Fixing Tags..."
-		
+
 		# Fix flac tags
 		fixed=0
 		find "$1" -type f -iname "*.flac" -print0 | while IFS= read -r -d '' file; do
@@ -100,13 +100,13 @@ ProcessWithBeets () {
 				metaflac --set-tag=ARTIST="$getAlbumArtist" "$file"
 			fi
 		done
-		
-		log "$1 :: Fixing Tags Complete!"		
+
+		log "$1 :: Fixing Tags Complete!"
 	else
 		log "$1 :: ERROR :: Unable to match using beets to a musicbrainz release..."
-	fi	
+	fi
 
-	if [ -f "/config/extended/beets-postprocessor-match" ]; then 
+	if [ -f "/config/extended/beets-postprocessor-match" ]; then
 		rm "/config/extended/beets-postprocessor-match"
 		sleep 0.5
 	fi
@@ -115,7 +115,7 @@ ProcessWithBeets () {
 		rm /config/extended/library-postprocessor.blb
 		sleep 0.5
 	fi
-	if [ -f /config/extended/logs/beets.log ]; then 
+	if [ -f /config/extended/logs/beets.log ]; then
 		rm /config/extended/logs/beets.log
 		sleep 0.5
 	fi

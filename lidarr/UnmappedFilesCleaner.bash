@@ -22,7 +22,7 @@ verifyConfig () {
 UnmappedFilesCleanerProcess () {
     log "Finding UnmappedFiles to purge..."
     OLDIFS="$IFS"
-    IFS=$'\n'    
+    IFS=$'\n'
     unamppedFilesData="$(curl -s "$arrUrl/api/v1/trackFile?unmapped=true" -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" | jq -r .[])"
     unamppedFileIds="$(curl -s "$arrUrl/api/v1/trackFile?unmapped=true" -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" | jq -r .[].id)"
 
@@ -31,7 +31,7 @@ UnmappedFilesCleanerProcess () {
       return
     fi
 
-    for id  in $(echo "$unamppedFileIds"); do 
+    for id  in $(echo "$unamppedFileIds"); do
       unmappedFilePath=$(echo "$unamppedFilesData" | jq -r ". | select(.id==$id)| .path")
       unmappedFileName=$(basename "$unmappedFilePath")
       unmappedFileDirectory=$(dirname "$unmappedFilePath")

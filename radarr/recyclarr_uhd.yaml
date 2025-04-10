@@ -15,10 +15,10 @@ radarr:
   instance1:
     base_url: http://127.0.0.1:7878
     api_key: arrApi
-    
+
     quality_definition:
       type: sqp-uhd
-    
+
     delete_old_custom_formats: true
     replace_existing_custom_formats: True
 
@@ -40,7 +40,7 @@ radarr:
               - Remux-2160p
 
     custom_formats:
-      # Custom scoring  
+      # Custom scoring
       - trash_ids:
           - 9170d55c319f4fe40da8711ba9d8050d # x265
         quality_profiles:
@@ -172,9 +172,9 @@ radarr:
           - ed38b889b31be83fda192888e2286d83 # BR-DISK
           - 90cedc1fea7ea5d11298bebd3d1d3223 # EVO (no WEBDL)
           - 0a3f082873eb454bde444150b70253cc # Extras
-          - b6832f586342ef70d9c128d40c07b872 # Bad Dual Groups   
+          - b6832f586342ef70d9c128d40c07b872 # Bad Dual Groups
           - 73613461ac2cea99d52c4cd6e177ab82 # HFR
-          - c465ccc73923871b3eb1802042331306 # Line/Mic Dubbed  
+          - c465ccc73923871b3eb1802042331306 # Line/Mic Dubbed
           # HDR
           - 58d6a88f13e2db7f5059c41047876f00 # DV
           - 55d53828b9d81cbe20b02efd00aa0efd # DV HLG

@@ -33,7 +33,7 @@ fi
 
 if [ "$arrEventType" == "Test" ]; then
 	log "Tested Successfully"
-	exit 0	
+	exit 0
 fi
 
 
@@ -64,13 +64,13 @@ DownloadExtras () {
 
     IFS=',' read -r -a filters <<< "$extrasLanguages"
     for filter in "${filters[@]}"
-    do    
+    do
     	if [ "$useProxy" != "true" ]; then
             tmdbVideosListData=$(curl -s "https://api.themoviedb.org/3/tv/$tmdbId/videos?api_key=$tmdbApiKey&language=$filter" | jq -r '.results[] | select(.site=="YouTube")')
-        else 
+        else
             tmdbVideosListData=$(curl -x $proxyUrl:$proxyPort --proxy-user $proxyUsername:$proxyPassword -s "https://api.themoviedb.org/3/tv/$tmdbId/videos?api_key=$tmdbApiKey&language=$filter" | jq -r '.results[] | select(.site=="YouTube")')
         fi
-	
+
         log "$itemTitle :: Searching for \"$filter\" extras..."
         if [ "$extrasType" == "all" ]; then
             tmdbVideosListDataIds=$(echo "$tmdbVideosListData" | jq -r ".id")
@@ -163,7 +163,7 @@ DownloadExtras () {
     done
 
     # Mark Series Extras Complete
-    if [ ! -d "/config/extended/logs/extras" ]; then 
+    if [ ! -d "/config/extended/logs/extras" ]; then
         mkdir -p "/config/extended/logs/extras"
         chmod 777 "/config/extended/logs/extras"
     fi
@@ -182,9 +182,9 @@ NotifyPlex () {
             bash /config/extended/PlexNotify.bash "$itemPath"
             exit
         fi
-        
+
         # Do not notify plex if this script was triggered by the AutoExtras.bash and no Extras were downloaded
-        if [ "$autoScan" == "true" ]; then 
+        if [ "$autoScan" == "true" ]; then
             log "$itemTitle :: Skipping plex notification, not needed...."
             exit
         else

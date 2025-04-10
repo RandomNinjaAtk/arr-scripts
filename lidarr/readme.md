@@ -2,7 +2,7 @@
 
 ## Requirements
 
-Container: <https://docs.linuxserver.io/images/docker-lidarr>  
+Container: <https://docs.linuxserver.io/images/docker-lidarr>
 
 ## Installation/setup
 
@@ -16,7 +16,7 @@ Container: <https://docs.linuxserver.io/images/docker-lidarr>
 3. Start your container and wait for the application to load
 4. Optional: Customize the configuration by modifying the following file `/config/extended.conf`
 5. Restart the container
-  
+
 ## Updating
 
 Updating is a bit more combersum. To update, do the following:
@@ -27,7 +27,7 @@ Updating is a bit more combersum. To update, do the following:
 
 This configuration does its best to update everything automatically, but with how the core system is designed, the new scripts will not take affect until a second restart is completed because the container copies/uses the previous versions of the script for execution on the first restart.
 
-## Uninstallation/Removal  
+## Uninstallation/Removal
 
 1. Remove the 2 added volumes and delete the contents<br>
    `/custom-services.d` and `/custom-cont-init.d`

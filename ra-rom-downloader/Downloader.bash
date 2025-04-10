@@ -14,7 +14,7 @@ logfileSetup () {
       echo "" > /config/$scriptName.log
     fi
   fi
-  
+
   if [ ! -f "/config/$scriptName.log" ]; then
     echo "" > /config/$scriptName.log
     chmod 666 "/config/$scriptName.log"

@@ -2,7 +2,7 @@
 
 ## Requirements
 
-Container: <https://docs.linuxserver.io/images/docker-radarr>  
+Container: <https://docs.linuxserver.io/images/docker-radarr>
 
 ## Installation/setup
 
@@ -24,7 +24,7 @@ Updating is a bit more combersum. To update, do the following:
 1. Restart the container, wait for it to fully load the application.
 1. Restart the container again, for the new scripts to activate.
 
-## Uninstallation/Removal  
+## Uninstallation/Removal
 
 1. Remove the 2 added volumes and delete the contents<br>
    `/custom-services.d` and `/custom-cont-init.d`

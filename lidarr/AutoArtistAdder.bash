@@ -8,7 +8,7 @@ source /config/extended.conf
 source /config/extended/functions
 
 verifyConfig () {
- 
+
   if echo "$addDeezerTopArtists $addDeezerTopAlbumArtists $addDeezerTopTrackArtists $addRelatedArtists" | grep -i "true" | read; then
     sleep 0.01
   else
@@ -21,7 +21,7 @@ verifyConfig () {
     autoArtistAdderInterval="12h"
   fi
 
-  if [ -z "$autoArtistAdderMonitored" ]; then 
+  if [ -z "$autoArtistAdderMonitored" ]; then
     autoArtistAdderMonitored="true"
   elif [ "$autoArtistAdderMonitored" != "true" ]; then
     autoArtistAdderMonitored="false"
@@ -91,9 +91,9 @@ AddDeezerArtistToLidarr () {
 		lidarrArtistMatchedData=$(echo $lidarrArtistSearchData | jq -r ".[] | select(.artist) | select(.artist.links[].name==\"deezer\") | select(.artist.links[].url | contains (\"artist/$deezerArtistId\"))" 2>/dev/null)
 
 
-							
+
 		if [ ! -z "$lidarrArtistMatchedData" ]; then
-			
+
 			data="$lidarrArtistMatchedData"
 			artistName="$(echo "$data" | jq -r ".artist.artistName" | head -n1)"
 			foreignId="$(echo "$data" | jq -r ".foreignId" | head -n1)"
@@ -167,7 +167,7 @@ AddDeezerRelatedArtists () {
 			getDeezerArtistsIds=($(echo $deezerRelatedArtistData | jq -r .id))
 			getDeezerArtistsIdsCount=$(echo $deezerRelatedArtistData | jq -r .id | wc -l)
 			description="$lidarrArtistName Related Artists"
-			AddDeezerArtistToLidarr			
+			AddDeezerArtistToLidarr
 		done
 	done
 }
@@ -211,7 +211,7 @@ AddTidalRelatedArtists () {
 			log "$artistNumber of $lidarrArtistTotal :: $lidarrArtistName :: Artist is not monitored :: skipping..."
 			continue
 		fi
-		
+
 		for Id in ${!serviceArtistIds[@]}; do
 			serviceArtistId="${serviceArtistIds[$Id]}"
 			serviceRelatedArtistData=$(curl -sL --fail "https://api.tidal.com/v1/pages/single-module-page/ae223310-a4c2-4568-a770-ffef70344441/4/b4b95795-778b-49c5-a34f-59aac055b662/1?artistId=$serviceArtistId&countryCode=$tidalCountryCode&deviceType=BROWSER" -H 'x-tidal-token: CzET4vdadNUFQ5JU' | jq -r .rows[].modules[].pagedList.items[])
@@ -219,7 +219,7 @@ AddTidalRelatedArtists () {
 			serviceRelatedArtistsIds=($(echo $serviceRelatedArtistData | jq -r .id))
 			serviceRelatedArtistsIdsCount=$(echo $serviceRelatedArtistData | jq -r .id | wc -l)
 			log "$artistNumber of $lidarrArtistTotal :: $lidarrArtistName :: $serviceArtistId :: Found $serviceRelatedArtistsIdsCount Artists, adding $numberOfRelatedArtistsToAddPerArtist..."
-			AddTidalArtistToLidarr	
+			AddTidalArtistToLidarr
 		done
 	done
 }
@@ -243,9 +243,9 @@ AddTidalArtistToLidarr () {
 		serviceArtistNameEncoded="$(jq -R -r @uri <<<"$serviceArtistName")"
 		lidarrArtistSearchData="$(curl -s "$arrUrl/api/v1/search?term=${serviceArtistNameEncoded}&apikey=${arrApiKey}")"
 		lidarrArtistMatchedData=$(echo $lidarrArtistSearchData | jq -r ".[] | select(.artist) | select(.artist.links[].name==\"tidal\") | select(.artist.links[].url | contains (\"artist/$serviceArtistId\"))" 2>/dev/null)
-							
+
 		if [ ! -z "$lidarrArtistMatchedData" ]; then
-			data="$lidarrArtistMatchedData"		
+			data="$lidarrArtistMatchedData"
 			artistName="$(echo "$data" | jq -r ".artist.artistName" | head -n1)"
 			foreignId="$(echo "$data" | jq -r ".foreignId" | head -n1)"
 			importListExclusionData=$(curl -s "$arrUrl/api/v1/importlistexclusion" -H "X-Api-Key: $arrApiKey" | jq -r ".[].foreignId")
@@ -294,23 +294,23 @@ for (( ; ; )); do
   verifyConfig
   getArrAppInfo
   verifyApiAccess
-  
+
   if [ -z $lidarrSearchForMissing ]; then
   	lidarrSearchForMissing=true
   fi
-  
+
   if [ "$addDeezerTopArtists" == "true" ]; then
   	AddDeezerTopArtists "$topLimit"
   fi
-  
+
   if [ "$addDeezerTopAlbumArtists" == "true" ]; then
   	AddDeezerTopAlbumArtists "$topLimit"
   fi
-  
+
   if [ "$addDeezerTopTrackArtists" == "true" ]; then
   	AddDeezerTopTrackArtists "$topLimit"
   fi
-  
+
   if [ "$addRelatedArtists" == "true" ]; then
   	AddDeezerRelatedArtists
   	AddTidalRelatedArtists

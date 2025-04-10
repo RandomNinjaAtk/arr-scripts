@@ -20,7 +20,7 @@ fi
 
 if [ "$sonarr_eventtype" == "Test" ]; then
 	log "Tested"
-	exit 0	
+	exit 0
 fi
 
 seriesId=$sonarr_series_id
@@ -78,7 +78,7 @@ for id in $seriesEpisodeIds; do
 		episodeNumber=$(echo "$episodeData" | jq -r ".episodeNumber")
 		episodeAirDate=$(echo "$episodeData" | jq -r ".airDate")
 		episodeFileId=$(echo "$episodeData" | jq -r ".episodeFileId")
-		
+
 		# Unmonitor downloaded episode if greater than 14 downloaded episodes
 		log "$seriesTitle (ID:$episodeSeriesId) :: S${episodeSeasonNumber}E${episodeNumber} :: $episodeTitle :: Unmonitored Episode ID :: $id"
 		umonitorEpisode=$(curl -s "$arrUrl/api/v3/episode/monitor?apikey=$arrApiKey" -X PUT -H 'Content-Type: application/json'  --data-raw "{\"episodeIds\":[$id],\"monitored\":false}")

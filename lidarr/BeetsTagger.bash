@@ -13,7 +13,7 @@ SECONDS=0
 
 if [ "$lidarr_eventtype" == "Test" ]; then
 	log "Tested Successfully"
-	exit 0	
+	exit 0
 fi
 
 getArrAppInfo
@@ -40,7 +40,7 @@ if echo "$getFolderPath" | grep "$getAlbumArtistPath" | read; then
 	if [ ! -d "$getFolderPath" ]; then
 		log "ERROR :: \"$getFolderPath\" Folder is missing :: Exiting..."
 	fi
-else 
+else
 	log "ERROR :: $getAlbumArtistPath not found within \"$getFolderPath\" :: Exiting..."
 	exit
 fi
@@ -49,11 +49,11 @@ ProcessWithBeets () {
 	if find "$1" -type f -iname "*.flac"  | read; then
  		sleep 0.01
    	else
-    	log "$1 :: ERROR :: Only supports flac files, exiting..." 
+    	log "$1 :: ERROR :: Only supports flac files, exiting..."
     	return
     fi
 	SECONDS=0
-	
+
 
 	# Input
 	# $1 Download Folder to process
@@ -61,12 +61,12 @@ ProcessWithBeets () {
 		rm /config/extended/library-lidarr.blb
 		sleep 0.5
 	fi
-	if [ -f /config/extended/extended/beets-lidarr.log ]; then 
+	if [ -f /config/extended/extended/beets-lidarr.log ]; then
 		rm /config/extended/extended/beets-lidarr.log
 		sleep 0.5
 	fi
 
-	if [ -f "/config/extended/beets-lidarr-match" ]; then 
+	if [ -f "/config/extended/beets-lidarr-match" ]; then
 		rm "/config/extended/beets-lidarr-match"
 		sleep 0.5
 	fi
@@ -77,7 +77,7 @@ ProcessWithBeets () {
 	beet -c /config/extended/beets-config-lidarr.yaml -l /config/extended/library-lidarr.blb -d "$1" import -qC "$1" 2>&1 | tee -a "/config/logs/$logFileName"
 	# Fix tags
 	log "$1 :: Fixing Tags..."
-		
+
 	# Fix flac tags
 	fixed=0
 	find "$1" -type f -iname "*.flac" -print0 | while IFS= read -r -d '' file; do
@@ -101,11 +101,11 @@ ProcessWithBeets () {
 			metaflac --set-tag=ARTIST="$getAlbumArtist" "$file"
 		fi
 	done
-		
-	log "$1 :: Fixing Tags Complete!"	
-	
 
-	if [ -f "/config/extended/beets-lidarr-match" ]; then 
+	log "$1 :: Fixing Tags Complete!"
+
+
+	if [ -f "/config/extended/beets-lidarr-match" ]; then
 		rm "/config/extended/beets-lidarr-match"
 		sleep 0.5
 	fi
@@ -114,7 +114,7 @@ ProcessWithBeets () {
 		rm /config/extended/library-lidarr.blb
 		sleep 0.5
 	fi
-	if [ -f /config/extended/logs/beets.log ]; then 
+	if [ -f /config/extended/logs/beets.log ]; then
 		rm /config/extended/logs/beets.log
 		sleep 0.5
 	fi

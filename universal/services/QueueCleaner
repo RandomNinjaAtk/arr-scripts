@@ -15,7 +15,7 @@ verifyApiAccess
 verifyConfig () {
 	#### Import Settings
 	source /config/extended.conf
-	
+
 	if [ "$enableQueueCleaner" != "true" ]; then
 		log "Script is not enabled, enable by setting enableQueueCleaner to \"true\" by modifying the \"/config/extended.conf\" config file..."
 		log "Sleeping (infinity)"
@@ -48,7 +48,7 @@ QueueCleanerProcess () {
     arrQueueData="$(curl -s "$arrUrl/api/v1/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownArtistItems=true&apikey=${arrApiKey}" | jq -r .records[])"
     arrApp="lidarr"
   fi
-  
+
   # Readarr
   if [ -z "$arrQueueData" ]; then
     arrQueueData="$(curl -s "$arrUrl/api/v1/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownAuthorItems=true&apikey=${arrApiKey}" | jq -r .records[])"

@@ -23,11 +23,11 @@ verifyConfig () {
 }
 
 AutoExtrasProcess () {
- 
+
   sonarrSeriesList=$(curl -s --header "X-Api-Key:"${arrApiKey} --request GET  "$arrUrl/api/v3/series")
   sonarrSeriesTotal=$(echo "${sonarrSeriesList}"  | jq -r '.[].id' | wc -l)
   sonarrSeriesIds=$(echo "${sonarrSeriesList}" | jq -r '.[].id')
-  
+
   loopCount=0
   for id in $(echo $sonarrSeriesIds); do
       loopCount=$(( $loopCount + 1 ))

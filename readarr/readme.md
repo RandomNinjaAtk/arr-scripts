@@ -3,7 +3,7 @@
 
 ## Requirements
 
-Container: <https://hub.docker.com/r/linuxserver/readarr>  
+Container: <https://hub.docker.com/r/linuxserver/readarr>
 
 ## Installation/setup
 
@@ -27,7 +27,7 @@ Updating is a bit more combersum. To update, do the following:
 
 This configuration does its best to update everything automatically, but with how the core system is designed, the new scripts will not take affect until a second restart is completed because the container copies/uses the previous versions of the script for execution on the first restart.
 
-## Uninstallation/Removal  
+## Uninstallation/Removal
 
 1. Remove the 2 added volumes and delete the contents<br>
    `/custom-services.d` and `/custom-cont-init.d`

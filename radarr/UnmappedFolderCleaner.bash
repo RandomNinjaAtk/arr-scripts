@@ -29,7 +29,7 @@ UnmappedFolderCleanerProcess () {
 	unmappedFolders=$(curl -s "$arrUrl/api/v3/rootFolder" -H "X-Api-Key: $arrApiKey" | jq -r ".[].unmappedFolders[].path")
 	unmappedFoldersCount=$(echo -n "$unmappedFolders" | wc -l)
 	log "$unmappedFoldersCount Folders Found!"
-	if [ $unmappedFoldersCount = 0 ]; then 
+	if [ $unmappedFoldersCount = 0 ]; then
 	    log "No cleanup required, exiting..."
 	    return
 	fi

@@ -34,7 +34,7 @@ touch ${SMA_PATH}/config/sma.log && \
 chgrp users ${SMA_PATH}/config/sma.log && \
 chmod g+w ${SMA_PATH}/config/sma.log && \
 echo "************ install pip dependencies ************" && \
-python3 -m pip install --break-system-packages --upgrade pip && \	
+python3 -m pip install --break-system-packages --upgrade pip && \
 pip3 install --break-system-packages -r ${SMA_PATH}/setup/requirements.txt && \
 echo "************ install recyclarr ************" && \
 mkdir -p /recyclarr && \
@@ -72,22 +72,22 @@ echo "Done"
 
 if [ ! -f /config/extended/naming.json ]; then
 	echo "Download Naming script..."
-	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/naming.json -o /config/extended/naming.json 
+	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/naming.json -o /config/extended/naming.json
 	echo "Done"
 fi
 
 mkdir -p /config/extended
 echo "Download PlexNotify script..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/PlexNotify.bash -o /config/extended/PlexNotify.bash 
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/PlexNotify.bash -o /config/extended/PlexNotify.bash
 echo "Done"
 
 echo "Download Extras script..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/Extras.bash -o /config/extended/Extras.bash 
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/Extras.bash -o /config/extended/Extras.bash
 echo "Done"
 
 if [ ! -f /config/extended/sma.ini ]; then
 	echo "Download SMA config..."
-	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/sma.ini -o /config/extended/sma.ini 
+	curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/sma.ini -o /config/extended/sma.ini
 	echo "Done"
 fi
 

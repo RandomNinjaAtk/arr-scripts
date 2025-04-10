@@ -2,7 +2,7 @@
 
 ## Requirements
 
-Container: [https://docs.linuxserver.io/images/docker-sabnzbd](https://docs.linuxserver.io/images/docker-sabnzbd)  
+Container: [https://docs.linuxserver.io/images/docker-sabnzbd](https://docs.linuxserver.io/images/docker-sabnzbd)
 
 ## Installation/setup
 

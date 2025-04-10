@@ -18,7 +18,7 @@ sonarr:
     # Quality definitions from the guide to sync to Sonarr. Choice: anime, series, hybrid
     quality_definition:
       type: series
-        
+
     delete_old_custom_formats: true
     replace_existing_custom_formats: True
 
@@ -58,7 +58,7 @@ sonarr:
 
     custom_formats:
       # Custom scoring
-      
+
       - trash_ids:
           - c9eafd50846d299b862ca9bb6ea91950 # x265
           - cddfb4e32db826151d97352b8e37c648 # x264
@@ -252,4 +252,3 @@ sonarr:
         quality_profiles:
           - name: All
             score: -100000
-

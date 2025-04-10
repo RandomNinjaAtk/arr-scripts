@@ -16,7 +16,7 @@ verifyConfig () {
 		log "Sleeping (infinity)"
 		sleep infinity
 	fi
-	
+
 	if [ -z "$downloadPath" ]; then
 		downloadPath="/config/extended/downloads"
 	fi
@@ -24,14 +24,14 @@ verifyConfig () {
  	if [ -z "$videoScriptInterval" ]; then
   		videoScriptInterval="15m"
     	fi
-	
+
 	if [ -z "$videoPath" ]; then
 		log "ERROR: videoPath is not configured via the \"/config/extended.conf\" config file..."
 	 	log "Updated your \"/config/extended.conf\" file with the latest options, see: https://github.com/RandomNinjaAtk/arr-scripts/blob/main/lidarr/extended.conf"
 		log "Sleeping (infinity)"
 		sleep infinity
 	fi
-  
+
 	if [ "$dlClientSource" == "tidal" ] || [ "$dlClientSource" == "both" ]; then
  		sleep 0.01
 	else
@@ -50,7 +50,7 @@ TidalClientSetup () {
 			chmod 777 -R /config/xdg/
 		fi
 	fi
-	
+
 	tidal-dl -o "$videoDownloadPath"/incomplete 2>&1 | tee -a "/config/logs/$logFileName"
 	tidalQuality=HiFi
 
@@ -61,24 +61,24 @@ TidalClientSetup () {
 		NotifyWebhook "FatalError" "TIDAL requires authentication, please authenticate now (check logs)"
 		tidal-dl 2>&1 | tee -a "/config/logs/$logFileName"
 	fi
-	
+
 	if [ ! -d "$videoDownloadPath/incomplete" ]; then
 		mkdir -p "$videoDownloadPath"/incomplete
 		chmod 777 "$videoDownloadPath"/incomplete
 	else
 		rm -rf "$videoDownloadPath"/incomplete/*
 	fi
-	
+
 	#log "TIDAL :: Upgrade tidal-dl to newer version..."
 	#pip3 install tidal-dl==2022.07.06.1 --no-cache-dir &>/dev/null
-	
+
 }
 
 TidaldlStatusCheck () {
 	until false
 	do
         running=no
-        if ps aux | grep "tidal-dl" | grep -v "grep" | read; then 
+        if ps aux | grep "tidal-dl" | grep -v "grep" | read; then
             running=yes
             log "STATUS :: TIDAL-DL :: BUSY :: Pausing/waiting for all active tidal-dl tasks to end..."
             sleep 2
@@ -88,13 +88,13 @@ TidaldlStatusCheck () {
 	done
 }
 
-TidalClientTest () { 
+TidalClientTest () {
 	log "TIDAL :: tidal-dl client setup verification..."
 	i=0
 	while [ $i -lt 3 ]; do
 		i=$(( $i + 1 ))
   		TidaldlStatusCheck
-		tidal-dl -q Normal -o "$videoDownloadPath"/incomplete -l "$tidalClientTestDownloadId" 2>&1 | tee -a "/config/logs/$logFileName" 
+		tidal-dl -q Normal -o "$videoDownloadPath"/incomplete -l "$tidalClientTestDownloadId" 2>&1 | tee -a "/config/logs/$logFileName"
 		downloadCount=$(find "$videoDownloadPath"/incomplete -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | wc -l)
 		if [ $downloadCount -le 0 ]; then
 			continue
@@ -124,12 +124,12 @@ TidalClientTest () {
 AddFeaturedVideoArtists () {
     if [ "$addFeaturedVideoArtists" != "true" ]; then
         log "-----------------------------------------------------------------------------"
-        log "Add Featured Music Video Artists to Lidarr :: DISABLED"    
+        log "Add Featured Music Video Artists to Lidarr :: DISABLED"
         log "-----------------------------------------------------------------------------"
         return
     fi
     log "-----------------------------------------------------------------------------"
-    log "Add Featured Music Video Artists to Lidarr :: ENABLED"    
+    log "Add Featured Music Video Artists to Lidarr :: ENABLED"
     log "-----------------------------------------------------------------------------"
     lidarrArtistsData="$(curl -s "$arrUrl/api/v1/artist?apikey=${arrApiKey}" | jq -r ".[]")"
     artistTidalUrl=$(echo $lidarrArtistsData | jq -r '.links[] | select(.name=="tidal") | .url')
@@ -152,9 +152,9 @@ AddFeaturedVideoArtists () {
 		artistNameEncoded="$(jq -R -r @uri <<<"$artistName")"
 		lidarrArtistSearchData="$(curl -s "$arrUrl/api/v1/search?term=${artistNameEncoded}&apikey=${arrApiKey}")"
 		lidarrArtistMatchedData=$(echo $lidarrArtistSearchData | jq -r ".[] | select(.artist) | select(.artist.links[].url | contains (\"tidal.com/artist/${slug}\"))" 2>/dev/null)
-							
+
 		if [ ! -z "$lidarrArtistMatchedData" ]; then
-	        data="$lidarrArtistMatchedData"		
+	        data="$lidarrArtistMatchedData"
 			artistName="$(echo "$data" | jq -r ".artist.artistName")"
 			foreignId="$(echo "$data" | jq -r ".foreignId")"
         else
@@ -232,7 +232,7 @@ VideoProcess () {
 		else
 			genre=""
 		fi
-		
+
 		tidalArtistUrl=$(echo "${lidarrArtistData}" | jq -r ".links | .[] | select(.name==\"tidal\") | .url")
 		tidalArtistIds="$(echo "$tidalArtistUrl" | grep -o '[[:digit:]]*' | sort -u | head -n1)"
 		lidarrArtistTrackData=$(wget --timeout=0 -q -O - "$arrUrl/api/v1/track?artistId=$lidarrArtistId&apikey=${arrApiKey}" | jq -r .[].title)
@@ -241,7 +241,7 @@ VideoProcess () {
 		tidalVideoIds=$(echo $tidalVideosData | jq -r .id)
 		tidalVideoIdsCount=$(echo "$tidalVideoIds" | wc -l)
 		tidalVideoProcessNumber=0
-		
+
 		for id in $(echo "$tidalVideoIds"); do
 			tidalVideoProcessNumber=$(( $tidalVideoProcessNumber + 1 ))
 			videoData=$(echo $tidalVideosData | jq -r "select(.id==$id)")
@@ -273,13 +273,13 @@ VideoProcess () {
 				videoType="-lyrics"
 			elif echo "$videoTitle" | grep -i "4k upgrade" | read; then
 				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: 4K Upgrade Found!"
-				videoType="-video" 
+				videoType="-video"
 			elif echo "$videoTitle" | grep -i "\(.*live.*\)" | read; then
 				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Live Video Found!"
 				videoType="-live"
 			elif echo $lidarrArtistTrackData | grep -i "$videoTitle" | read; then
 				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Music Video Track Name Match Found!"
-				videoType="-video" 
+				videoType="-video"
 			else
 				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: ERROR :: Unable to match!"
 				continue
@@ -289,7 +289,7 @@ VideoProcess () {
 			existingFileSize=""
 			existingFile=""
 
-			if [ -d "$videoPath/$lidarrArtistFolderNoDisambig" ]; then 
+			if [ -d "$videoPath/$lidarrArtistFolderNoDisambig" ]; then
 				existingFile="$(find "$videoPath/$lidarrArtistFolderNoDisambig" -type f -iname "${videoFileName}")"
 				existingFileNfo="$(find "$videoPath/$lidarrArtistFolderNoDisambig" -type f -iname "${videoTitleClean}${videoType}.nfo")"
 				existingFileJpg="$(find "$videoPath/$lidarrArtistFolderNoDisambig" -type f -iname "${videoTitleClean}${videoType}.jpg")"
@@ -299,7 +299,7 @@ VideoProcess () {
 			fi
 
 			if [ -f "/config/extended/logs/tidal-video/$id" ]; then
-				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Previously Downloaded" 
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Previously Downloaded"
 				if [ -f "$existingFile" ]; then
 					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Previously Downloaded, skipping..."
 					continue
@@ -325,7 +325,7 @@ VideoProcess () {
 				fi
 			done
 
-			
+
 
 			if [ ! -d "$videoDownloadPath/incomplete" ]; then
 				mkdir -p "$videoDownloadPath/incomplete"
@@ -343,7 +343,7 @@ VideoProcess () {
 				extension="${filename##*.}"
 				filenamenoext="${filename%.*}"
 				mv "$file" "$videoDownloadPath/$filename"
-			
+
 
 				if [ -f "$videoDownloadPath/$filename" ]; then
 					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Download Complete!"
@@ -410,7 +410,7 @@ VideoProcess () {
 					rm -rf "$videoDownloadPath"/*
 					continue
 				fi
-				if [ $downloadedFileSize == $existingFileSize ]; then 
+				if [ $downloadedFileSize == $existingFileSize ]; then
 					log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Existing File is the same size as the download ($downloadedFileSize = $existingFileSize), skipping..."
 					rm -rf "$videoDownloadPath"/*
 					continue
@@ -490,8 +490,8 @@ VideoProcess () {
 			fi
 
 			if [ ! -d /config/extended/logs/tidal-video ]; then
-				mkdir -p /config/extended/logs/tidal-video 
-				chmod 777 /config/extended/logs/tidal-video 
+				mkdir -p /config/extended/logs/tidal-video
+				chmod 777 /config/extended/logs/tidal-video
 			fi
 			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Logging completed download $id to: /config/extended/logs/tidal-video/$id"
 			touch /config/extended/logs/tidal-video/$id
@@ -508,7 +508,7 @@ for (( ; ; )); do
 	verifyApiAccess
 	TidalClientSetup
 	AddFeaturedVideoArtists
-	VideoProcess 
+	VideoProcess
 	log "Script sleeping for $videoScriptInterval..."
 	sleep $videoScriptInterval
 done

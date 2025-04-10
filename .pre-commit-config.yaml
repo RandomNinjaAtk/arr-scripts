@@ -1,0 +1,8 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0  # Use the ref you want to point at
+    hooks:
+    - id: trailing-whitespace
+      args: [--markdown-linebreak-ext=md]
+    - id: detect-private-key
+    - id: end-of-file-fixer

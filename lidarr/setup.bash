@@ -102,11 +102,11 @@ curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal
 echo "Done"
 
 echo "Download PlexNotify script..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/PlexNotify.bash -o /config/extended/PlexNotify.bash 
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/PlexNotify.bash -o /config/extended/PlexNotify.bash
 echo "Done"
 
 echo "Download SMA config..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/sma.ini -o /config/extended/sma.ini 
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/sma.ini -o /config/extended/sma.ini
 echo "Done"
 
 if [ ! -f /config/extended/beets-config.yaml ]; then

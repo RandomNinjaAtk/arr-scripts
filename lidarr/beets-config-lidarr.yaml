@@ -56,7 +56,7 @@ paths:
     singleton: $disc$track - $title
     comp: $disc$track - $title
     albumtype_soundtrack: $disc$track - $title
-        
+
 import:
     write: yes
     copy: no
@@ -75,7 +75,7 @@ chroma:
 
 embedart:
     auto: yes
-    
+
 lastgenre:
     auto: yes
     canonical: yes

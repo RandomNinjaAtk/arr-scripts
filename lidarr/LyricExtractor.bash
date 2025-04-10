@@ -13,7 +13,7 @@ SECONDS=0
 
 if [ "$lidarr_eventtype" == "Test" ]; then
 	log "Tested Successfully"
-	exit 0	
+	exit 0
 fi
 
 getArrAppInfo
@@ -37,7 +37,7 @@ if echo "$getFolderPath" | grep "$getAlbumArtistPath" | read; then
 	if [ ! -d "$getFolderPath" ]; then
 		log "ERROR :: \"$getFolderPath\" Folder is missing :: Exiting..."
 	fi
-else 
+else
 	log "ERROR :: $getAlbumArtistPath not found within \"$getFolderPath\" :: Exiting..."
 	exit
 fi

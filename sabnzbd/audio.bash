@@ -20,7 +20,7 @@ logfileSetup () {
       echo "" > /config/logs/$scriptName.txt
     fi
   fi
-  
+
   if [ ! -f "/config/logs/$scriptName.txt" ]; then
     echo "" > /config/logs/$scriptName.txt
     chmod 666 "/config/logs/$scriptName.txt"
@@ -64,25 +64,25 @@ Main () {
 			AudioFileExtension="opus"
 		fi
 	fi
-	
+
 	if [ "$RequireAudioQualityMatch" = "true" ]; then
 		log "Audio Quality Match Verification: ENABLED (.$AudioFileExtension)"
 	else
 		log "Audio Quality Match Verification: DISABLED"
 	fi
-	
+
 	if [ "${DetectNonSplitAlbums}" = TRUE ]; then
 		log "Detect Non Split Albums: ENABLED"
-		log "Max File Size: $MaxFileSize" 
+		log "Max File Size: $MaxFileSize"
 	else
 		log "DetectNonSplitAlbums: DISABLED"
 	fi
 
-	log "Processing: $1" 
+	log "Processing: $1"
 
 	}
-	
-		
+
+
 	AudioQualityMatch  () {
 		if [ "$RequireAudioQualityMatch" == "true" ]; then
 			find "$1" -type f -not -iname "*.$AudioFileExtension" -delete
@@ -150,7 +150,7 @@ Main () {
 				done
 			fi
 		fi
-		
+
 	}
 
 	conversion () {
@@ -226,12 +226,12 @@ Main () {
 		fi
 	}
 
-	replaygain () {	
+	replaygain () {
 		replaygaintrackcount=$(find  "$1"/ -type f -regex ".*/.*\.\(flac\|mp3\|m4a\|alac\|ogg\|opus\)" | wc -l)
 		log "Replaygain: Calculating $replaygaintrackcount Tracks"
 		r128gain -r -a "$1" &>/dev/null
 	}
-	
+
 	beets () {
 		trackcount=$(find "$1" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | wc -l)
 		log "Matching $trackcount tracks with Beets"
@@ -239,7 +239,7 @@ Main () {
 			rm /config/scripts/library.blb
 			sleep 0.1
 		fi
-		if [ -f /config/scripts/beets/beets.log ]; then 
+		if [ -f /config/scripts/beets/beets.log ]; then
 			rm /config/scripts/beets.log
 			sleep 0.1
 		fi
@@ -252,19 +252,19 @@ Main () {
 			if [ $(find "$1" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -newer "/config/scripts/beets-match" | wc -l) -gt 0 ]; then
 				log "SUCCESS: Matched with beets!"
 			else
-				rm -rf "$1"/* 
+				rm -rf "$1"/*
 				log "ERROR: Unable to match using beets to a musicbrainz release, marking download as failed..."
 				exit 1
-			fi	
+			fi
 		fi
 
-		if [ -f "/config/scripts/beets-match" ]; then 
+		if [ -f "/config/scripts/beets-match" ]; then
 			rm "/config/scripts/beets-match"
 			sleep 0.1
 		fi
 	}
 
-	
+
 	#============START SCRIPT============
 
 	settings "$1"
@@ -278,14 +278,14 @@ Main () {
 	fi
 
 	conversion "$1"
-	
+
 	AudioQualityMatch "$1"
 
-	
+
 	if [ "${BeetsTagging}" = TRUE ]; then
 		beets "$1"
 	fi
-	
+
 	if [ "${ReplaygainTagging}" = TRUE ]; then
 		replaygain "$1"
 	fi

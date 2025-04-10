@@ -44,7 +44,7 @@ fi
 
 if [ "$arrEventType" == "Test" ]; then
 	log "$notfidedBy :: Tested Successfully"
-	exit 0	
+	exit 0
 fi
 
 PlexConnectionError () {

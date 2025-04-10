@@ -20,7 +20,7 @@ logfileSetup () {
       echo "" > /config/$scriptName.log
     fi
   fi
-  
+
   if [ ! -f "/config/$scriptName.log" ]; then
     echo "" > /config/$scriptName.log
     chmod 666 "/config/$scriptName.log"
@@ -70,7 +70,7 @@ DownloadFileVerification () {
       verify="0"
       ;;
   esac
-  
+
   if [ "$verify" != "0" ]; then
     log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: ${fileName} :: ERROR :: Failed Verification!"
     rm "$1"
@@ -593,7 +593,7 @@ do
     echo "$archiveUrl" > /config/romfilelist
     romfiles="$(cat /config/romfilelist | awk '{ print length, $0 }' | sort -n | cut -d" " -f2-)"
     #echo $romfiles
-    
+
     # debugging
     #echo "original list: "
     #cat romfilelist
@@ -724,7 +724,7 @@ do
           DownloadFileVerification "${outputdir}${subFolder}${fileName}"
       fi
     else
-        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: ${fileName} :: ROM previously downloaded..." 
+        log "$processNumber/$platformToProcessNumber :: $platformName :: $romProcessNumber/$romListCount :: ${fileName} :: ROM previously downloaded..."
     fi
 
     if [ -f "${outputdir}${subFolder}${fileName}" ]; then

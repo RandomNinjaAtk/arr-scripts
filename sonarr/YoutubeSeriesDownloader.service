@@ -60,15 +60,15 @@ SonarrTaskStatusCheck () {
 YoutubeSeriesDownloaderProcess () {
 
 	CookiesCheck
-	
+
 	sonarrSeriesList=$(curl -s --header "X-Api-Key:"${arrApiKey} --request GET  "$arrUrl/api/v3/series")
 	sonarrSeriesIds=$(echo "${sonarrSeriesList}" | jq -r '.[] | select(.network=="YouTube") |.id')
 	sonarrSeriesTotal=$(echo "${sonarrSeriesIds}" | wc -l)
-	
+
 	loopCount=0
 	for id in $(echo $sonarrSeriesIds); do
 	    loopCount=$(( $loopCount + 1 ))
-	
+
 	    seriesId=$id
 	    seriesData=$(curl -s "$arrUrl/api/v3/series/$seriesId?apikey=$arrApiKey")
 	    seriesTitle=$(echo "$seriesData" | jq -r .title)
@@ -78,7 +78,7 @@ YoutubeSeriesDownloaderProcess () {
 	    seriesEpisodeData=$(curl -s "$arrUrl/api/v3/episode?seriesId=$seriesId&apikey=$arrApiKey")
 	    seriesEpisodeTvdbIds=$(echo $seriesEpisodeData | jq -r ".[] | select(.monitored==true) | select(.hasFile==false) | .tvdbId")
 	    seriesEpisodeTvdbIdsCount=$(echo "$seriesEpisodeTvdbIds" | wc -l)
-	
+
 	    currentLoopIteration=0
 	    for episodeId in $(echo $seriesEpisodeTvdbIds); do
 	        currentLoopIteration=$(( $currentLoopIteration + 1 ))
@@ -87,17 +87,17 @@ YoutubeSeriesDownloaderProcess () {
 	        episodeNumber=$(echo $seriesEpisdodeData | jq -r .episodeNumber)
 	        tvdbPageData=$(curl -s "https://thetvdb.com/series/$seriesTvdbTitleSlug/episodes/$episodeId")
 	        downloadUrl=$(echo "$tvdbPageData" | grep -i youtube.com  | grep -i watch | grep -Eo "(http|https)://[a-zA-Z0-9./?=_%:-]*")
-	        
+
 	        if [ -z $downloadUrl ]; then
 	            network="$(echo "$tvdbPageData" | grep -i "/companies/youtube")"
-	            if [ ! -z "$network" ]; then 
+	            if [ ! -z "$network" ]; then
 	                downloadUrl=$(echo "$tvdbPageData" | grep -iws "production code" -A 2 | sed 's/\ //g' | tail -n1)
 	                if [ ! -z $downloadUrl ]; then
 	                    downloadUrl="https://www.youtube.com/watch?v=$downloadUrl"
 	                fi
 	            fi
 	        fi
-	
+
 	        if [ -z $downloadUrl ]; then
 	            log "$loopCount/$sonarrSeriesTotal :: $currentLoopIteration/$seriesEpisodeTvdbIdsCount :: $seriesTitle :: S${episodeSeasonNumber}E${episodeNumber} :: ERROR :: No Download URL found, skipping"
 	            continue
@@ -105,7 +105,7 @@ YoutubeSeriesDownloaderProcess () {
 	        downloadLocation="/config/temp"
 	        if [ ! -d $downloadLocation ]; then
 	            mkdir $downloadLocation
-	        else 
+	        else
 	            rm -rf $downloadLocation
 	            mkdir $downloadLocation
 	        fi
@@ -116,7 +116,7 @@ YoutubeSeriesDownloaderProcess () {
 	        else
 	            yt-dlp -f "$videoFormat" --no-video-multistreams -o "$downloadLocation/$fileName" --write-sub --sub-lang $videoLanguages --embed-subs --merge-output-format mkv --no-mtime --geo-bypass $ytdlpExtraOpts "$downloadUrl"  2>&1 | tee -a /config/logs/$scriptName.txt
 	        fi
-	
+
 	        if python3 /config/extended/sma/manual.py --config "/config/extended/sma.ini" -i "$downloadLocation/$fileName.mkv" -nt; then
 	            sleep 0.01
 	            log "$loopCount/$sonarrSeriesTotal :: $currentLoopIteration/$seriesEpisodeTvdbIdsCount :: $seriesTitle :: S${episodeSeasonNumber}E${episodeNumber} :: Processed with SMA..."
@@ -129,7 +129,7 @@ YoutubeSeriesDownloaderProcess () {
 	        if [ -f "$downloadLocation/$fileName.mkv" ]; then
 	            chmod -R 777 $downloadLocation
 	            NotifySonarrForImport "$downloadLocation/$fileName.mkv"
-	            log "$loopCount/$sonarrSeriesTotal :: $currentLoopIteration/$seriesEpisodeTvdbIdsCount :: $seriesTitle :: S${episodeSeasonNumber}E${episodeNumber} :: Notified Sonarr to import \"$fileName.mkv\"" 
+	            log "$loopCount/$sonarrSeriesTotal :: $currentLoopIteration/$seriesEpisodeTvdbIdsCount :: $seriesTitle :: S${episodeSeasonNumber}E${episodeNumber} :: Notified Sonarr to import \"$fileName.mkv\""
 	        fi
 	        SonarrTaskStatusCheck
 	    done

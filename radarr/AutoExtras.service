@@ -10,7 +10,7 @@ source /config/extended/functions
 logfileSetup
 
 verifyConfig () {
-	
+
 	if [ "$enableExtras" != "true" ]; then
 		log "Script is not enabled, enable by setting enableExtras to \"true\" by modifying the \"/config/extended.conf\" config file..."
 		log "Sleeping (infinity)"
@@ -23,11 +23,11 @@ verifyConfig () {
 }
 
 AutoExtrasProcess () {
-    
+
   radarrMovieList=$(curl -s --header "X-Api-Key:"${arrApiKey} --request GET  "$arrUrl/api/v3/movie")
   radarrMovieTotal=$(echo "${radarrMovieList}"  | jq -r '.[] | select(.hasFile==true) | .id' | wc -l)
   radarrMovieIds=$(echo "${radarrMovieList}" | jq -r '.[] | select(.hasFile==true) | .id')
-  
+
   loopCount=0
   for id in $(echo $radarrMovieIds); do
     loopCount=$(( $loopCount + 1 ))

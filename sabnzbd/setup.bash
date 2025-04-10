@@ -54,8 +54,8 @@ curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/
 if [ -f /config/sma.ini ]; then
   if [ ! -f /config/scripts/sma.ini ]; then
     echo "Importing /config/sma.ini to /config/scripts/sma.ini"
-    mv /config/sma.ini /config/scripts/sma.ini 
-    chmod 777 /config/scripts/sma.ini 
+    mv /config/sma.ini /config/scripts/sma.ini
+    chmod 777 /config/scripts/sma.ini
   else
     echo "File /config/scripts/sma.ini already exists. Not overwriting."
   fi
@@ -67,23 +67,23 @@ curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/
 if [ -f /config/video.bash ]; then
   if [ -f /config/scripts/video.bash ]; then
     echo "Removing /config/scripts/video.bash"
-    rm /config/scripts/video.bash 
+    rm /config/scripts/video.bash
   fi
   echo "Importing /config/video.bash to /config/scripts/video.bash"
-  mv /config/video.bash /config/scripts/video.bash 
-  chmod 777 /config/scripts/video.bash 
-fi 
+  mv /config/video.bash /config/scripts/video.bash
+  chmod 777 /config/scripts/video.bash
+fi
 
 echo "Downloading Audio script: /config/scripts/audio.bash"
 curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/audio.bash" -o /config/audio.bash
 if [ -f /config/audio.bash ]; then
   if [ -f /config/scripts/audio.bash ]; then
     echo "Removing /config/scripts/audio.bash"
-    rm /config/scripts/audio.bash 
+    rm /config/scripts/audio.bash
   fi
   echo "Importing /config/audio.bash to /config/scripts/audio.bash"
-  mv /config/audio.bash /config/scripts/audio.bash 
-  chmod 777 /config/scripts/audio.bash 
+  mv /config/audio.bash /config/scripts/audio.bash
+  chmod 777 /config/scripts/audio.bash
 fi
 
 
@@ -92,12 +92,12 @@ curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/
 if [ -f /config/beets-config.yaml ]; then
   if [ -f /config/scripts/beets-config.yaml ]; then
     echo "Removing /config/scripts/beets-config.yaml"
-    rm /config/scripts/beets-config.yaml 
+    rm /config/scripts/beets-config.yaml
   fi
   echo "Importing /config/beets-config.yaml to /config/scripts/beets-config.yaml"
-  mv /config/beets-config.yaml /config/scripts/beets-config.yaml 
-  chmod 777 /config/scripts/beets-config.yaml 
-fi 
+  mv /config/beets-config.yaml /config/scripts/beets-config.yaml
+  chmod 777 /config/scripts/beets-config.yaml
+fi
 
 echo "Download audiobook script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/audiobook.bash -o /config/scripts/audiobook.bash

@@ -33,7 +33,7 @@ log () {
 
 if [ "$lidarr_eventtype" == "Test" ]; then
 	log "Tested Successfully"
-	exit 0	
+	exit 0
 fi
 
 getAlbumArtist="$(curl -s "$lidarrUrl/api/v1/album/$lidarr_album_id" -H "X-Api-Key: ${lidarrApiKey}" | jq -r .artist.artistName)"
@@ -45,7 +45,7 @@ if echo "$getFolderPath" | grep "$getAlbumArtistPath" | read; then
 	if [ ! -d "$getFolderPath" ]; then
 		log "ERROR :: \"$getFolderPath\" Folder is missing :: Exiting..."
 	fi
-else 
+else
 	log "ERROR :: $getAlbumArtistPath not found within \"$getFolderPath\" :: Exiting..."
 	exit
 fi
@@ -111,7 +111,7 @@ find "$getFolderPath" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -print0 |
 
     if [ "$fileExt" == "opus" ]; then
         if [ ! -z "$getArtistCredit" ]; then
-            log "Processing :: $getAlbumFolderName :: $fileName :: Setting ARTIST tag to match ARTIST_CREDIT ($getArtistCredit) tag..."            
+            log "Processing :: $getAlbumFolderName :: $fileName :: Setting ARTIST tag to match ARTIST_CREDIT ($getArtistCredit) tag..."
             python3 "/config/extended/scripts/tag_opus.py" --file "$file" --songartist "$getArtistCredit" --songalbumartist "$getAlbumArtist"
             log "Processing :: $getAlbumFolderName :: $fileName :: Done!"
 
