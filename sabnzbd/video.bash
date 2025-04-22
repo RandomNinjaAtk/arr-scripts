@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="2.1"
+scriptVersion="2.2"
 scriptName="Video"
 
 #### Import Settings
@@ -47,8 +47,15 @@ function Configuration {
 		log "Sickbeard MP4 Automator (SMA): DISABLED"
 	fi
 	
-	if [ -z "enableSmaTagging" ]; then
+	if [ -z "$enableSmaTagging" ]; then
 		enableSmaTagging=FALSE
+	fi
+
+	if [ -z "$requireSubs" ]; then
+	    log "Require Subtitles :: Disabled"
+		requireSubs=FALSE
+	else
+        log "Require Subtitles :: Enabled"
 	fi
 }
 
@@ -100,6 +107,18 @@ VideoLanguageCheck () {
 				log "$count of $fileCount :: ERROR :: No matching languages found in $(($videoAudioTracksCount + $videoSubtitleTracksCount)) Audio/Subtitle tracks"
 				log "$count of $fileCount :: ERROR :: Disable "
 				rm "$file" && log "INFO: deleted: $fileName"
+			fi
+
+			if [ "$requireSubs" == "true" ]; then
+			   if [ "${requireLanguageMatch}" = "true" ]; then
+				  if [ $videoSubtitleTracksLanguageCount -eq 0 ]; then
+					log "$count of $fileCount :: ERROR :: No subtitles found, requireSubs is enabled..."
+					rm "$file" && log "INFO: deleted: $fileName"
+				  fi
+			   elif [ $videoSubtitleTracksCount -eq 0 ]; then
+				  log "$count of $fileCount :: ERROR :: No subtitles found, requireSubs is enabled..."
+				  rm "$file" && log "INFO: deleted: $fileName"
+			   fi
 			fi
 		fi
 
