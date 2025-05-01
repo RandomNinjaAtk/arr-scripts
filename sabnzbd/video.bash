@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="2.4"
+scriptVersion="2.5"
 scriptName="Video"
 
 #### Import Settings
@@ -57,6 +57,13 @@ function Configuration {
 	else
         log "Require Subtitles :: Enabled"
 	fi
+
+    if [ -z "$failVideosWithUnknownAudioTracks" ]; then
+	    log "Fail Videos with Unknown (language) Audio Tracks :: Disabled"
+		failVideosWithUnknownAudioTracks=FALSE
+	else
+        log "Fail Videos with Unknown (language) Audio Tracks :: Enabled"
+	fi
 }
 
 VideoLanguageCheck () {
@@ -72,11 +79,19 @@ VideoLanguageCheck () {
 		log "$count of $fileCount :: Processing $fileName"
 		videoData=$(ffprobe -v quiet -print_format json -show_streams "$file")
 		videoAudioTracksCount=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"audio\") | .index" | wc -l)
+		videoUnknownAudioTracksCount=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"audio\") | select(.tags.language==\"und\") | .index" | wc -l)
 		videoSubtitleTracksCount=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"subtitle\") | .index" | wc -l)
-		log "$count of $fileCount :: $videoAudioTracksCount Audio Tracks Found!"
+		log "$count of $fileCount :: $videoAudioTracksCount Audio Tracks Found! ($videoUnknownAudioTracksCount unknown audio language tracks)"
 		log "$count of $fileCount :: $videoSubtitleTracksCount Subtitle Tracks Found!"
 		videoAudioLanguages=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"audio\") | .tags.language")
 		videoSubtitleLanguages=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"subtitle\") | .tags.language")
+
+		if [ "$failVideosWithUnknownAudioTracks" == "true" ]; then
+		  if [ $videoUnknownAudioTracksCount -ne 0 ]; then
+            log "$count of $fileCount :: ERROR :: $videoUnknownAudioTracksCount Unknown Audio Language Tracks foud, failing download and performing cleanup"
+			rm "$file" && log "INFO: deleted: $fileName"
+		  fi
+		fi
 
 		# Language Check
 		log "$count of $fileCount :: Checking for preferred languages \"$videoLanguages\""
