@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="2.5"
+scriptVersion="2.6"
 scriptName="Video"
 
 #### Import Settings
@@ -79,15 +79,19 @@ VideoLanguageCheck () {
 		log "$count of $fileCount :: Processing $fileName"
 		videoData=$(ffprobe -v quiet -print_format json -show_streams "$file")
 		videoAudioTracksCount=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"audio\") | .index" | wc -l)
+		videoUnknownAudioTracksNull=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"audio\") | .tags.language")
 		videoUnknownAudioTracksCount=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"audio\") | select(.tags.language==\"und\") | .index" | wc -l)
 		videoSubtitleTracksCount=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"subtitle\") | .index" | wc -l)
-		log "$count of $fileCount :: $videoAudioTracksCount Audio Tracks Found! ($videoUnknownAudioTracksCount unknown audio language tracks)"
+		log "$count of $fileCount :: $videoAudioTracksCount Audio Tracks Found!"
 		log "$count of $fileCount :: $videoSubtitleTracksCount Subtitle Tracks Found!"
 		videoAudioLanguages=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"audio\") | .tags.language")
 		videoSubtitleLanguages=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"subtitle\") | .tags.language")
 
 		if [ "$failVideosWithUnknownAudioTracks" == "true" ]; then
-		  if [ $videoUnknownAudioTracksCount -ne 0 ]; then
+		  if [ "$videoUnknownAudioTracksNull" == "null" ]; then
+		    log "$count of $fileCount :: ERROR :: $videoAudioTracksCount Unknown (null) Audio Language Tracks foud, failing download and performing cleanup"
+			rm "$file" && log "INFO: deleted: $fileName"
+		  elif [ $videoUnknownAudioTracksCount -ne 0 ]; then
             log "$count of $fileCount :: ERROR :: $videoUnknownAudioTracksCount Unknown Audio Language Tracks foud, failing download and performing cleanup"
 			rm "$file" && log "INFO: deleted: $fileName"
 		  fi
