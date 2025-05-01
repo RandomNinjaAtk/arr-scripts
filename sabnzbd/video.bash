@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="2.6"
+scriptVersion="2.7"
 scriptName="Video"
 
 #### Import Settings
@@ -89,11 +89,13 @@ VideoLanguageCheck () {
 
 		if [ "$failVideosWithUnknownAudioTracks" == "true" ]; then
 		  if [ "$videoUnknownAudioTracksNull" == "null" ]; then
-		    log "$count of $fileCount :: ERROR :: $videoAudioTracksCount Unknown (null) Audio Language Tracks foud, failing download and performing cleanup"
+		   	log "$count of $fileCount :: ERROR :: $videoAudioTracksCount Unknown (null) Audio Language Tracks foud, failing download and performing cleanup"
 			rm "$file" && log "INFO: deleted: $fileName"
+   			return
 		  elif [ $videoUnknownAudioTracksCount -ne 0 ]; then
-            log "$count of $fileCount :: ERROR :: $videoUnknownAudioTracksCount Unknown Audio Language Tracks foud, failing download and performing cleanup"
+            		log "$count of $fileCount :: ERROR :: $videoUnknownAudioTracksCount Unknown Audio Language Tracks foud, failing download and performing cleanup"
 			rm "$file" && log "INFO: deleted: $fileName"
+   			return
 		  fi
 		fi
 
@@ -124,7 +126,7 @@ VideoLanguageCheck () {
 			   elif [ $videoSubtitleTracksCount -ne $videoSubtitleTracksLanguageCount ]; then
 			      if [ "$smaProcessComplete" == "false" ]; then
 					return
-				  fi
+			      fi
 			      log "$count of $fileCount :: ERROR :: Expected Subtitle count ($videoSubtitleTracksLanguageCount), $videoSubtitleTracksCount subtitles found..."
 			      rm "$file" && log "INFO: deleted: $fileName"
 			   fi
