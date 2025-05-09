@@ -1,8 +1,20 @@
 #!/usr/bin/with-contenv bash
-set -euo pipefail
-
+scriptVersion="1.4"
 SMA_PATH="/usr/local/sma"
-version="1.3"
+
+if [ -f /config/setup_version.txt ]; then
+  source /config/setup_version.txt
+  if [ "$scriptVersion" == "$setupversion" ]; then
+    if apk list | grep installed | grep opus-tools | read; then
+      echo "Setup was previously completed, skipping..."
+      exit
+    fi
+  fi
+else
+  echo "setupversion=$scriptVersion" > /config/setup_version.txt
+fi
+
+set -euo pipefail
 
 echo "*** install packages ***" && \
 apk add -U --upgrade --no-cache \
