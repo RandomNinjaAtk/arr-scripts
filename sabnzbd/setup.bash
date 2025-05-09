@@ -126,6 +126,6 @@ if [ -f /custom-services.d/scripts_init.bash ]; then
    sleep infinity
 fi
 
-echo 'setupversion="1.8"' > /config/setup_version.txt
+echo "setupversion=$scriptVersion" > /config/setup_version.txt
 
 exit
