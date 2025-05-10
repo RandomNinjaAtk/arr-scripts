@@ -1,18 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.0"
 SMA_PATH="/usr/local/sma"
-
-if [ -f /config/setup_version.txt ]; then
-  source /config/setup_version.txt
-  if [ "$scriptVersion" == "$setupversion" ]; then
-    if apk list | grep installed | grep opus-tools | read; then
-      echo "Setup was previously completed, skipping..."
-      exit
-    fi
-  fi
-else
-  echo "setupversion=$scriptVersion" > /config/setup_version.txt
-fi
 
 echo "************ install packages ************" && \
 apk add -U --update --no-cache \
@@ -71,11 +58,11 @@ curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal
 echo "Done"
 
 echo "Download AutoConfig service..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/AutoConfig.service -o /custom-services.d/AutoConfig
+curl https://raw.githubusercontent.com/steve1977/arr-scripts/main/radarr/AutoConfig.service -o /custom-services.d/AutoConfig
 echo "Done"
 
 echo "Download AutoExtras service..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/AutoExtras.service -o /custom-services.d/AutoExtras
+curl https://raw.githubusercontent.com/steve1977/arr-scripts/main/radarr/AutoExtras.service -o /custom-services.d/AutoExtras
 echo "Done"
 
 echo "Download InvalidMoviesAutoCleaner service..."
@@ -99,12 +86,13 @@ if [ ! -f /config/extended/naming.json ]; then
 fi
 
 mkdir -p /config/extended
+mkdir -p /data/.extended
 echo "Download PlexNotify script..."
 curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/PlexNotify.bash -o /config/extended/PlexNotify.bash 
 echo "Done"
 
 echo "Download Extras script..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/Extras.bash -o /config/extended/Extras.bash 
+curl https://raw.githubusercontent.com/steve1977/arr-scripts/main/radarr/Extras.bash -o /data/.extended/Extras.bash 
 echo "Done"
 
 echo "Download TdarrScan script..."

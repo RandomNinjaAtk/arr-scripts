@@ -1,20 +1,8 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.4"
-SMA_PATH="/usr/local/sma"
-
-if [ -f /config/setup_version.txt ]; then
-  source /config/setup_version.txt
-  if [ "$scriptVersion" == "$setupversion" ]; then
-    if apk list | grep installed | grep opus-tools | read; then
-      echo "Setup was previously completed, skipping..."
-      exit
-    fi
-  fi
-else
-  echo "setupversion=$scriptVersion" > /config/setup_version.txt
-fi
-
 set -euo pipefail
+
+SMA_PATH="/usr/local/sma"
+version="1.3"
 
 echo "*** install packages ***" && \
 apk add -U --upgrade --no-cache \
@@ -73,7 +61,7 @@ parallel ::: \
   'echo "Download QueueCleaner service..." && curl -sfL https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/services/QueueCleaner -o /custom-services.d/QueueCleaner && echo "Done"' \
   'echo "Download AutoConfig service..." && curl -sfL https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/AutoConfig.service.bash -o /custom-services.d/AutoConfig && echo "Done"' \
   'echo "Download Video service..." && curl -sfL https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/Video.service.bash -o /custom-services.d/Video && echo "Done"' \
-  'echo "Download Tidal Video Downloader service..." && curl -sfL https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/TidalVideoDownloader.bash -o /custom-services.d/TidalVideoDownloader && echo "Done"' \
+  'echo "Download Tidal Video Downloader service..." && curl -sfL https://raw.githubusercontent.com/steve1977/arr-scripts/main/lidarr/TidalVideoDownloader.bash -o /custom-services.d/TidalVideoDownloader && echo "Done"' \
   'echo "Download Audio service..." && curl -sfL https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/Audio.service.bash -o /custom-services.d/Audio && echo "Done"' \
   'echo "Download AutoArtistAdder service..." && curl -sfL https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/AutoArtistAdder.bash -o /custom-services.d/AutoArtistAdder && echo "Done"' \
   'echo "Download UnmappedFilesCleaner service..." && curl -sfL https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/UnmappedFilesCleaner.bash -o /custom-services.d/UnmappedFilesCleaner && echo "Done"' \

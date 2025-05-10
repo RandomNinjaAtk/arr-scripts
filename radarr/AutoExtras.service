@@ -32,7 +32,7 @@ AutoExtrasProcess () {
   for id in $(echo $radarrMovieIds); do
     loopCount=$(( $loopCount + 1 ))
     log "$loopCount of $radarrMovieTotal :: $id :: Processing with Extras.bash"
-    bash /config/extended/Extras.bash "$id"
+    bash /data/.extended/Extras.bash "$id"
   done
 
 }

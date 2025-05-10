@@ -191,7 +191,7 @@ do
 
         videoLanguages="$(echo "$extrasLanguages" | sed "s/-[[:alpha:]][[:alpha:]]//g")"
         
-        tempFolder="/config/extended/temp"
+        tempFolder="/data/.extended/temp"
         if [ -d "$tempFolder" ]; then
 	      rm -rf "$tempFolder"
           sleep 0.01
