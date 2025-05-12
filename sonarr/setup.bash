@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.1"
+scriptVersion="1.2"
 SMA_PATH="/usr/local/sma"
 
 if [ -f /config/setup_version.txt ]; then
@@ -10,9 +10,8 @@ if [ -f /config/setup_version.txt ]; then
       exit
     fi
   fi
-else
-  echo "setupversion=$scriptVersion" > /config/setup_version.txt
 fi
+echo "setupversion=$scriptVersion" > /config/setup_version.txt
 
 echo "************ install packages ************"
 apk add -U --update --no-cache \
