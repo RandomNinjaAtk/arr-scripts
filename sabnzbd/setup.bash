@@ -1,14 +1,16 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.9"
+scriptVersion="1.9.1"
 
 if [ -f /config/setup_version.txt ]; then
   source /config/setup_version.txt
   if [ "$scriptVersion" == "$setupversion" ]; then
-    if apk list | grep installed | grep opus-tools | read; then
+    if apk --no-cache list | grep installed | grep opus-tools | read; then
       echo "Setup was previously completed, skipping..."
       exit
     fi
   fi
+else
+  echo "setupversion=$scriptVersion" > /config/setup_version.txt
 fi
 
 ######## Package dependencies installation
@@ -125,7 +127,5 @@ if [ -f /custom-services.d/scripts_init.bash ]; then
    # user misconfiguration detected, sleeping...
    sleep infinity
 fi
-
-echo "setupversion=$scriptVersion" > /config/setup_version.txt
 
 exit
