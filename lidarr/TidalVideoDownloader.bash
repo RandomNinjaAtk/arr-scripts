@@ -249,8 +249,8 @@ VideoProcess () {
 			tidalVideoProcessNumber=$(( $tidalVideoProcessNumber + 1 ))
 			videoData=$(echo $tidalVideosData | jq -r "select(.id==$id)")
 			videoTitle=$(echo $videoData | jq -r .title)
-			videoTitleClean="$(echo "$videoTitle" | sed 's%/%-%g')"
-			videoTitleClean="$(echo "$videoTitleClean" | sed -e "s/[:alpha:][:digit:]._' -/ /g" -e "s/  */ /g" | sed 's/^[.]*//' | sed  's/[.]*$//g' | sed  's/^ *//g' | sed 's/ *$//g')"
+			videoTitleClean="$(echo "$videoTitle" | sed -e "s/[^[:alpha:][:digit:]$^&_+=()'%;{},.@#]/ /g" -e "s/  */ /g" | sed 's/^[.]*//' | sed  's/[.]*$//g' | sed  's/^ *//g' | sed 's/ *$//g')"
+			videoTitleClean="$(echo "$videoTitleClean" | sed -e "s/[^[:alpha:][:digit:]$^&_+=()'%;{},.@#]/ /g" -e "s/  */ /g" | sed 's/^[.]*//' | sed  's/[.]*$//g' | sed  's/^ *//g' | sed 's/ *$//g')"
 			videoExplicit=$(echo $videoData | jq -r .explicit)
 			videoUrl="https://tidal.com/browse/video/$id"
 			videoDate="$(echo "$videoData" | jq -r ".releaseDate")"
