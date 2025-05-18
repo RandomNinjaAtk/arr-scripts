@@ -11,7 +11,7 @@ Container: <https://docs.linuxserver.io/images/docker-lidarr>
    Docker Run Example:<br>
    `-v /path/to/preferred/local/folder-01:/custom-services.d`<br>
    `-v /path/to/preferred/local/folder-02:/custom-cont-init.d`
-2. Download the [script_init.bash](https://github.com/RandomNinjaAtk/arr-scripts/blob/main/lidarr/scripts_init.bash) ([Download Link](https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/scripts_init.bash)) and place it into the following folder:
+2. Download the [scripts_init.bash](https://github.com/RandomNinjaAtk/arr-scripts/blob/main/lidarr/scripts_init.bash) ([Download Link](https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/scripts_init.bash)) and place it into the following folder:
    `/custom-cont-init.d`
 3. Start your container and wait for the application to load
 4. Optional: Customize the configuration by modifying the following file `/config/extended.conf`
