@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="2.7.1"
+scriptVersion="2.7.2"
 scriptName="Video"
 
 #### Import Settings
@@ -137,25 +137,15 @@ VideoLanguageCheck () {
 		fi
 
 		if [ "$preferredLanguage" == "false" ]; then
-			if [ ${enableSma} = true ]; then
-				if [ "$smaProcessComplete" == "false" ]; then
-					return
-				fi
-			fi
 			if [ "$requireLanguageMatch" == "true" ]; then
 				log "$count of $fileCount :: ERROR :: No matching languages found in $(($videoAudioTracksCount + $videoSubtitleTracksCount)) Audio/Subtitle tracks"
 				log "$count of $fileCount :: ERROR :: Disable "
 				rm "$file" && log "INFO: deleted: $fileName"
 			fi
 
-		fi
-
-		
-		
+		fi		
 		log "$count of $fileCount :: Processing complete for: ${fileName}!"
-
 	done
-
 }
 
 VideoFileCheck () {
