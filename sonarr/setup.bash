@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.3"
+scriptVersion="1.4"
 SMA_PATH="/usr/local/sma"
 
 if [ -f /config/setup_version.txt ]; then
@@ -133,6 +133,10 @@ if [ ! -f /config/extended.conf ]; then
 	chmod 777 /config/extended.conf
 	echo "Done"
 fi
+
+echo "Download UnmappedFolderCleaner service..."
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/UnmappedFolderCleaner.bash -o /custom-services.d/UnmappedFolderCleaner
+echo "Done"
 
 chmod 777 -R /config/extended
 if [ -f /custom-services.d/scripts_init.bash ]; then
