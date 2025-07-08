@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.4"
+scriptVersion="1.5"
 scriptName="UnmappedFolderCleaner"
 
 #### Import Settings
@@ -26,13 +26,13 @@ UnmappedFolderCleanerProcess () {
 	log "Finding UnmappedFolders to purge..."
 	OLDIFS="$IFS"
 	IFS=$'\n'
-	unmappedFolders=$(curl -s "$arrUrl/api/v3/rootFolder" -H "X-Api-Key: $arrApiKey" | jq -r ".[].unmappedFolders[].path")
-	unmappedFoldersCount=$(echo -n "$unmappedFolders" | wc -l)
+    unmappedFoldersCount=$(curl -s "$arrUrl/api/v3/rootFolder" -H "X-Api-Key: $arrApiKey" | jq -r ".[].unmappedFolders[].path" | wc -l)
 	log "$unmappedFoldersCount Folders Found!"
 	if [ $unmappedFoldersCount = 0 ]; then 
 	    log "No cleanup required, exiting..."
 	    return
 	fi
+    unmappedFolders=$(curl -s "$arrUrl/api/v3/rootFolder" -H "X-Api-Key: $arrApiKey" | jq -r ".[].unmappedFolders[].path")
 	for folder in $(echo "$unmappedFolders"); do
 	    log "Removing $folder"
 	    rm -rf "$folder"
@@ -46,7 +46,7 @@ for (( ; ; )); do
 	let i++
 	logfileSetup
  	log "Script starting..."
-    	verifyConfig
+    verifyConfig
 	getArrAppInfo
 	verifyApiAccess
 	UnmappedFolderCleanerProcess
