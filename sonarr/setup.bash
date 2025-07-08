@@ -135,7 +135,7 @@ if [ ! -f /config/extended.conf ]; then
 fi
 
 echo "Download UnmappedFolderCleaner service..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/radarr/UnmappedFolderCleaner.bash -o /custom-services.d/UnmappedFolderCleaner
+curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/UnmappedFolderCleaner.bash -o /custom-services.d/UnmappedFolderCleaner
 echo "Done"
 
 chmod 777 -R /config/extended
