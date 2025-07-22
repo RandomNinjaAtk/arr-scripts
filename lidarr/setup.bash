@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.4.3"
+scriptVersion="1.4.4"
 SMA_PATH="/usr/local/sma"
 
 if [ -f /config/setup_version.txt ]; then
@@ -52,7 +52,8 @@ uv pip install --system --upgrade --no-cache-dir --break-system-packages \
   mutagen \
   r128gain \
   tidal-dl \
-  deemix && \
+  deemix \
+  apprise  && \
 echo "************ setup SMA ************"
 if [ -d "${SMA_PATH}"  ]; then
   rm -rf "${SMA_PATH}"

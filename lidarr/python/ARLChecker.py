@@ -10,6 +10,7 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 import logging
 import os
 from datetime import datetime
+import apprise
 
 CUSTOM_INIT_PATH = '/custom-cont_init.d/'
 CUSTOM_SERVICES_PATH = '/custom-services.d/'
@@ -109,8 +110,8 @@ class DeezerPlatformProvider:
             res['USER']['OPTIONS']['web_sound_quality']['lossless'],
             res['USER']['EXPLICIT_CONTENT_LEVEL']
         ))
-    
-    
+        
+        
 class LidarrExtendedAPI:
     # sets new token to  extended.conf
     def __init__(self):
@@ -134,6 +135,9 @@ class LidarrExtendedAPI:
         self.enable_ntfy_notify = False
         self.ntfy_sever_topic = None
         self.ntfy_user_token = None
+        self.enable_apprise_notify = False
+        self.apprise_string = None
+        self.apobj = None
 
     def parse_extended_conf(self):
         self.currentARLToken = None
@@ -189,6 +193,10 @@ class LidarrExtendedAPI:
                 self.ntfy_sever_topic = re.search(re_search_pattern, line)[0].replace('"', '')
             if 'ntfyUserToken=' in line:
                 self.ntfy_user_token = re.search(re_search_pattern, line)[0].replace('"', '')
+            if 'AppriseEnable=' in line:
+                self.enable_apprise_notify = re.search(re_search_pattern, line)[0].replace('"', '').lower() in 'true'
+            if 'AppriseString=' in line:
+                self.apprise_string = re.search(re_search_pattern, line)[0].replace('"', '')
 
         if self.enable_telegram_bot:
             self.log.info(Fore.GREEN+'Telegram bot is enabled.'+Fore.RESET)
@@ -198,7 +206,7 @@ class LidarrExtendedAPI:
         else:
             self.log.info('Telegram bot is disabled.')
 
-        # Report Notify/Bot Enable
+        # Report Notify/Bot/Apprise Enable
         if self.enable_pushover_notify:
             self.log.info(Fore.GREEN+'Pushover notify is enabled.'+Fore.RESET)
         else:
@@ -207,6 +215,12 @@ class LidarrExtendedAPI:
             self.log.info(Fore.GREEN+'ntfy notify is enabled.'+Fore.RESET)
         else:
             self.log.info('ntfy notify is disabled.')
+        if self.enable_apprise_notify:
+            self.log.info(Fore.GREEN+'Apprise notify is enabled.'+Fore.RESET)
+            self.apobj = apprise.Apprise()
+            self.apobj.add(self.apprise_string)
+        else:
+            self.log.info('Apprise notify is disabled.')
 
     def check_token_wrapper(self):  # adds Lidarr_extended specific logging and actions around check_token
         self.log.info("Checking ARL Token from extended.conf")
@@ -229,6 +243,8 @@ class LidarrExtendedAPI:
                 pushover_notify(self.pushover_app_api_key, self.pushover_user_key, '---\U0001F6A8WARNING\U0001F6A8-----\nARL TOKEN EXPIRED\n Update arlToken in extended.conf"\n You can find a new ARL at:\nhttps://rentry.org/firehawk52#deezer-arls')
             if self.enable_ntfy_notify:
                 ntfy_notify(self.ntfy_sever_topic, '---\U0001F6A8WARNING\U0001F6A8-----\nARL TOKEN EXPIRED\n Update arlToken in extended.conf\n You can find a new ARL at:\nhttps://rentry.org/firehawk52#deezer-arls', self.ntfy_user_token)
+            if self.enable_apprise_notify:
+                apprise_notify(self.apobj, '---\U0001F6A8WARNING\U0001F6A8-----\nARL TOKEN EXPIRED\n Update arlToken in extended.conf\n You can find a new ARL at:\nhttps://rentry.org/firehawk52#deezer-arls')    
             if self.enable_telegram_bot:
                 self.log.info(Fore.YELLOW + 'Starting Telegram bot...Check Telegram and follow instructions.' + Fore.RESET)
                 self.telegram_bot_running = True
@@ -380,6 +396,17 @@ def ntfy_notify(server_plus_topic, message, token):  # Send Notification to ntfy
             log.error(Fore.RED + "ntfy ERROR: Check if server and user token correct in extended.conf"+Fore.RESET)
         else:
             log.error(Fore.RED + "NTFY ERROR: "+str(e)+Fore.RESET)
+
+def apprise_notify(apobj, message):
+    log = logging.getLogger('ARLChecker')
+    log.info(Fore.YELLOW + 'Attempting Apprise notification' + Fore.RESET)
+    try:
+        if apobj.notify(body=message, title="ARL Checker Alert"):
+            log.info(Fore.GREEN + 'Apprise notification sent successfully' + Fore.RESET)
+        else:
+            log.error(Fore.RED + 'Apprise notification failed. Check your Apprise string.' + Fore.RESET)
+    except Exception as e:
+        log.error(Fore.RED + f"Apprise ERROR: {e}" + Fore.RESET)
 
 
 def check_token(token=None):
