@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="2.7.2"
+scriptVersion="2.8"
 scriptName="Video"
 
 #### Import Settings
@@ -87,18 +87,6 @@ VideoLanguageCheck () {
 		videoAudioLanguages=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"audio\") | .tags.language")
 		videoSubtitleLanguages=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"subtitle\") | .tags.language")
 
-		if [ "$failVideosWithUnknownAudioTracks" == "true" ]; then
-		  if [ "$videoUnknownAudioTracksNull" == "null" ]; then
-		   	log "$count of $fileCount :: ERROR :: $videoAudioTracksCount Unknown (null) Audio Language Tracks found, failing download and performing cleanup"
-			rm "$file" && log "INFO: deleted: $fileName"
-   			return
-		  elif [ $videoUnknownAudioTracksCount -ne 0 ]; then
-            		log "$count of $fileCount :: ERROR :: $videoUnknownAudioTracksCount Unknown Audio Language Tracks found, failing download and performing cleanup"
-			rm "$file" && log "INFO: deleted: $fileName"
-   			return
-		  fi
-		fi
-
 		# Language Check
 		log "$count of $fileCount :: Checking for preferred languages \"$videoLanguages\""
 		preferredLanguage=false
@@ -116,8 +104,14 @@ VideoLanguageCheck () {
 					preferredLanguage=true
 				fi
 			fi
-		done
-        
+		done        	
+
+        if [ ${enableSma} = true ]; then
+			if [ $smaProcessComplete} = false ]; then
+				continue
+			fi
+		fi
+
 		if [ "$requireSubs" == "true" ]; then
 			if [ "${requireLanguageMatch}" = "true" ]; then
 			   if [ $videoSubtitleTracksLanguageCount -eq 0 ]; then
@@ -136,14 +130,26 @@ VideoLanguageCheck () {
 			fi 
 		fi
 
+		if [ "$failVideosWithUnknownAudioTracks" == "true" ]; then
+		  if [ "$videoUnknownAudioTracksNull" == "null" ]; then
+		   	log "$count of $fileCount :: ERROR :: $videoAudioTracksCount Unknown (null) Audio Language Tracks found, failing download and performing cleanup"
+			rm "$file" && log "INFO: deleted: $fileName"
+   			return
+		  elif [ $videoUnknownAudioTracksCount -ne 0 ]; then
+            		log "$count of $fileCount :: ERROR :: $videoUnknownAudioTracksCount Unknown Audio Language Tracks found, failing download and performing cleanup"
+			rm "$file" && log "INFO: deleted: $fileName"
+   			return
+		  fi
+		fi
+
 		if [ "$preferredLanguage" == "false" ]; then
 			if [ "$requireLanguageMatch" == "true" ]; then
 				log "$count of $fileCount :: ERROR :: No matching languages found in $(($videoAudioTracksCount + $videoSubtitleTracksCount)) Audio/Subtitle tracks"
 				log "$count of $fileCount :: ERROR :: Disable "
 				rm "$file" && log "INFO: deleted: $fileName"
 			fi
+		fi
 
-		fi		
 		log "$count of $fileCount :: Processing complete for: ${fileName}!"
 	done
 }
@@ -217,16 +223,24 @@ VideoSmaProcess (){
 					ArrWaitForTaskCompletion
 					arrItemId=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=200&sortDirection=ascending&sortKey=timeleft&includeUnknownMovieItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id) | .movieId')
 					arrItemData=$(curl -s "$arrUrl/api/v3/movie/$arrItemId?apikey=$arrApiKey")
+					arrItemLanguage="$(echo "$arrItemData" | jq -r ".originalLanguage.name")"
+					log "$count of $fileCount :: Radarr Movie ID = $arrItemId :: Language: $arrItemLanguage"
 					onlineSourceId="$(echo "$arrItemData" | jq -r ".tmdbId")"
 					if [ -z "$onlineSourceId" ]; then
 					  log "$count of $fileCount :: Could not get Movie data from Radarr, skip tagging..."
 					  tagging="-nt"
 			  		  onlineData=""
 					else
-					  log "$count of $fileCount :: Radarr Movie ID = $arrItemId"
 					  log "$count of $fileCount :: TMDB ID = $onlineSourceId"
 					  onlineData="-tmdb $onlineSourceId"
 					fi
+
+					if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
+						log "$count of $fileCount :: Any Unknown (Null) audio/subtitle tracks will be retagged as $defaultLanguage"
+					else
+						continue
+					fi
+					
 				fi
 				if echo $category | grep sonarr | read; then
 					log "$count of $fileCount :: Refreshing Sonarr app Queue"
@@ -238,26 +252,35 @@ VideoSmaProcess (){
 					arrEpisodeId="$(echo $arrQueueItemData | jq -r .episodeId)"
 					arrEpisodeCount=$(echo "$arrEpisodeId" | wc -l)
 					if [ -z "$arrSeriesId" ]; then
-					  log "$count of $fileCount :: Could not get Series/Episode data from Sonarr, skip tagging..."
+					  log "$count of $fileCount :: Could not get Series ID from Sonarr, skip tagging..."
 					  tagging="-nt"
 					  onlineSourceId=""
 			  		  onlineData=""
-					elif [ $arrEpisodeCount -ge 2 ]; then
+					fi
+					arrSeriesData=$(curl -s "$arrUrl/api/v3/series/$arrSeriesId?apikey=$arrApiKey")
+					onlineSourceId="$(echo "$arrSeriesData" | jq -r ".tvdbId")"
+					arrSeriesLanguage="$(echo "$arrSeriesData" | jq -r ".originalLanguage.name")"
+					log "$count of $fileCount :: Sonarr Show ID = $arrSeriesId :: Lanuage :: $arrSeriesLanguage"
+					log "$count of $fileCount :: TVDB ID = $onlineSourceId"
+					if [ $arrEpisodeCount -ge 2 ]; then
 					   log "$count of $fileCount :: Multi episode detected, skip tagging..."
 					   tagging="-nt"
 					   onlineSourceId=""
 			  		   onlineData=""
 					else
-						arrSeriesData=$(curl -s "$arrUrl/api/v3/series/$arrSeriesId?apikey=$arrApiKey")
 						arrEpisodeData=$(curl -s "$arrUrl/api/v3/episode/$arrEpisodeId?apikey=$arrApiKey")
-						onlineSourceId="$(echo "$arrSeriesData" | jq -r ".tvdbId")"
 						seasonNumber="$(echo "$arrEpisodeData" | jq -r ".seasonNumber")"
 						episodeNumber="$(echo "$arrEpisodeData" | jq -r ".episodeNumber")"
-						log "$count of $fileCount :: Sonarr Show ID = $arrSeriesId"
-						log "$count of $fileCount :: TVDB ID = $onlineSourceId"
 						onlineSource="-tvdb"
 						onlineData="-tvdb $onlineSourceId -s $seasonNumber -e $episodeNumber"
 					fi
+					
+					if [ "$arrSeriesLanguage" = "$defaultLanguage" ]; then
+						log "$count of $fileCount :: Any Unknown (Null) audio/subtitle tracks will be retagged as $defaultLanguage"
+					else
+						continue
+					fi
+					
 				fi
 			else
 			  onlineSourceId=""
