@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bash
 TITLESHORT="APP"
-scriptVersion="1.8"
+scriptVersion="1.9"
 scriptName="Audio"
 
 #### Import Settings
@@ -252,9 +252,12 @@ Main () {
 			if [ $(find "$1" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" -newer "/config/scripts/beets-match" | wc -l) -gt 0 ]; then
 				log "SUCCESS: Matched with beets!"
 			else
-				rm -rf "$1"/* 
-				log "ERROR: Unable to match using beets to a musicbrainz release, marking download as failed..."
-				exit 1
+			    log "ERROR: Unable to match using beets to a musicbrainz release"
+			    if [ $requireBeetsMatch = true ]; then
+					rm -rf "$1"/* 
+					log "ERROR: Marking download as failed..."
+					exit 1
+				fi
 			fi	
 		fi
 
