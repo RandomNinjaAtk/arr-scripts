@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="2.9"
+scriptVersion="3.0"
 scriptName="Video"
 
 #### Import Settings
@@ -216,8 +216,8 @@ VideoSmaProcess (){
 				log "$count of $fileCount :: Getting Media ID"
 				if echo $category | grep radarr | read; then
 					log "$count of $fileCount :: Refreshing Radarr app Queue"
-     					refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
-					ArrWaitForTaskCompletion
+     					# refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
+					# ArrWaitForTaskCompletion
 					arrItemId=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=200&sortDirection=ascending&sortKey=timeleft&includeUnknownMovieItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id) | .movieId')
 					arrItemData=$(curl -s "$arrUrl/api/v3/movie/$arrItemId?apikey=$arrApiKey")
 					arrItemLanguage="$(echo "$arrItemData" | jq -r ".originalLanguage.name")"
@@ -241,8 +241,8 @@ VideoSmaProcess (){
 				fi
 				if echo $category | grep sonarr | read; then
 					log "$count of $fileCount :: Refreshing Sonarr app Queue"
-					refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
-					ArrWaitForTaskCompletion
+					# refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
+					# ArrWaitForTaskCompletion
 					arrQueueItemData=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=200&sortDirection=ascending&sortKey=timeleft&includeUnknownSeriesItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id)')
 					arrSeriesId="$(echo $arrQueueItemData | jq -r .seriesId)"
 					arrSeriesCount=$(echo "$arrSeriesId" | wc -l)
