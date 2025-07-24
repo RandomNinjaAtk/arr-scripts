@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="2.8"
+scriptVersion="2.9"
 scriptName="Video"
 
 #### Import Settings
@@ -107,7 +107,7 @@ VideoLanguageCheck () {
 		done        	
 
         if [ ${enableSma} = true ]; then
-			if [ $smaProcessComplete} = false ]; then
+			if [ "$smaProcessComplete" == "false" ]; then
 				continue
 			fi
 		fi
@@ -118,9 +118,6 @@ VideoLanguageCheck () {
 					log "$count of $fileCount :: ERROR :: No subtitles found, requireSubs is enabled..."
 					rm "$file" && log "INFO: deleted: $fileName"
 			   elif [ $videoSubtitleTracksCount -ne $videoSubtitleTracksLanguageCount ]; then
-			      if [ "$smaProcessComplete" == "false" ]; then
-					return
-			      fi
 			      log "$count of $fileCount :: ERROR :: Expected Subtitle count ($videoSubtitleTracksLanguageCount), $videoSubtitleTracksCount subtitles found..."
 			      rm "$file" && log "INFO: deleted: $fileName"
 			   fi
