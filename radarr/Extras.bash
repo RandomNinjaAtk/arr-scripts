@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-scriptVersion="1.4"
+scriptVersion="1.5"
 arrEventType="$radarr_eventtype"
 arrItemId=$radarr_movie_id
 tmdbApiKey="3b7751e3179f796565d88fdb2fcdf426"
@@ -191,7 +191,7 @@ do
 
         videoLanguages="$(echo "$extrasLanguages" | sed "s/-[[:alpha:]][[:alpha:]]//g")"
         
-        tempFolder="/config/extended/temp"
+        tempFolder="/config/extended/temp/$arrItemId"
         if [ -d "$tempFolder" ]; then
 	      rm -rf "$tempFolder"
           sleep 0.01
