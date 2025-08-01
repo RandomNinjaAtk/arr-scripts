@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="3.0"
+scriptVersion="3.1"
 scriptName="Video"
 
 #### Import Settings
@@ -186,7 +186,7 @@ ArrWaitForTaskCompletion () {
 	  else
 	    log "$count of $fileCount :: STATUS :: ARR APP BUSY :: Waiting..."
 	  fi
-	  sleep 2
+	  sleep 5
 	else
 	  log "$count of $fileCount :: STATUS :: Done"
 	  break
@@ -216,8 +216,8 @@ VideoSmaProcess (){
 				log "$count of $fileCount :: Getting Media ID"
 				if echo $category | grep radarr | read; then
 					log "$count of $fileCount :: Refreshing Radarr app Queue"
-     					# refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
-					# ArrWaitForTaskCompletion
+     				refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
+					ArrWaitForTaskCompletion
 					arrItemId=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=200&sortDirection=ascending&sortKey=timeleft&includeUnknownMovieItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id) | .movieId')
 					arrItemData=$(curl -s "$arrUrl/api/v3/movie/$arrItemId?apikey=$arrApiKey")
 					arrItemLanguage="$(echo "$arrItemData" | jq -r ".originalLanguage.name")"
@@ -232,17 +232,19 @@ VideoSmaProcess (){
 					  onlineData="-tmdb $onlineSourceId"
 					fi
 
-					if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
+					if [ "$arrSeriesLanguage" = "$defaultLanguage" ]; then
+						log "$count of $fileCount :: Default Language Match!"
 						log "$count of $fileCount :: Any Unknown (Null) audio/subtitle tracks will be retagged as $defaultLanguage"
+						smaConfig="/config/scripts/sma_defaultlang.ini"
 					else
-						continue
+					    smaConfig="/config/scripts/sma.ini"
 					fi
 					
 				fi
 				if echo $category | grep sonarr | read; then
 					log "$count of $fileCount :: Refreshing Sonarr app Queue"
-					# refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
-					# ArrWaitForTaskCompletion
+					refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
+					ArrWaitForTaskCompletion
 					arrQueueItemData=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=200&sortDirection=ascending&sortKey=timeleft&includeUnknownSeriesItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id)')
 					arrSeriesId="$(echo $arrQueueItemData | jq -r .seriesId)"
 					arrSeriesCount=$(echo "$arrSeriesId" | wc -l)
@@ -273,9 +275,11 @@ VideoSmaProcess (){
 					fi
 					
 					if [ "$arrSeriesLanguage" = "$defaultLanguage" ]; then
+						log "$count of $fileCount :: Default Language Match!"
 						log "$count of $fileCount :: Any Unknown (Null) audio/subtitle tracks will be retagged as $defaultLanguage"
+						smaConfig="/config/scripts/sma_defaultlang.ini"
 					else
-						continue
+					    smaConfig="/config/scripts/sma.ini"
 					fi
 					
 				fi
@@ -283,9 +287,13 @@ VideoSmaProcess (){
 			  onlineSourceId=""
 			  onlineData=""
 			fi
-			
+
+			if [ ! -f "$smaConfig" ]; then
+				smaConfig="/config/scripts/sma.ini"
+			fi
+
 			# Manual run of Sickbeard MP4 Automator
-				if python3 /config/scripts/sma/manual.py --config "/config/scripts/sma.ini" -i "$file" $tagging $onlineData; then
+				if python3 /config/scripts/sma/manual.py --config "$smaConfig" -i "$file" $tagging $onlineData; then
 					log "$count of $fileCount :: Complete!"
 				else
 					log "$count of $fileCount :: ERROR :: SMA Processing Error"
@@ -293,7 +301,7 @@ VideoSmaProcess (){
 				fi
 			else
 				log "$count of $fileCount :: ERROR :: SMA Processing Error"
-				log "$count of $fileCount :: ERROR :: \"/config/scripts/sma.ini\" configuration file is missing..."
+				log "$count of $fileCount :: ERROR :: \"$smaConfig\" configuration file is missing..."
 				rm "$file" && log "INFO: deleted: $fileName"
 			fi
 		fi
