@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.4"
+scriptVersion="2.5"
 
 if [ -f /config/setup_version.txt ]; then
   source /config/setup_version.txt
