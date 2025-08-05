@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="3.1"
+scriptVersion="3.2"
 scriptName="Video"
 
 #### Import Settings
@@ -211,81 +211,84 @@ VideoSmaProcess (){
 			log "$count of $fileCount :: Processing with SMA..."
 			if [ -f "/config/scripts/sma.ini" ]; then
 				if [ ${enableSmaTagging} = true ]; then
-				arrItemId=""
-				arrItemData=""
-				log "$count of $fileCount :: Getting Media ID"
-				if echo $category | grep radarr | read; then
-					log "$count of $fileCount :: Refreshing Radarr app Queue"
-     				refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
-					ArrWaitForTaskCompletion
-					arrItemId=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=200&sortDirection=ascending&sortKey=timeleft&includeUnknownMovieItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id) | .movieId')
-					arrItemData=$(curl -s "$arrUrl/api/v3/movie/$arrItemId?apikey=$arrApiKey")
-					arrItemLanguage="$(echo "$arrItemData" | jq -r ".originalLanguage.name")"
-					log "$count of $fileCount :: Radarr Movie ID = $arrItemId :: Language: $arrItemLanguage"
-					onlineSourceId="$(echo "$arrItemData" | jq -r ".tmdbId")"
-					if [ -z "$onlineSourceId" ]; then
-					  log "$count of $fileCount :: Could not get Movie data from Radarr, skip tagging..."
-					  tagging="-nt"
-			  		  onlineData=""
-					else
-					  log "$count of $fileCount :: TMDB ID = $onlineSourceId"
-					  onlineData="-tmdb $onlineSourceId"
+					arrItemId=""
+					arrItemData=""
+					smaConfig=""
+					log "$count of $fileCount :: Getting Media ID"
+					if echo $category | grep radarr | read; then
+						log "$count of $fileCount :: Refreshing Radarr app Queue"
+						refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
+						ArrWaitForTaskCompletion
+						arrItemId=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=200&sortDirection=ascending&sortKey=timeleft&includeUnknownMovieItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id) | .movieId')
+						arrItemData=$(curl -s "$arrUrl/api/v3/movie/$arrItemId?apikey=$arrApiKey")
+						arrItemLanguage="$(echo "$arrItemData" | jq -r ".originalLanguage.name")"
+						log "$count of $fileCount :: Radarr Movie ID = $arrItemId :: Language: $arrItemLanguage"
+						onlineSourceId="$(echo "$arrItemData" | jq -r ".tmdbId")"
+						if [ -z "$onlineSourceId" ]; then
+							log "$count of $fileCount :: Could not get Movie data from Radarr, skip tagging..."
+							tagging="-nt"
+							onlineData=""
+						else
+							log "$count of $fileCount :: TMDB ID = $onlineSourceId"
+							onlineData="-tmdb $onlineSourceId"
+						fi
+
+						if [ "$arrSeriesLanguage" = "$defaultLanguage" ]; then
+							log "$count of $fileCount :: Default Language Match!"
+							log "$count of $fileCount :: Any Unknown (Null) audio/subtitle tracks will be retagged as $defaultLanguage"
+							smaConfig="/config/scripts/sma_defaultlang.ini"
+						fi
+						
 					fi
 
-					if [ "$arrSeriesLanguage" = "$defaultLanguage" ]; then
-						log "$count of $fileCount :: Default Language Match!"
-						log "$count of $fileCount :: Any Unknown (Null) audio/subtitle tracks will be retagged as $defaultLanguage"
-						smaConfig="/config/scripts/sma_defaultlang.ini"
-					else
-					    smaConfig="/config/scripts/sma.ini"
+					if echo $category | grep sonarr | read; then
+						log "$count of $fileCount :: Refreshing Sonarr app Queue"
+						refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
+						ArrWaitForTaskCompletion
+						arrQueueItemData=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=200&sortDirection=ascending&sortKey=timeleft&includeUnknownSeriesItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id)')
+						arrSeriesId="$(echo $arrQueueItemData | jq -r .seriesId)"
+						arrSeriesCount=$(echo "$arrSeriesId" | wc -l)
+						arrEpisodeId="$(echo $arrQueueItemData | jq -r .episodeId)"
+						arrEpisodeCount=$(echo "$arrEpisodeId" | wc -l)
+						if [ -z "$arrSeriesId" ]; then
+							log "$count of $fileCount :: Could not get Series ID from Sonarr, skip tagging..."
+							tagging="-nt"
+							onlineSourceId=""
+							onlineData=""
+						else
+							arrSeriesData=$(curl -s "$arrUrl/api/v3/series/$arrSeriesId?apikey=$arrApiKey")
+							onlineSourceId="$(echo "$arrSeriesData" | jq -r ".tvdbId")"
+							arrSeriesLanguage="$(echo "$arrSeriesData" | jq -r ".originalLanguage.name")"
+							log "$count of $fileCount :: Sonarr Show ID = $arrSeriesId :: Lanuage :: $arrSeriesLanguage"
+							log "$count of $fileCount :: TVDB ID = $onlineSourceId"						
+							if [ $arrEpisodeCount -ge 2 ]; then
+								log "$count of $fileCount :: Multi episode detected, skip tagging..."
+								tagging="-nt"
+								onlineSourceId=""
+								onlineData=""
+							else
+								arrEpisodeData=$(curl -s "$arrUrl/api/v3/episode/$arrEpisodeId?apikey=$arrApiKey")
+								seasonNumber="$(echo "$arrEpisodeData" | jq -r ".seasonNumber")"
+								episodeNumber="$(echo "$arrEpisodeData" | jq -r ".episodeNumber")"
+								onlineSource="-tvdb"
+								onlineData="-tvdb $onlineSourceId -s $seasonNumber -e $episodeNumber"
+							fi
+							
+							if [ "$arrSeriesLanguage" = "$defaultLanguage" ]; then
+								log "$count of $fileCount :: Default Language Match!"
+								log "$count of $fileCount :: Any Unknown (Null) audio/subtitle tracks will be retagged as $defaultLanguage"
+								smaConfig="/config/scripts/sma_defaultlang.ini"
+							fi
+						fi
 					fi
-					
-				fi
-				if echo $category | grep sonarr | read; then
-					log "$count of $fileCount :: Refreshing Sonarr app Queue"
-					refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
-					ArrWaitForTaskCompletion
-					arrQueueItemData=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=200&sortDirection=ascending&sortKey=timeleft&includeUnknownSeriesItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id)')
-					arrSeriesId="$(echo $arrQueueItemData | jq -r .seriesId)"
-					arrSeriesCount=$(echo "$arrSeriesId" | wc -l)
-					arrEpisodeId="$(echo $arrQueueItemData | jq -r .episodeId)"
-					arrEpisodeCount=$(echo "$arrEpisodeId" | wc -l)
-					if [ -z "$arrSeriesId" ]; then
-					  log "$count of $fileCount :: Could not get Series ID from Sonarr, skip tagging..."
-					  tagging="-nt"
-					  onlineSourceId=""
-			  		  onlineData=""
-					fi
-					arrSeriesData=$(curl -s "$arrUrl/api/v3/series/$arrSeriesId?apikey=$arrApiKey")
-					onlineSourceId="$(echo "$arrSeriesData" | jq -r ".tvdbId")"
-					arrSeriesLanguage="$(echo "$arrSeriesData" | jq -r ".originalLanguage.name")"
-					log "$count of $fileCount :: Sonarr Show ID = $arrSeriesId :: Lanuage :: $arrSeriesLanguage"
-					log "$count of $fileCount :: TVDB ID = $onlineSourceId"
-					if [ $arrEpisodeCount -ge 2 ]; then
-					   log "$count of $fileCount :: Multi episode detected, skip tagging..."
-					   tagging="-nt"
-					   onlineSourceId=""
-			  		   onlineData=""
-					else
-						arrEpisodeData=$(curl -s "$arrUrl/api/v3/episode/$arrEpisodeId?apikey=$arrApiKey")
-						seasonNumber="$(echo "$arrEpisodeData" | jq -r ".seasonNumber")"
-						episodeNumber="$(echo "$arrEpisodeData" | jq -r ".episodeNumber")"
-						onlineSource="-tvdb"
-						onlineData="-tvdb $onlineSourceId -s $seasonNumber -e $episodeNumber"
-					fi
-					
-					if [ "$arrSeriesLanguage" = "$defaultLanguage" ]; then
-						log "$count of $fileCount :: Default Language Match!"
-						log "$count of $fileCount :: Any Unknown (Null) audio/subtitle tracks will be retagged as $defaultLanguage"
-						smaConfig="/config/scripts/sma_defaultlang.ini"
-					else
-					    smaConfig="/config/scripts/sma.ini"
-					fi
-					
 				fi
 			else
 			  onlineSourceId=""
 			  onlineData=""
+			fi
+
+			if [ -z "$smaConfig" ]; then
+				smaConfig="/config/scripts/sma.ini"
 			fi
 
 			if [ ! -f "$smaConfig" ]; then
@@ -293,17 +296,16 @@ VideoSmaProcess (){
 			fi
 
 			# Manual run of Sickbeard MP4 Automator
-				if python3 /config/scripts/sma/manual.py --config "$smaConfig" -i "$file" $tagging $onlineData; then
+			if python3 /config/scripts/sma/manual.py --config "$smaConfig" -i "$file" $tagging $onlineData; then
 					log "$count of $fileCount :: Complete!"
-				else
+			else
 					log "$count of $fileCount :: ERROR :: SMA Processing Error"
 					rm "$file" && log "INFO: deleted: $fileName"
-				fi
-			else
-				log "$count of $fileCount :: ERROR :: SMA Processing Error"
-				log "$count of $fileCount :: ERROR :: \"$smaConfig\" configuration file is missing..."
-				rm "$file" && log "INFO: deleted: $fileName"
 			fi
+		else
+			log "$count of $fileCount :: ERROR :: SMA Processing Error"
+			log "$count of $fileCount :: ERROR :: \"$smaConfig\" configuration file is missing..."
+			rm "$file" && log "INFO: deleted: $fileName"
 		fi
 	done
 	smaProcessComplete="true"
