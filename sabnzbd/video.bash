@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="3.3"
+scriptVersion="3.4"
 scriptName="Video"
 
 #### Import Settings
@@ -211,6 +211,8 @@ VideoSmaProcess (){
 			fi
 			log "$count of $fileCount :: Processing with SMA..."
 			if [ -f "/config/scripts/sma.ini" ]; then
+			    onlineSourceId=""
+			  	onlineData=""
 				if [ ${enableSmaTagging} = true ]; then
 					arrItemId=""
 					arrItemData=""
@@ -286,25 +288,22 @@ VideoSmaProcess (){
 						fi
 					fi
 				fi
-			else
-			  onlineSourceId=""
-			  onlineData=""
-			fi
 
-			if [ -z "$smaConfig" ]; then
-				smaConfig="/config/scripts/sma.ini"
-			fi
+				if [ -z "$smaConfig" ]; then
+					smaConfig="/config/scripts/sma.ini"
+				fi
 
-			if [ ! -f "$smaConfig" ]; then
-				smaConfig="/config/scripts/sma.ini"
-			fi
+				if [ ! -f "$smaConfig" ]; then
+					smaConfig="/config/scripts/sma.ini"
+				fi
 
-			# Manual run of Sickbeard MP4 Automator
-			if python3 /config/scripts/sma/manual.py --config "$smaConfig" -i "$file" $tagging $onlineData; then
-					log "$count of $fileCount :: Complete!"
-			else
-					log "$count of $fileCount :: ERROR :: SMA Processing Error"
-					rm "$file" && log "INFO: deleted: $fileName"
+				# Manual run of Sickbeard MP4 Automator
+				if python3 /config/scripts/sma/manual.py --config "$smaConfig" -i "$file" $tagging $onlineData; then
+						log "$count of $fileCount :: Complete!"
+				else
+						log "$count of $fileCount :: ERROR :: SMA Processing Error"
+						rm "$file" && log "INFO: deleted: $fileName"
+				fi
 			fi
 		else
 			log "$count of $fileCount :: ERROR :: SMA Processing Error"
