@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="3.2"
+scriptVersion="3.3"
 scriptName="Video"
 
 #### Import Settings
@@ -181,17 +181,18 @@ ArrWaitForTaskCompletion () {
 	arrDownloadTaskCount=$(curl -s "$arrUrl/api/v3/command?apikey=${arrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | grep "ProcessMonitoredDownloads" | wc -l)
 	if [ "$taskCount" -ge "3" ] || [ "$arrDownloadTaskCount" -ge "1" ]; then
 	  if [ "$alerted" == "no" ]; then
-		alerted=yes
+		alerted="yes"
 		log "$count of $fileCount :: STATUS :: ARR APP BUSY :: Pausing/waiting for all active Arr app tasks to end..."
 	  else
 	    log "$count of $fileCount :: STATUS :: ARR APP BUSY :: Waiting..."
 	  fi
 	  sleep 5
 	else
-	  log "$count of $fileCount :: STATUS :: Done"
 	  break
 	fi
   done
+  log "$count of $fileCount :: STATUS :: Done"
+  sleep 2
 }
 
 VideoSmaProcess (){
@@ -219,16 +220,17 @@ VideoSmaProcess (){
 						log "$count of $fileCount :: Refreshing Radarr app Queue"
 						refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
 						ArrWaitForTaskCompletion
+						log "$count of $fileCount :: Refresh complete"
 						arrItemId=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=200&sortDirection=ascending&sortKey=timeleft&includeUnknownMovieItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id) | .movieId')
 						arrItemData=$(curl -s "$arrUrl/api/v3/movie/$arrItemId?apikey=$arrApiKey")
-						arrItemLanguage="$(echo "$arrItemData" | jq -r ".originalLanguage.name")"
-						log "$count of $fileCount :: Radarr Movie ID = $arrItemId :: Language: $arrItemLanguage"
 						onlineSourceId="$(echo "$arrItemData" | jq -r ".tmdbId")"
 						if [ -z "$onlineSourceId" ]; then
 							log "$count of $fileCount :: Could not get Movie data from Radarr, skip tagging..."
 							tagging="-nt"
 							onlineData=""
 						else
+						    arrItemLanguage="$(echo "$arrItemData" | jq -r ".originalLanguage.name")"
+							log "$count of $fileCount :: Radarr Movie ID = $arrItemId :: Language: $arrItemLanguage"
 							log "$count of $fileCount :: TMDB ID = $onlineSourceId"
 							onlineData="-tmdb $onlineSourceId"
 						fi
@@ -245,17 +247,19 @@ VideoSmaProcess (){
 						log "$count of $fileCount :: Refreshing Sonarr app Queue"
 						refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
 						ArrWaitForTaskCompletion
+						log "$count of $fileCount :: Refresh complete"
 						arrQueueItemData=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=200&sortDirection=ascending&sortKey=timeleft&includeUnknownSeriesItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id)')
-						arrSeriesId="$(echo $arrQueueItemData | jq -r .seriesId)"
-						arrSeriesCount=$(echo "$arrSeriesId" | wc -l)
-						arrEpisodeId="$(echo $arrQueueItemData | jq -r .episodeId)"
-						arrEpisodeCount=$(echo "$arrEpisodeId" | wc -l)
+						#echo $arrQueueItemData
+						arrSeriesId="$(echo $arrQueueItemData | jq -r .seriesId)"						
 						if [ -z "$arrSeriesId" ]; then
 							log "$count of $fileCount :: Could not get Series ID from Sonarr, skip tagging..."
 							tagging="-nt"
 							onlineSourceId=""
 							onlineData=""
 						else
+						    arrSeriesCount=$(echo "$arrSeriesId" | wc -l)
+							arrEpisodeId="$(echo $arrQueueItemData | jq -r .episodeId)"
+							arrEpisodeCount=$(echo "$arrEpisodeId" | wc -l)
 							arrSeriesData=$(curl -s "$arrUrl/api/v3/series/$arrSeriesId?apikey=$arrApiKey")
 							onlineSourceId="$(echo "$arrSeriesData" | jq -r ".tvdbId")"
 							arrSeriesLanguage="$(echo "$arrSeriesData" | jq -r ".originalLanguage.name")"
