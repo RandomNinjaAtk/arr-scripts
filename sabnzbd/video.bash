@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="3.4"
+scriptVersion="3.5"
 scriptName="Video"
 
 #### Import Settings
@@ -223,7 +223,7 @@ VideoSmaProcess (){
 						refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
 						ArrWaitForTaskCompletion
 						log "$count of $fileCount :: Refresh complete"
-						arrItemId=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=200&sortDirection=ascending&sortKey=timeleft&includeUnknownMovieItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id) | .movieId')
+						arrItemId=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=75&sortDirection=ascending&sortKey=timeleft&includeUnknownMovieItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id) | .movieId')
 						arrItemData=$(curl -s "$arrUrl/api/v3/movie/$arrItemId?apikey=$arrApiKey")
 						onlineSourceId="$(echo "$arrItemData" | jq -r ".tmdbId")"
 						if [ -z "$onlineSourceId" ]; then
@@ -250,9 +250,8 @@ VideoSmaProcess (){
 						refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
 						ArrWaitForTaskCompletion
 						log "$count of $fileCount :: Refresh complete"
-						arrQueueItemData=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=200&sortDirection=ascending&sortKey=timeleft&includeUnknownSeriesItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id)')
-						#echo $arrQueueItemData
-						arrSeriesId="$(echo $arrQueueItemData | jq -r .seriesId)"						
+						arrQueueItemData=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=75&sortDirection=ascending&sortKey=timeleft&includeUnknownSeriesItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id)')
+						arrSeriesId="$(echo $arrQueueItemData | jq -r .seriesId | sort -u)"				
 						if [ -z "$arrSeriesId" ]; then
 							log "$count of $fileCount :: Could not get Series ID from Sonarr, skip tagging..."
 							tagging="-nt"
