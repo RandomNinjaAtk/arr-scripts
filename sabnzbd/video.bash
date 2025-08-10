@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="3.5"
+scriptVersion="3.6"
 scriptName="Video"
 
 #### Import Settings
@@ -217,6 +217,8 @@ VideoSmaProcess (){
 					arrItemId=""
 					arrItemData=""
 					smaConfig=""
+	 				arrItemLanguage=""
+	                arrSeriesLanguage=""
 					log "$count of $fileCount :: Getting Media ID"
 					if echo $category | grep radarr | read; then
 						log "$count of $fileCount :: Refreshing Radarr app Queue"
@@ -237,7 +239,7 @@ VideoSmaProcess (){
 							onlineData="-tmdb $onlineSourceId"
 						fi
 
-						if [ "$arrSeriesLanguage" = "$defaultLanguage" ]; then
+						if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
 							log "$count of $fileCount :: Default Language Match!"
 							log "$count of $fileCount :: Any Unknown (Null) audio/subtitle tracks will be retagged as $defaultLanguage"
 							smaConfig="/config/scripts/sma_defaultlang.ini"
