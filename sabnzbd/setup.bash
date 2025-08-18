@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.9"
+scriptVersion="3.0"
 
 if [ -f /config/setup_version.txt ]; then
   source /config/setup_version.txt
@@ -33,8 +33,8 @@ InstallRequirements () {
 		pylast \
 		mutagen \
         r128gain \
-		beets-audible \ # audible plugin
-  		beets-copyartifacts3 # audible plugin
+		beets-audible \
+  		beets-copyartifacts3
   echo "Done"
   if [ -d /config/scripts/sma ]; then
     rm -rf /config/scripts/sma
