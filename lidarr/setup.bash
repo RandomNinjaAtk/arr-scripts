@@ -53,6 +53,7 @@ uv pip install --system --upgrade --no-cache-dir --break-system-packages \
   r128gain \
   tidal-dl \
   deemix \
+  langdetect \
   apprise  && \
 echo "************ setup SMA ************"
 if [ -d "${SMA_PATH}"  ]; then
