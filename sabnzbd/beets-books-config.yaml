@@ -1,0 +1,68 @@
+# add audible to the list of plugins
+# copyartifacts is optional but recommended if you're manually specifying metadata via metadata.yml, see the "Importing non-audible content" section
+# also add the "web" plugin if using the docker image
+plugins: audible copyartifacts edit fromfilename scrub
+
+# Place books in their own folders to be compatible with Booksonic and Audiobookshelf servers
+paths:
+  # For books that belong to a series
+  "albumtype:audiobook series_name::.+ series_position::.+": $albumartist - $album%aunique{} ($year)/$track - $title ($year)
+  "albumtype:audiobook series_name::.+": $albumartist - $album%aunique{} ($year)/$track - $title ($year)
+  # Stand-alone books
+  "albumtype:audiobook": $albumartist - $album%aunique{} ($year)/$track - $title ($year)
+  default: $language/$albumartist/$album%aunique{}/$track - $title ($year)
+  singleton: $language/Non-Album/$artist - $title ($year)
+  comp: $language/Compilations/$album%aunique{}/$track - $title ($year)
+  albumtype_soundtrack: $language/Soundtracks/$album/$track $title ($year)
+
+# disables musicbrainz lookup, as it doesn't help for audiobooks
+musicbrainz:
+  enabled: no
+
+match:
+    strong_rec_thresh: 0.20 # 0.04
+    medium_rec_thresh: 0.25 # 0.25
+    rec_gap_thresh: 0.25 # 0.25
+
+audible:
+  # if the number of files in the book is the same as the number of chapters from Audible,
+  # attempt to match each file to an audible chapter
+  match_chapters: true
+  source_weight: 0.0 # disable the source_weight penalty
+  fetch_art: true # whether to retrieve cover art
+
+#audible:
+#  # if the number of files in the book is the same as the number of chapters from Audible,
+#  # attempt to match each file to an audible chapter
+#  match_chapters: true
+#  source_weight: 0.0 # disable the source_weight penalty
+#  fetch_art: true # whether to retrieve cover art
+#  include_narrator_in_artists: true # include author and narrator in artist tag. Or just author
+#  keep_series_reference_in_title: true # set to false to remove ", Book X" from end of titles
+#  keep_series_reference_in_subtitle: true # set to false to remove subtitle if it contains the series name and the word book ex. "Book 1 in Great Series", "Great Series, Book 1"
+#  write_description_file: true # output desc.txt
+#  write_reader_file: true # output reader.txt
+#  region: us # the region from which to obtain metadata can be omitted, by default it is "us"
+             # pick one of the available values: au, ca, de, es, fr, in, it, jp, us, uk
+             # the region value can be set for each book individually during import/re-import
+             # also it is automatically derived from 'WOAF' (WWWAUDIOFILE) tag
+             # which may contain a URL such as 'https://www.audible.com/pd/ASINSTRING' or 'audible.com'
+
+copyartifacts:
+  extensions: .yml # so that metadata.yml is copied, see below
+
+scrub:
+  auto: yes # optional, enabling this is personal preference
+
+import:
+    write: yes
+    copy: no
+    move: yes
+    resume: no
+    incremental: no
+    quiet_fallback: skip
+    timid: no
+    duplicate_action: skip
+    log: /config/scripts/beets-books.log
+    languages: ['en']
+    group_albums: no
