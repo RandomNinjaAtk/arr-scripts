@@ -132,7 +132,7 @@ if [ -d "$folderpath/matched" ]; then
 fi
 
 if [ -d "$folderpath/matched" ]; then
-  if [ $(find "$folderpath/matched" -type f -name "*.m4b" | wc -l) -gt 0 ]; then
+  if [ $(find "$folderpath/matched" -type f -regex ".*/.*\.\(flac\|opus\|m4a\|m4b\|mp3\)"| wc -l) -gt 0 ]; then
     importIntoLibrary
   fi
 fi
