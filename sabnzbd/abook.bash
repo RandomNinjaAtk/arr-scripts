@@ -84,12 +84,21 @@ mainProcess () {
 autoM4Bprocess () {
 
     log "Converting book to single chaptered m4b file..."
+
+    if [ -d "/data/auto-m4b/untagged" ]; then
+        rm -rf "/data/auto-m4b/untagged"/*
+    fi
+
     for dir in "$folderpath/matched"/*
     do
         mv "$dir" /data/auto-m4b/recentlyadded/
     done
     if [ -d "$folderpath/matched" ]; then
         rm -rf "$folderpath/matched"
+    fi
+
+    if [ -d "/data/auto-m4b/untagged" ]; then
+        rm -rf "/data/auto-m4b/untagged"/*
     fi
 
     alerted=no
@@ -111,6 +120,10 @@ autoM4Bprocess () {
     do
         mv "$dir" "$folderpath"/
     done
+
+    if [ -d "/data/auto-m4b/untagged" ]; then
+        rm -rf "/data/auto-m4b/untagged"/*
+    fi
 }
 
 importIntoLibrary () {
