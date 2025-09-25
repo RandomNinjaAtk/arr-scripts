@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="3.1"
+scriptVersion="3.2"
 
 if [ -f /config/setup_version.txt ]; then
   source /config/setup_version.txt
@@ -25,7 +25,7 @@ InstallRequirements () {
 	apk add mp3val --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing
 	echo "************ install python packages ************"
 	pip install --no-cache-dir --break-system-packages -U \
-	    beets[acousticbrainz,badfiles,fetchart,lyrics,replaygain,lastgenre,embyupdate,chroma,autobpm,plexupdate,audible,copyartifacts,edit,fromfilename,scrub,embedart] \
+	    beets[acousticbrainz,badfiles,fetchart,lyrics,lastgenre,embyupdate,chroma,plexupdate,audible,copyartifacts,edit,fromfilename,scrub,embedart] \
 		beets-audible \
 		beets-copyartifacts3
   echo "Done"
