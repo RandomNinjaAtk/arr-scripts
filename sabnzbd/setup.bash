@@ -24,16 +24,10 @@ InstallRequirements () {
 		ffmpeg
 	apk add mp3val --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing
 	echo "************ install python packages ************"
-	pip install --upgrade --no-cache-dir --break-system-packages -U \
-	    beets \
-		m4b-merge \
-		pyacoustid \
-		requests \
-		pylast \
-		mutagen \
-        r128gain \
+	pip install --no-cache-dir --break-system-packages -U \
+	    beets[acousticbrainz,badfiles,fetchart,lyrics,replaygain,lastgenre,embyupdate,chroma,autobpm,plexupdate,audible,copyartifacts,edit,fromfilename,scrub,embedart] \
 		beets-audible \
-  		beets-copyartifacts3
+		beets-copyartifacts3
   echo "Done"
   if [ -d /config/scripts/sma ]; then
     rm -rf /config/scripts/sma
