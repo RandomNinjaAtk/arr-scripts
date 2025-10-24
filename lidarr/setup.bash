@@ -22,6 +22,7 @@ apk add -U --upgrade --no-cache \
   musl-locales-lang \
   flac \
   jq \
+  xq \
   git \
   gcc \
   ffmpeg \

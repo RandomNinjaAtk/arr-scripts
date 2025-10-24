@@ -2,6 +2,7 @@
 echo "************ install and update packages ************"
 apk add -U --update --no-cache \
   jq \
+  xq \
   py3-pip \
   ffmpeg
 echo "************ install python packages ************"

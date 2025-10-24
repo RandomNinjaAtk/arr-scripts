@@ -18,6 +18,7 @@ apk add -U --update --no-cache \
   flac \
   opus-tools \
   jq \
+  xq \
   git \
   wget \
   mkvtoolnix \
