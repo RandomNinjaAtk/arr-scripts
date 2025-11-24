@@ -11,11 +11,11 @@ failVideosWithUnknownAudioTracks="true" # true = enabled, causes script to error
 requireSubs="false" # true = enabled, subtitles must be included or the download will be marked as failed
 
 sonarrUrl="http://#:8989" # Set category in SABnzbd to: sonarr
-sonarrApiKey="" # Set category in SABnzbd to: sonarr
+sonarrApiKey="#" # Set category in SABnzbd to: sonarr
 radarrUrl="http://#:7878" # Set category in SABnzbd to: radarr
-radarrApiKey=""  # Set category in SABnzbd to: radarr
+radarrApiKey="#"  # Set category in SABnzbd to: radarr
 radarr4kUrl="http://#:7879"  # Set category in SABnzbd to: radarr4k
-radarr4kApiKey=""  # Set category in SABnzbd to: radarr4k
+radarr4kApiKey="#"  # Set category in SABnzbd to: radarr4k
 
 set -e
 
@@ -71,6 +71,10 @@ VideoFileCheck () {
 
 VideoLanguageCheck () {
   log "Step - Language Check"
+  if [ -f "/config/scripts/skip" ]; then
+    rm "/config/scripts/skip"
+  fi
+  noremux="true"
 	count=0
 	fileCount=$(find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | wc -l)
 	log "Processing ${fileCount} video files..."
@@ -110,18 +114,21 @@ VideoLanguageCheck () {
 		done
 
     # Skip further processing when Number of Audio and Subtitle tracks match the preferred language 
-    if [ "$videoAudioTracksCount" == "$videoAudioTracksLanguageCount" ]; then
+    if [ $videoAudioTracksCount -eq $videoAudioTracksLanguageCount ]; then
       log "Audio Track Count Match (Total $videoAudioTracksCount vs Preferred $videoAudioTracksLanguageCount)" 
-      SKIP_REMUX="true"
     else
-      SKIP_REMUX="false"
+      noremux="false"
     fi
 
-    if [ "$videoSubtitleTracksCount" == "$videoSubtitleTracksLanguageCount" ]; then
+    if [ $videoSubtitleTracksCount -eq $videoSubtitleTracksLanguageCount ]; then
       log "Subtitle Track Count Match (Total $videoSubtitleTracksCount vs Preferred $videoSubtitleTracksLanguageCount)" 
-      SKIP_REMUX="true"
     else
-      SKIP_REMUX="false"
+      noremux="false"
+    fi
+
+    if [ "$noremux" == "true" ]; then
+      log "Creating skip file"
+      touch "/config/scripts/skip"
     fi
 
 		if [ "$requireSubs" == "true" ]; then
@@ -321,11 +328,26 @@ MAIN () {
       ArrDownloadInfo
       VideoFileCheck
       VideoLanguageCheck
-      ArrDownloadInfo
-      MkvMerge
       VideoFileCheck
-      VideoLanguageCheck
-      VideoFileCheck
+      if [ -f "/config/scripts/skip" ]; then
+        log "Skip file found"
+        skipRemux="true"
+      else
+        skipRemux="false"
+      fi
+      if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mp4\|avi\)" | read; then
+        log "Non MKV files found, forcing remux"
+        skipRemux="false"
+      fi
+      if [ "$skipRemux" == "false" ]; then
+        ArrDownloadInfo
+        MkvMerge
+      else
+        log "File does not need remuxing, no further processing necessary..."
+      fi
+      if [ -f "/config/scripts/skip" ]; then
+        rm "/config/scripts/skip"
+      fi
   fi
 
   duration=$SECONDS
