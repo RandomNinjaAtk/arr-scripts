@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="2.4"
+scriptVersion="2.5"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -255,6 +255,68 @@ arrLanguage () {
     arrItemLang="zh,$videoLanguages"
   elif [ "$arrItemLanguage" == "Telugu" ]; then
     arrItemLang="te,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Turkish" ]; then
+    arrItemLang="tr,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Arabic" ]; then
+    arrItemLang="ar,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Bengali" ]; then
+    arrItemLang="bn,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Catalan" ]; then
+    arrItemLang="ca,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Croatian" ]; then
+    arrItemLang="hr,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Czech" ]; then
+    arrItemLang="cs,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Danish" ]; then
+    arrItemLang="da,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Dutch" ]; then
+    arrItemLang="nl,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Hindi" ]; then
+    arrItemLang="hi,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Hungarian" ]; then
+    arrItemLang="hu,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Icelandic" ]; then
+    arrItemLang="is,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Indonesian" ]; then
+    arrItemLang="id,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Italian" ]; then
+    arrItemLang="it,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Kannada" ]; then
+    arrItemLang="kn,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Korean" ]; then
+    arrItemLang="ko,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Latvian" ]; then
+    arrItemLang="lv,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Malayalam" ]; then
+    arrItemLang="ml,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Marathi" ]; then
+    arrItemLang="mr,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Norwegian" ]; then
+    arrItemLang="no,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Persian" ]; then
+    arrItemLang="fa,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Polish" ]; then
+    arrItemLang="pl,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Portuguese" ]; then
+    arrItemLang="pt,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Romanian" ]; then
+    arrItemLang="ro,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Russian" ]; then
+    arrItemLang="ru,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Serbian" ]; then
+    arrItemLang="sr,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Slovenian" ]; then
+    arrItemLang="sl,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Tagalog" ]; then
+    arrItemLang="tl,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Tamil" ]; then
+    arrItemLang="ta,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Thai" ]; then
+    arrItemLang="th,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Ukrainian" ]; then
+    arrItemLang="uk,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Vietnamese" ]; then
+    arrItemLang="vi,$videoLanguages"
   else
     log "ERROR :: Unconfigured Language ($arrItemLanguage), using default ($videoLanguages)"
     arrItemLang="$videoLanguages"
