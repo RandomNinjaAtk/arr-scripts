@@ -6,9 +6,9 @@ dockerPath="/config/logs"
 ##### VIDEO SCRIPT
 videoLanguages="eng" # Default: eng :: Set to required language (this is a "," separated list of ISO 639-2 language codes)
 defaultLanguage="English" # To use this porperly set the "default-language" Audio/Subtitle setting to the ISO 639-2 language code in the sma_defaultlang.ini file. The Language/word must match the exact spelling in the associated Arr App (ie: English = eng)
-requireLanguageMatch="true" # true = enabled, disables/enables checking video audio/subtitle language based on VIDEO_LANG setting
+requireLanguageMatch="true" # true = enabled, disables/enables checking video audio/subtitle language based on videoLanguages setting
 failVideosWithUnknownAudioTracks="true" # true = enabled, causes script to error out/fail download because unknown audio language tracks were found
-requireSubs="false" # true = enabled, subtitles must be included or the download will be marked as failed
+requireSubs="true" # true = enabled, subtitles must be included or the download will be marked as failed
 
 sonarrUrl="http://#:8989" # Set category in SABnzbd to: sonarr
 sonarrApiKey="#" # Set category in SABnzbd to: sonarr
@@ -113,50 +113,35 @@ VideoLanguageCheck () {
 			fi
 		done
 
-    # Skip further processing when Number of Audio and Subtitle tracks match the preferred language 
-    if [ $videoAudioTracksCount -eq $videoAudioTracksLanguageCount ]; then
-      log "Audio Track Count Match (Total $videoAudioTracksCount vs Preferred $videoAudioTracksLanguageCount)" 
-    else
-      noremux="false"
-    fi
-
-    if [ $videoSubtitleTracksCount -eq $videoSubtitleTracksLanguageCount ]; then
-      log "Subtitle Track Count Match (Total $videoSubtitleTracksCount vs Preferred $videoSubtitleTracksLanguageCount)" 
-    else
-      noremux="false"
-    fi
-
-    if [ "$noremux" == "true" ]; then
-      log "Creating skip file"
-      touch "/config/scripts/skip"
-    fi
-
 		if [ "$requireSubs" == "true" ]; then
 			if [ "${requireLanguageMatch}" = "true" ]; then
-			   if [ $videoSubtitleTracksLanguageCount -eq 0 ]; then
-					log "$count of $fileCount :: ERROR :: No subtitles found, requireSubs is enabled..."
+			  if [ $videoSubtitleTracksLanguageCount -eq 0 ]; then
+				  log "$count of $fileCount :: ERROR :: No subtitles found, requireSubs is enabled..."
 					rm "$file" && log "INFO: deleted: $fileName"
-			   elif [ $videoSubtitleTracksCount -ne $videoSubtitleTracksLanguageCount ]; then
-			      log "$count of $fileCount :: ERROR :: Expected Subtitle count ($videoSubtitleTracksLanguageCount), $videoSubtitleTracksCount subtitles found..."
-			      rm "$file" && log "INFO: deleted: $fileName"
-			   fi
+			  fi
 			elif [ $videoSubtitleTracksCount -eq 0 ]; then
 			  log "$count of $fileCount :: ERROR :: No subtitles found, requireSubs is enabled..."
 			  rm "$file" && log "INFO: deleted: $fileName"
 			fi 
 		fi
 
+    if [ ! -f "$file" ]; then
+      continue
+    fi
+
 		if [ "$failVideosWithUnknownAudioTracks" == "true" ]; then
 		  if [ "$videoUnknownAudioTracksNull" == "null" ]; then
 		   	log "$count of $fileCount :: ERROR :: $videoAudioTracksCount Unknown (null) Audio Language Tracks found, failing download and performing cleanup"
-			rm "$file" && log "INFO: deleted: $fileName"
-   			return
+			  rm "$file" && log "INFO: deleted: $fileName"
 		  elif [ $videoUnknownAudioTracksCount -ne 0 ]; then
-            		log "$count of $fileCount :: ERROR :: $videoUnknownAudioTracksCount Unknown Audio Language Tracks found, failing download and performing cleanup"
-			rm "$file" && log "INFO: deleted: $fileName"
-   			return
+        log "$count of $fileCount :: ERROR :: $videoUnknownAudioTracksCount Unknown Audio Language Tracks found, failing download and performing cleanup"
+			  rm "$file" && log "INFO: deleted: $fileName"
 		  fi
 		fi
+
+    if [ ! -f "$file" ]; then
+      continue
+    fi
 
 		if [ "$preferredLanguage" == "false" ]; then
 			if [ "$requireLanguageMatch" == "true" ]; then
@@ -165,7 +150,31 @@ VideoLanguageCheck () {
 			fi
 		fi
 
-		log "$count of $fileCount :: Processing complete for: ${fileName}!"
+    if [ ! -f "$file" ]; then
+      continue
+    fi
+
+    # Skip further processing when Number of Audio and Subtitle tracks match the preferred language 
+    if [ $videoAudioTracksCount -eq $videoAudioTracksLanguageCount ]; then
+      log "$count of $fileCount :: Audio Track Count Match (Total $videoAudioTracksCount vs Preferred $videoAudioTracksLanguageCount)" 
+    else
+      noremux="false"
+    fi
+
+    if [ $videoSubtitleTracksCount -eq $videoSubtitleTracksLanguageCount ]; then
+      log "$count of $fileCount :: Subtitle Track Count Match (Total $videoSubtitleTracksCount vs Preferred $videoSubtitleTracksLanguageCount)" 
+    else
+      noremux="false"
+    fi
+
+    if [ "$noremux" == "true" ]; then
+      log "$count of $fileCount :: Creating skip file"
+      touch "/config/scripts/skip"
+    elif [ -f "$filePath/$tempFile" ]; then
+      log "$count of $fileCount :: Removing Source Temp File"
+      rm "$filePath/$tempFile"
+    fi
+
 	done
 }
 
@@ -325,7 +334,6 @@ MAIN () {
   log "$filePath :: $downloadId :: Processing"
   if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | read; then
       log "VIDEO Detected"
-      ArrDownloadInfo
       VideoFileCheck
       VideoLanguageCheck
       VideoFileCheck
@@ -343,7 +351,7 @@ MAIN () {
         ArrDownloadInfo
         MkvMerge
       else
-        log "File does not need remuxing, no further processing necessary..."
+        log "Files do not need remuxing, no further processing necessary..."
       fi
       if [ -f "/config/scripts/skip" ]; then
         rm "/config/scripts/skip"
