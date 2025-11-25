@@ -1,11 +1,11 @@
 #!/bin/bash
-scriptVersion="2.2"
+scriptVersion="2.3"
 scriptName="Processor"
 dockerPath="/config/logs"
 
 ##### VIDEO SCRIPT
-videoLanguages="eng" # Default: eng :: Set to required language (this is a "," separated list of ISO 639-2 language codes)
-defaultLanguage="English" # To use this porperly set the "default-language" Audio/Subtitle setting to the ISO 639-2 language code in the sma_defaultlang.ini file. The Language/word must match the exact spelling in the associated Arr App (ie: English = eng)
+videoLanguages="eng" # Default: eng :: Set to required language (ISO 639-2 language codes)
+defaultLanguage="English" # The Language/word must match the exact spelling in the associated Arr App (ie: English = eng)
 requireLanguageMatch="true" # true = enabled, disables/enables checking video audio/subtitle language based on videoLanguages setting
 failVideosWithUnknownAudioTracks="true" # true = enabled, causes script to error out/fail download because unknown audio language tracks were found
 requireSubs="true" # true = enabled, subtitles must be included or the download will be marked as failed
@@ -269,7 +269,6 @@ Cleaner () {
 }
 
 ArrDownloadInfo () {
-    defaultLanguageMatch="false"
     log "Step - Getting Arr Download Information"
     if echo "$filePath" | grep "sonarr" | read; then
         arrUrl="$sonarrUrl" # Set category in SABnzbd to: sonarr
@@ -292,7 +291,7 @@ ArrDownloadInfo () {
             log "TVDB ID = $onlineSourceId"
             arrLanguage
             if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
-              log "Preferred Default Language Match!"
+              log "Default Language Match!"
               audioLang="$videoLanguages"
             else
               audioLang="$arrItemLang"
@@ -323,7 +322,7 @@ ArrDownloadInfo () {
             onlineData="-tmdb $onlineSourceId"
             arrLanguage
             if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
-              log "Preferred Default Language Match!"
+              log "Default Language Match!"
               audioLang="$videoLanguages"
             else
               audioLang="$arrItemLang"
