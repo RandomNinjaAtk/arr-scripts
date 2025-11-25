@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="2.1"
+scriptVersion="2.2"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -53,8 +53,8 @@ logfileSetup () {
 
 log () {
   m_time=`date "+%F %T"`
-  echo $m_time" :: $scriptName :: $scriptVersion :: "$1
-  echo $m_time" :: $scriptName :: $scriptVersion :: "$1 >> "$dockerPath/$logFileName"
+  echo $m_time" :: "$1
+  echo $m_time" :: "$1 >> "$dockerPath/$logFileName"
 }
 
 VideoFileCheck () {
@@ -261,6 +261,13 @@ arrLanguage () {
   fi
 }
 
+Cleaner () { 
+  if find "$filePath" -type f -not -iname "*.mkv" | read; then
+    log "Cleaner :: Removing all Non MKV Files"
+    find "$filePath" -type f -not -iname "*.mkv" -delete
+  fi
+}
+
 ArrDownloadInfo () {
     defaultLanguageMatch="false"
     log "Step - Getting Arr Download Information"
@@ -330,11 +337,10 @@ MAIN () {
   logfileSetup
   filePath="$1"
   downloadId="$SAB_NZO_ID"
+  log "Script: $scriptName :: Script Version :: $scriptVersion"
   installDependencies
-  log "$filePath :: $downloadId :: Processing"
+  # log "$filePath :: $downloadId :: Processing"
   if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | read; then
-      log "VIDEO Detected"
-      VideoFileCheck
       VideoLanguageCheck
       VideoFileCheck
       if [ -f "/config/scripts/skip" ]; then
@@ -350,12 +356,14 @@ MAIN () {
       if [ "$skipRemux" == "false" ]; then
         ArrDownloadInfo
         MkvMerge
+        VideoFileCheck
       else
         log "Files do not need remuxing, no further processing necessary..."
       fi
       if [ -f "/config/scripts/skip" ]; then
         rm "/config/scripts/skip"
       fi
+      Cleaner
   fi
 
   duration=$SECONDS
