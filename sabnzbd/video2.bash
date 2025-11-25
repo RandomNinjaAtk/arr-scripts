@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="2.3"
+scriptVersion="2.4"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -336,6 +336,7 @@ MAIN () {
   logfileSetup
   filePath="$1"
   downloadId="$SAB_NZO_ID"
+  skipRemux="false"
   log "Script: $scriptName :: Script Version :: $scriptVersion"
   installDependencies
   # log "$filePath :: $downloadId :: Processing"
@@ -345,8 +346,7 @@ MAIN () {
       if [ -f "/config/scripts/skip" ]; then
         log "Skip file found"
         skipRemux="true"
-      else
-        skipRemux="false"
+        rm "/config/scripts/skip"
       fi
       if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mp4\|avi\)" | read; then
         log "Non MKV files found, forcing remux"
@@ -358,9 +358,6 @@ MAIN () {
         VideoFileCheck
       else
         log "Files do not need remuxing, no further processing necessary..."
-      fi
-      if [ -f "/config/scripts/skip" ]; then
-        rm "/config/scripts/skip"
       fi
       Cleaner
   fi
