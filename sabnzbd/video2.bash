@@ -1,21 +1,19 @@
 #!/bin/bash
-scriptVersion="2.5"
+scriptVersion="2.6"
 scriptName="Processor"
 dockerPath="/config/logs"
 
 ##### VIDEO SCRIPT
-videoLanguages="eng" # Default: eng :: Set to required language (ISO 639-2 language codes)
-defaultLanguage="English" # The Language/word must match the exact spelling in the associated Arr App (ie: English = eng)
+videoLanguages="eng" # Default: eng :: Set to required language (this is a "," separated list of ISO 639-2 language codes)
+defaultLanguage="English" # To use this porperly set the "default-language" Audio/Subtitle setting to the ISO 639-2 language code in the sma_defaultlang.ini file. The Language/word must match the exact spelling in the associated Arr App (ie: English = eng)
 requireLanguageMatch="true" # true = enabled, disables/enables checking video audio/subtitle language based on videoLanguages setting
 failVideosWithUnknownAudioTracks="true" # true = enabled, causes script to error out/fail download because unknown audio language tracks were found
-requireSubs="true" # true = enabled, subtitles must be included or the download will be marked as failed
+requireSubs="false" # true = enabled, subtitles must be included or the download will be marked as failed
 
-sonarrUrl="http://#:8989" # Set category in SABnzbd to: sonarr
-sonarrApiKey="#" # Set category in SABnzbd to: sonarr
-radarrUrl="http://#:7878" # Set category in SABnzbd to: radarr
-radarrApiKey="#"  # Set category in SABnzbd to: radarr
-radarr4kUrl="http://#:7879"  # Set category in SABnzbd to: radarr4k
-radarr4kApiKey="#"  # Set category in SABnzbd to: radarr4k
+sonarrUrl="http://localhost:8989" # Set category in SABnzbd to: sonarr
+sonarrApiKey="" # Set category in SABnzbd to: sonarr
+radarrUrl="http://localhost:7880" # Set category in SABnzbd to: radarr
+radarrApiKey="6e2e8770ab364e9898de35a153656507"  # Set category in SABnzbd to: radarr
 
 set -e
 
@@ -218,25 +216,26 @@ MkvMerge () {
 }
 
 ArrWaitForTaskCompletion () {
-  log "$count of $fileCount :: STATUS :: Checking ARR App Status"
+  refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
+  log "Checking ARR App Status"
   alerted=no
   until false
   do
     taskCount=$(curl -s "$arrUrl/api/v3/command?apikey=${arrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | wc -l)
-	arrDownloadTaskCount=$(curl -s "$arrUrl/api/v3/command?apikey=${arrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | grep "ProcessMonitoredDownloads" | wc -l)
-	if [ "$taskCount" -ge "3" ] || [ "$arrDownloadTaskCount" -ge "1" ]; then
-	  if [ "$alerted" == "no" ]; then
-		alerted="yes"
-		log "$count of $fileCount :: STATUS :: ARR APP BUSY :: Pausing/waiting for all active Arr app tasks to end..."
-	  else
-	    log "$count of $fileCount :: STATUS :: ARR APP BUSY :: Waiting..."
-	  fi
-	  sleep 5
-	else
-	  break
-	fi
+    arrDownloadTaskCount=$(curl -s "$arrUrl/api/v3/command?apikey=${arrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | grep "ProcessMonitoredDownloads" | wc -l)
+    arrRefreshMonitoredDownloadTaskCount=$(curl -s "$arrUrl/api/v3/command?apikey=${arrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | grep "RefreshMonitoredDownloads" | wc -l)
+    if [ "$taskCount" -ge "3" ] || [ "$arrDownloadTaskCount" -ge "1" ] || [ "$arrRefreshMonitoredDownloadTaskCount" -ge "1" ]; then
+      if [ "$alerted" == "no" ]; then
+        alerted="yes"
+        log "STATUS :: ARR APP BUSY :: Pausing/waiting for all active Arr app tasks to end..."
+        log "STATUS :: ARR APP BUSY :: Waiting..."
+      fi
+      sleep 5
+    else
+      break
+    fi
   done
-  log "$count of $fileCount :: STATUS :: Done"
+  log "STATUS :: Done"
   sleep 2
 }
 
@@ -323,6 +322,17 @@ arrLanguage () {
   fi
 }
 
+arrApiKeySelect () {
+  if echo "$filePath" | grep "sonarr" | read; then
+    arrUrl="$sonarrUrl" # Set category in SABnzbd to: sonarr
+    arrApiKey="$sonarrApiKey" # Set category in SABnzbd to: sonarr
+  fi
+  if echo "$filePath" | grep "radarr" | read; then
+      arrUrl="$radarrUrl" # Set category in SABnzbd to: radarr
+      arrApiKey="$radarrApiKey" # Set category in SABnzbd to: radarr
+  fi
+}
+
 Cleaner () { 
   if find "$filePath" -type f -not -iname "*.mkv" | read; then
     log "Cleaner :: Removing all Non MKV Files"
@@ -333,8 +343,6 @@ Cleaner () {
 ArrDownloadInfo () {
     log "Step - Getting Arr Download Information"
     if echo "$filePath" | grep "sonarr" | read; then
-        arrUrl="$sonarrUrl" # Set category in SABnzbd to: sonarr
-        arrApiKey="$sonarrApiKey" # Set category in SABnzbd to: sonarr
         arrQueueItemData=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=75&sortDirection=ascending&sortKey=timeleft&includeUnknownSeriesItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id)')
         arrSeriesId="$(echo $arrQueueItemData | jq -r .seriesId | sort -u)"				
         if [ -z "$arrSeriesId" ]; then
@@ -353,7 +361,6 @@ ArrDownloadInfo () {
             log "TVDB ID = $onlineSourceId"
             arrLanguage
             if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
-              log "Default Language Match!"
               audioLang="$videoLanguages"
             else
               audioLang="$arrItemLang"
@@ -362,14 +369,6 @@ ArrDownloadInfo () {
     fi
 
     if echo "$filePath" | grep "radarr" | read; then
-        if echo "$filePath" | grep "radarr" | read; then
-            arrUrl="$radarrUrl" # Set category in SABnzbd to: radarr
-            arrApiKey="$radarrApiKey" # Set category in SABnzbd to: radarr
-        fi
-        if echo "$filePath" | grep "radarr4k" | read; then
-            arrUrl="$radarr4kUrl" # Set category in SABnzbd to: radarr4k
-            arrApiKey="$radarr4kApiKey" # Set category in SABnzbd to: radarr4k
-        fi
         arrItemId=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=75&sortDirection=ascending&sortKey=timeleft&includeUnknownMovieItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id) | .movieId')
         arrItemData=$(curl -s "$arrUrl/api/v3/movie/$arrItemId?apikey=$arrApiKey")
         onlineSourceId="$(echo "$arrItemData" | jq -r ".tmdbId")"
@@ -384,7 +383,6 @@ ArrDownloadInfo () {
             onlineData="-tmdb $onlineSourceId"
             arrLanguage
             if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
-              log "Default Language Match!"
               audioLang="$videoLanguages"
             else
               audioLang="$arrItemLang"
@@ -401,6 +399,7 @@ MAIN () {
   skipRemux="false"
   log "Script: $scriptName :: Script Version :: $scriptVersion"
   installDependencies
+  arrApiKeySelect
   # log "$filePath :: $downloadId :: Processing"
   if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | read; then
       VideoLanguageCheck
@@ -415,6 +414,7 @@ MAIN () {
         skipRemux="false"
       fi
       if [ "$skipRemux" == "false" ]; then
+        ArrWaitForTaskCompletion
         ArrDownloadInfo
         MkvMerge
         VideoFileCheck
@@ -422,6 +422,7 @@ MAIN () {
         log "Files do not need remuxing, no further processing necessary..."
       fi
       Cleaner
+      ArrWaitForTaskCompletion
   fi
 
   duration=$SECONDS
