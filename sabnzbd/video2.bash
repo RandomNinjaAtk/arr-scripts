@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="2.9"
+scriptVersion="3.0"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -10,9 +10,9 @@ requireLanguageMatch="true" # true = enabled, disables/enables checking video au
 failVideosWithUnknownAudioTracks="true" # true = enabled, causes script to error out/fail download because unknown audio language tracks were found
 requireSubs="false" # true = enabled, subtitles must be included or the download will be marked as failed
 
-sonarrUrl="http://localhost:8989" # Set category in SABnzbd to: sonarr
+sonarrUrl="http://:8989" # Set category in SABnzbd to: sonarr
 sonarrApiKey="" # Set category in SABnzbd to: sonarr
-radarrUrl="http://localhost:7878" # Set category in SABnzbd to: radarr
+radarrUrl="http://:7880" # Set category in SABnzbd to: radarr
 radarrApiKey=""  # Set category in SABnzbd to: radarr
 
 set -e
@@ -330,6 +330,8 @@ arrLanguage () {
     arrItemLang="uk,$videoLanguages"
   elif [ "$arrItemLanguage" == "Vietnamese" ]; then
     arrItemLang="vi,$videoLanguages"
+  elif [ "$arrItemLanguage" == "Swedish" ]; then
+    arrItemLang="sv,$videoLanguages"
   else
     log "ERROR :: Unconfigured Language ($arrItemLanguage), using default ($videoLanguages)"
     arrItemLang="$videoLanguages"
