@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="3.0"
+scriptVersion="3.1"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -134,14 +134,17 @@ VideoLanguageCheck () {
           if [ $videoAudioTracksCount -eq 1 ]; then
             preferredLanguage=true
             log "$count of $fileCount :: Only 1 Audio Track Detected, it is unknown but the download matches the defaultLanguage, so we're gonna assume it's just improperly tagged and skip failing the file..."
-            if [ $videoSubtitleTracksCount -eq 0 ]; then
+            if [ $videoSubtitleTracksCount -eq $videoSubtitleTracksLanguageCount ]; then
               noremuxOverride="true"
+            else
+              log "$count of $fileCount :: ERROR :: Subtitle track count missmatch, cannot remux due to unknown audio, failing download and performing cleanup..."
+			        rm "$file" && log "INFO: deleted: $fileName"
             fi
           fi
         fi
       else
         if [ "$videoUnknownAudioTracksNull" == "null" ] || [ $videoUnknownAudioTracksCount -ne 0 ]; then
-          log "$count of $fileCount :: ERROR :: $videoAudioTracksCount Unknown (null) Audio Language Tracks found, failing download and performing cleanup"
+          log "$count of $fileCount :: ERROR :: $videoAudioTracksCount Unknown (null) Audio Language Tracks found, failing download and performing cleanup..."
           rm "$file" && log "INFO: deleted: $fileName"
         fi
       fi
@@ -171,8 +174,10 @@ VideoLanguageCheck () {
     fi
 
     if [ $videoSubtitleTracksCount -ne $videoSubtitleTracksLanguageCount ]; then
-      log "$count of $fileCount :: Subtitle Track Count Missmatch (Total $videoSubtitleTracksCount vs Preferred $videoSubtitleTracksLanguageCount), forcing remux..."
-      noremux="false"
+      if [ "$noremuxOverride" == "false" ] ; then
+        log "$count of $fileCount :: Subtitle Track Count Missmatch (Total $videoSubtitleTracksCount vs Preferred $videoSubtitleTracksLanguageCount), forcing remux..."
+        noremux="false"
+      fi
     fi
 
     if [ "$noremux" == "true" ] || [ "$noremuxOverride" == "true" ] ; then
