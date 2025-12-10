@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="3.1"
+scriptVersion="3.2"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -129,8 +129,9 @@ VideoLanguageCheck () {
     fi
 
     if [ "$failVideosWithUnknownAudioTracks" == "true" ]; then
-      if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
-        if [ "$videoUnknownAudioTracksNull" == "null" ] || [ $videoUnknownAudioTracksCount -ne 0 ]; then
+      if [ "$videoUnknownAudioTracksNull" == "null" ] || [ $videoUnknownAudioTracksCount -ne 0 ]; then
+        ArrDownloadInfo
+        if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
           if [ $videoAudioTracksCount -eq 1 ]; then
             preferredLanguage=true
             log "$count of $fileCount :: Only 1 Audio Track Detected, it is unknown but the download matches the defaultLanguage, so we're gonna assume it's just improperly tagged and skip failing the file..."
@@ -138,16 +139,16 @@ VideoLanguageCheck () {
               noremuxOverride="true"
             else
               log "$count of $fileCount :: ERROR :: Subtitle track count missmatch, cannot remux due to unknown audio, failing download and performing cleanup..."
-			        rm "$file" && log "INFO: deleted: $fileName"
+              rm "$file" && log "INFO: deleted: $fileName"
             fi
           fi
+        else
+          if [ "$videoUnknownAudioTracksNull" == "null" ] || [ $videoUnknownAudioTracksCount -ne 0 ]; then
+            log "$count of $fileCount :: ERROR :: $videoAudioTracksCount Unknown (null) Audio Language Tracks found, failing download and performing cleanup..."
+            rm "$file" && log "INFO: deleted: $fileName"
+          fi
         fi
-      else
-        if [ "$videoUnknownAudioTracksNull" == "null" ] || [ $videoUnknownAudioTracksCount -ne 0 ]; then
-          log "$count of $fileCount :: ERROR :: $videoAudioTracksCount Unknown (null) Audio Language Tracks found, failing download and performing cleanup..."
-          rm "$file" && log "INFO: deleted: $fileName"
-        fi
-      fi
+      fi  
     fi
 
     if [ ! -f "$file" ]; then
@@ -411,6 +412,7 @@ ArrDownloadInfo () {
           fi
       fi        
   fi
+  touch "/config/scripts/arr-info"
 }
 
 MAIN () {
@@ -424,7 +426,6 @@ MAIN () {
   arrApiKeySelect
   # log "$filePath :: $downloadId :: Processing"
   if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | read; then
-      ArrDownloadInfo
       if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mp4\|avi\)" | read; then
         MkvMerge "false"
         VideoFileCheck
@@ -437,10 +438,16 @@ MAIN () {
         rm "/config/scripts/skip"
       fi
       if [ "$skipRemux" == "false" ]; then
+        if [ ! -f "/config/scripts/arr-info" ]; then
+          ArrDownloadInfo
+        fi
         MkvMerge "true"
         VideoFileCheck
       else
         log "Files do not need further remuxing, no further processing necessary..."
+      fi
+      if [ -f "/config/scripts/arr-info" ]; then
+        rm "/config/scripts/arr-info"
       fi
       Cleaner
   fi
