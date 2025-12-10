@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="2.6"
+scriptVersion="2.8"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -13,7 +13,7 @@ requireSubs="false" # true = enabled, subtitles must be included or the download
 sonarrUrl="http://localhost:8989" # Set category in SABnzbd to: sonarr
 sonarrApiKey="" # Set category in SABnzbd to: sonarr
 radarrUrl="http://localhost:7880" # Set category in SABnzbd to: radarr
-radarrApiKey="6e2e8770ab364e9898de35a153656507"  # Set category in SABnzbd to: radarr
+radarrApiKey=""  # Set category in SABnzbd to: radarr
 
 set -e
 
@@ -73,6 +73,7 @@ VideoLanguageCheck () {
     rm "/config/scripts/skip"
   fi
   noremux="true"
+  noremuxOverride="false"
 	count=0
 	fileCount=$(find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | wc -l)
 	log "Processing ${fileCount} video files..."
@@ -82,24 +83,24 @@ VideoLanguageCheck () {
 		fileName="$(basename "$file")"
 		extension="${fileName##*.}"
 		log "$count of $fileCount :: Processing $fileName"
-		videoData=$(ffprobe -v quiet -print_format json -show_streams "$file")
-		videoAudioTracksCount=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"audio\") | .index" | wc -l)
-		videoUnknownAudioTracksNull=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"audio\") | .tags.language")
-		videoUnknownAudioTracksCount=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"audio\") | select(.tags.language==\"und\") | .index" | wc -l)
-		videoSubtitleTracksCount=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"subtitle\") | .index" | wc -l)
+		videoData=$(mkvmerge -J "$file")
+    videoAudioTracksCount=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="audio") | .id' | wc -l)
+    videoUnknownAudioTracksNull=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="audio") | .properties.language')
+		videoUnknownAudioTracksCount=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="audio") | select(.properties.language=="und") | .id' | wc -l)
+    videoSubtitleTracksCount=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="subtitles") | .id' | wc -l)
 		log "$count of $fileCount :: $videoAudioTracksCount Audio Tracks Found!"
 		log "$count of $fileCount :: $videoSubtitleTracksCount Subtitle Tracks Found!"
-		videoAudioLanguages=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"audio\") | .tags.language")
-		videoSubtitleLanguages=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"subtitle\") | .tags.language")
+		videoAudioLanguages=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="audio") | .properties.language')
+		videoSubtitleLanguages=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="subtitles") | .properties.language')
 
-		# Language Check
+    # Language Check
 		log "$count of $fileCount :: Checking for preferred languages \"$videoLanguages\""
 		preferredLanguage=false
 		IFS=',' read -r -a filters <<< "$videoLanguages"
 		for filter in "${filters[@]}"
 		do
-			videoAudioTracksLanguageCount=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"audio\") | select(.tags.language==\"${filter}\") | .index" | wc -l)
-			videoSubtitleTracksLanguageCount=$(echo "${videoData}" | jq -r ".streams[] | select(.codec_type==\"subtitle\") | select(.tags.language==\"${filter}\") | .index" | wc -l)
+      videoAudioTracksLanguageCount=$(echo "${videoData}" | jq -r --arg lang "$filter"  '.tracks[] | select(.type=="audio") | select(.properties.language==$lang) | .id' | wc -l)
+      videoSubtitleTracksLanguageCount=$(echo "${videoData}" | jq -r --arg lang "$filter"  '.tracks[] | select(.type=="subtitles") | select(.properties.language==$lang) | .id' | wc -l)
 			log "$count of $fileCount :: $videoAudioTracksLanguageCount \"$filter\" Audio Tracks Found!"
 			log "$count of $fileCount :: $videoSubtitleTracksLanguageCount \"$filter\" Subtitle Tracks Found!"			
 			if [ "$preferredLanguage" == "false" ]; then
@@ -127,15 +128,24 @@ VideoLanguageCheck () {
       continue
     fi
 
-		if [ "$failVideosWithUnknownAudioTracks" == "true" ]; then
-		  if [ "$videoUnknownAudioTracksNull" == "null" ]; then
-		   	log "$count of $fileCount :: ERROR :: $videoAudioTracksCount Unknown (null) Audio Language Tracks found, failing download and performing cleanup"
-			  rm "$file" && log "INFO: deleted: $fileName"
-		  elif [ $videoUnknownAudioTracksCount -ne 0 ]; then
-        log "$count of $fileCount :: ERROR :: $videoUnknownAudioTracksCount Unknown Audio Language Tracks found, failing download and performing cleanup"
-			  rm "$file" && log "INFO: deleted: $fileName"
-		  fi
-		fi
+    if [ "$failVideosWithUnknownAudioTracks" == "true" ]; then
+      if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
+        if [ "$videoUnknownAudioTracksNull" == "null" ] || [ $videoUnknownAudioTracksCount -ne 0 ]; then
+          if [ $videoAudioTracksCount -eq 1 ]; then
+            preferredLanguage=true
+            log "$count of $fileCount :: Only 1 Audio Track Detected, it is unknown but the download matches the defaultLanguage, so we're gonna assume it's just improperly tagged and skip failing the file..."
+            if [ $videoSubtitleTracksCount -eq 0 ]; then
+              noremuxOverride="true"
+            fi
+          fi
+        fi
+      else
+        if [ "$videoUnknownAudioTracksNull" == "null" ] || [ $videoUnknownAudioTracksCount -ne 0 ]; then
+          log "$count of $fileCount :: ERROR :: $videoAudioTracksCount Unknown (null) Audio Language Tracks found, failing download and performing cleanup"
+          rm "$file" && log "INFO: deleted: $fileName"
+        fi
+      fi
+    fi
 
     if [ ! -f "$file" ]; then
       continue
@@ -153,19 +163,19 @@ VideoLanguageCheck () {
     fi
 
     # Skip further processing when Number of Audio and Subtitle tracks match the preferred language 
-    if [ $videoAudioTracksCount -eq $videoAudioTracksLanguageCount ]; then
-      log "$count of $fileCount :: Audio Track Count Match (Total $videoAudioTracksCount vs Preferred $videoAudioTracksLanguageCount)" 
-    else
+    if [ $videoAudioTracksCount -ne $videoAudioTracksLanguageCount ]; then
+      if [ "$noremuxOverride" == "false" ] ; then
+        log "$count of $fileCount :: Audio Track Count Missmatch (Total $videoAudioTracksCount vs Preferred $videoAudioTracksLanguageCount), forcing remux..."
+        noremux="false"
+      fi
+    fi
+
+    if [ $videoSubtitleTracksCount -ne $videoSubtitleTracksLanguageCount ]; then
+      log "$count of $fileCount :: Subtitle Track Count Missmatch (Total $videoSubtitleTracksCount vs Preferred $videoSubtitleTracksLanguageCount), forcing remux..."
       noremux="false"
     fi
 
-    if [ $videoSubtitleTracksCount -eq $videoSubtitleTracksLanguageCount ]; then
-      log "$count of $fileCount :: Subtitle Track Count Match (Total $videoSubtitleTracksCount vs Preferred $videoSubtitleTracksLanguageCount)" 
-    else
-      noremux="false"
-    fi
-
-    if [ "$noremux" == "true" ]; then
+    if [ "$noremux" == "true" ] || [ "$noremuxOverride" == "true" ] ; then
       log "$count of $fileCount :: Creating skip file"
       touch "/config/scripts/skip"
     elif [ -f "$filePath/$tempFile" ]; then
@@ -197,8 +207,8 @@ MkvMerge () {
         fi
         if [ -f "$filePath/$tempFile" ]; then
           log "$count of $fileCount :: Dropping unwanted subtitles and converting to MKV ($tempFile ==> $newFile)"
-          log "$count of $fileCount :: Keeping only \"$audioLang\" audio and \"$videoLanguages\" subtitle languages, droping all other audio/subtitle tracks..."
-          mkvmerge -o "$filePath/$newFile" --audio-tracks $audioLang --subtitle-tracks $videoLanguages "$filePath/$tempFile" >> "$dockerPath/$logFileName"
+          log "$count of $fileCount :: Keeping only \"$audioLang,zxx\" audio and \"$videoLanguages\" subtitle languages, droping all other audio/subtitle tracks..."
+          mkvmerge -o "$filePath/$newFile" --audio-tracks $audioLang,zxx --subtitle-tracks $videoLanguages "$filePath/$tempFile" >> "$dockerPath/$logFileName"
           if [ -f "$filePath/$newFile" ]; then
               log "$count of $fileCount :: Conversion Complete"
           else
@@ -341,54 +351,55 @@ Cleaner () {
 }
 
 ArrDownloadInfo () {
-    log "Step - Getting Arr Download Information"
-    if echo "$filePath" | grep "sonarr" | read; then
-        arrQueueItemData=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=75&sortDirection=ascending&sortKey=timeleft&includeUnknownSeriesItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id)')
-        arrSeriesId="$(echo $arrQueueItemData | jq -r .seriesId | sort -u)"				
-        if [ -z "$arrSeriesId" ]; then
-            log "Could not get Series ID from Sonarr, skip..."
-            tagging="-nt"
-            onlineSourceId=""
-            onlineData=""
-        else
-            arrSeriesCount=$(echo "$arrSeriesId" | wc -l)
-            arrEpisodeId="$(echo $arrQueueItemData | jq -r .episodeId)"
-            arrEpisodeCount=$(echo "$arrEpisodeId" | wc -l)
-            arrSeriesData=$(curl -s "$arrUrl/api/v3/series/$arrSeriesId?apikey=$arrApiKey")
-            onlineSourceId="$(echo "$arrSeriesData" | jq -r ".tvdbId")"
-            arrItemLanguage="$(echo "$arrSeriesData" | jq -r ".originalLanguage.name")"
-            log "Sonarr Show ID = $arrSeriesId :: Lanuage :: $arrItemLanguage"
-            log "TVDB ID = $onlineSourceId"
-            arrLanguage
-            if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
-              audioLang="$videoLanguages"
-            else
-              audioLang="$arrItemLang"
-            fi
-        fi
-    fi
+  ArrWaitForTaskCompletion
+  log "Step - Getting Arr Download Information"
+  if echo "$filePath" | grep "sonarr" | read; then
+      arrQueueItemData=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=75&sortDirection=ascending&sortKey=timeleft&includeUnknownSeriesItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id)')
+      arrSeriesId="$(echo $arrQueueItemData | jq -r .seriesId | sort -u)"				
+      if [ -z "$arrSeriesId" ]; then
+          log "Could not get Series ID from Sonarr, skip..."
+          tagging="-nt"
+          onlineSourceId=""
+          onlineData=""
+      else
+          arrSeriesCount=$(echo "$arrSeriesId" | wc -l)
+          arrEpisodeId="$(echo $arrQueueItemData | jq -r .episodeId)"
+          arrEpisodeCount=$(echo "$arrEpisodeId" | wc -l)
+          arrSeriesData=$(curl -s "$arrUrl/api/v3/series/$arrSeriesId?apikey=$arrApiKey")
+          onlineSourceId="$(echo "$arrSeriesData" | jq -r ".tvdbId")"
+          arrItemLanguage="$(echo "$arrSeriesData" | jq -r ".originalLanguage.name")"
+          log "Sonarr Show ID = $arrSeriesId :: Lanuage :: $arrItemLanguage"
+          log "TVDB ID = $onlineSourceId"
+          arrLanguage
+          if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
+            audioLang="$videoLanguages"
+          else
+            audioLang="$arrItemLang"
+          fi
+      fi
+  fi
 
-    if echo "$filePath" | grep "radarr" | read; then
-        arrItemId=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=75&sortDirection=ascending&sortKey=timeleft&includeUnknownMovieItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id) | .movieId')
-        arrItemData=$(curl -s "$arrUrl/api/v3/movie/$arrItemId?apikey=$arrApiKey")
-        onlineSourceId="$(echo "$arrItemData" | jq -r ".tmdbId")"
-        if [ -z "$onlineSourceId" ]; then
-            log "Could not get Movie data from Radarr, skip..."
-            tagging="-nt"
-            onlineData=""
-        else
-            arrItemLanguage="$(echo "$arrItemData" | jq -r ".originalLanguage.name")"
-            log "Radarr Movie ID = $arrItemId :: Language: $arrItemLanguage"
-            log "TMDB ID = $onlineSourceId"
-            onlineData="-tmdb $onlineSourceId"
-            arrLanguage
-            if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
-              audioLang="$videoLanguages"
-            else
-              audioLang="$arrItemLang"
-            fi
-        fi        
-    fi
+  if echo "$filePath" | grep "radarr" | read; then
+      arrItemId=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=75&sortDirection=ascending&sortKey=timeleft&includeUnknownMovieItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id) | .movieId')
+      arrItemData=$(curl -s "$arrUrl/api/v3/movie/$arrItemId?apikey=$arrApiKey")
+      onlineSourceId="$(echo "$arrItemData" | jq -r ".tmdbId")"
+      if [ -z "$onlineSourceId" ]; then
+          log "Could not get Movie data from Radarr, skip..."
+          tagging="-nt"
+          onlineData=""
+      else
+          arrItemLanguage="$(echo "$arrItemData" | jq -r ".originalLanguage.name")"
+          log "Radarr Movie ID = $arrItemId :: Language: $arrItemLanguage"
+          log "TMDB ID = $onlineSourceId"
+          onlineData="-tmdb $onlineSourceId"
+          arrLanguage
+          if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
+            audioLang="$videoLanguages"
+          else
+            audioLang="$arrItemLang"
+          fi
+      fi        
+  fi
 }
 
 MAIN () {
@@ -402,6 +413,7 @@ MAIN () {
   arrApiKeySelect
   # log "$filePath :: $downloadId :: Processing"
   if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | read; then
+      ArrDownloadInfo
       VideoLanguageCheck
       VideoFileCheck
       if [ -f "/config/scripts/skip" ]; then
@@ -414,15 +426,12 @@ MAIN () {
         skipRemux="false"
       fi
       if [ "$skipRemux" == "false" ]; then
-        ArrWaitForTaskCompletion
-        ArrDownloadInfo
         MkvMerge
         VideoFileCheck
       else
         log "Files do not need remuxing, no further processing necessary..."
       fi
       Cleaner
-      ArrWaitForTaskCompletion
   fi
 
   duration=$SECONDS
