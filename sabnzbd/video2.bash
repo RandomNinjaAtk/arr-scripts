@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="2.8"
+scriptVersion="2.9"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -12,7 +12,7 @@ requireSubs="false" # true = enabled, subtitles must be included or the download
 
 sonarrUrl="http://localhost:8989" # Set category in SABnzbd to: sonarr
 sonarrApiKey="" # Set category in SABnzbd to: sonarr
-radarrUrl="http://localhost:7880" # Set category in SABnzbd to: radarr
+radarrUrl="http://localhost:7878" # Set category in SABnzbd to: radarr
 radarrApiKey=""  # Set category in SABnzbd to: radarr
 
 set -e
@@ -206,9 +206,13 @@ MkvMerge () {
           mv "$file" "$filePath/$tempFile"
         fi
         if [ -f "$filePath/$tempFile" ]; then
-          log "$count of $fileCount :: Dropping unwanted subtitles and converting to MKV ($tempFile ==> $newFile)"
-          log "$count of $fileCount :: Keeping only \"$audioLang,zxx\" audio and \"$videoLanguages\" subtitle languages, droping all other audio/subtitle tracks..."
-          mkvmerge -o "$filePath/$newFile" --audio-tracks $audioLang,zxx --subtitle-tracks $videoLanguages "$filePath/$tempFile" >> "$dockerPath/$logFileName"
+          if [ "$1" = "true" ]; then
+            log "$count of $fileCount :: Dropping unwanted subtitles and converting to MKV ($tempFile ==> $newFile)"
+            log "$count of $fileCount :: Keeping only \"$audioLang,zxx\" audio and \"$videoLanguages\" subtitle languages, droping all other audio/subtitle tracks..."
+            mkvmerge -o "$filePath/$newFile" --audio-tracks $audioLang,zxx --subtitle-tracks $videoLanguages "$filePath/$tempFile" >> "$dockerPath/$logFileName"
+          else
+            mkvmerge -o "$filePath/$newFile" "$filePath/$tempFile" >> "$dockerPath/$logFileName"
+          fi
           if [ -f "$filePath/$newFile" ]; then
               log "$count of $fileCount :: Conversion Complete"
           else
@@ -414,6 +418,10 @@ MAIN () {
   # log "$filePath :: $downloadId :: Processing"
   if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | read; then
       ArrDownloadInfo
+      if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mp4\|avi\)" | read; then
+        MkvMerge "false"
+        VideoFileCheck
+      fi
       VideoLanguageCheck
       VideoFileCheck
       if [ -f "/config/scripts/skip" ]; then
@@ -421,15 +429,11 @@ MAIN () {
         skipRemux="true"
         rm "/config/scripts/skip"
       fi
-      if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mp4\|avi\)" | read; then
-        log "Non MKV files found, forcing remux"
-        skipRemux="false"
-      fi
       if [ "$skipRemux" == "false" ]; then
-        MkvMerge
+        MkvMerge "true"
         VideoFileCheck
       else
-        log "Files do not need remuxing, no further processing necessary..."
+        log "Files do not need further remuxing, no further processing necessary..."
       fi
       Cleaner
   fi
