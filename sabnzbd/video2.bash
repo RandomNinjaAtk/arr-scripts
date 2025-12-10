@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="3.2"
+scriptVersion="3.3"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -207,32 +207,41 @@ MkvMerge () {
     tempFile="temp.$extension"
     newFile="$fileNameNoExt.mkv"
 		log "$count of $fileCount :: Processing $fileName"
-        if [ -f "$file" ]; then
-          log "$count of $fileCount :: Renaming $fileName to $tempFile"
-          mv "$file" "$filePath/$tempFile"
-        fi
-        if [ -f "$filePath/$tempFile" ]; then
-          if [ "$1" = "true" ]; then
-            log "$count of $fileCount :: Dropping unwanted subtitles and converting to MKV ($tempFile ==> $newFile)"
-            log "$count of $fileCount :: Keeping only \"$audioLang,zxx\" audio and \"$videoLanguages\" subtitle languages, droping all other audio/subtitle tracks..."
-            mkvmerge -o "$filePath/$newFile" --audio-tracks $audioLang,zxx --subtitle-tracks $videoLanguages "$filePath/$tempFile" >> "$dockerPath/$logFileName"
-          else
-            mkvmerge -o "$filePath/$newFile" "$filePath/$tempFile" >> "$dockerPath/$logFileName"
-          fi
-          if [ -f "$filePath/$newFile" ]; then
-              log "$count of $fileCount :: Conversion Complete"
-          else
-              log "$count of $fileCount :: ERROR :: File conversion failed..."
-          fi
+      if [ -f "$file" ]; then
+        log "$count of $fileCount :: Renaming $fileName to $tempFile"
+        mv "$file" "$filePath/$tempFile"
+      fi
+      if [ -f "$filePath/$tempFile" ]; then
+        if [ "$1" = "true" ]; then
+          log "$count of $fileCount :: Dropping unwanted subtitles and converting to MKV ($tempFile ==> $newFile)"
+          log "$count of $fileCount :: Keeping only \"$audioLang,zxx\" audio and \"$videoLanguages\" subtitle languages, droping all other audio/subtitle tracks..."
+          mkvmerge -o "$filePath/$newFile" --audio-tracks $audioLang,zxx --subtitle-tracks $videoLanguages "$filePath/$tempFile" >> "$dockerPath/$logFileName"
+        else
+          mkvmerge -o "$filePath/$newFile" "$filePath/$tempFile" >> "$dockerPath/$logFileName"
         fi
         if [ -f "$filePath/$newFile" ]; then
-          if [ -f "$filePath/$tempFile" ]; then
-              log "$count of $fileCount :: Removing Source Temp File"
-              rm "$filePath/$tempFile"
-          fi
+            log "$count of $fileCount :: Conversion Complete"
+        else
+            log "$count of $fileCount :: ERROR :: File conversion failed..."
         fi
+      fi
+      if [ -f "$filePath/$newFile" ]; then
+        if [ -f "$filePath/$tempFile" ]; then
+            log "$count of $fileCount :: Removing Source Temp File"
+            rm "$filePath/$tempFile"
+        fi
+      fi
+      log "$count of $fileCount :: Validating remuxed file by checking for audio tracks" 
+      newFileVideoData=$(mkvmerge -J "$filePath/$newFile")
+      newFilevideoAudioTracksCount=$(echo "${newFileVideoData}" | jq -r '.tracks[] | select(.type=="audio") | .id' | wc -l)
+      if [ $newFilevideoAudioTracksCount -eq 0 ]; then
+        log "$count of $fileCount :: ERROR :: No audio tracks found afer remuxing, performing cleanup..."
+				rm "$filePath/$newFile" && log "INFO: deleted: $newFile"
+      else
+        log "$count of $fileCount :: $newFilevideoAudioTracksCount Audio Tracks found!"
+      fi
+      log "$count of $fileCount :: Remux process complete!"
     done
-
 }
 
 ArrWaitForTaskCompletion () {
@@ -425,6 +434,9 @@ MAIN () {
   installDependencies
   arrApiKeySelect
   # log "$filePath :: $downloadId :: Processing"
+  if [ -f "/config/scripts/arr-info" ]; then
+    rm "/config/scripts/arr-info"
+  fi
   if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | read; then
       if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mp4\|avi\)" | read; then
         MkvMerge "false"
