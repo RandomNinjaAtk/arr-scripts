@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="3.3"
+scriptVersion="3.4"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -214,8 +214,8 @@ MkvMerge () {
       if [ -f "$filePath/$tempFile" ]; then
         if [ "$1" = "true" ]; then
           log "$count of $fileCount :: Dropping unwanted subtitles and converting to MKV ($tempFile ==> $newFile)"
-          log "$count of $fileCount :: Keeping only \"$audioLang,zxx\" audio and \"$videoLanguages\" subtitle languages, droping all other audio/subtitle tracks..."
-          mkvmerge -o "$filePath/$newFile" --audio-tracks $audioLang,zxx --subtitle-tracks $videoLanguages "$filePath/$tempFile" >> "$dockerPath/$logFileName"
+          log "$count of $fileCount :: Keeping only \"${audioLang}${videoLanguages},zxx\" audio and \"$videoLanguages\" subtitle languages, droping all other audio/subtitle tracks..."
+          mkvmerge -o "$filePath/$newFile" --audio-tracks ${audioLang}${videoLanguages},zxx --subtitle-tracks $videoLanguages "$filePath/$tempFile" >> "$dockerPath/$logFileName"
         else
           mkvmerge -o "$filePath/$newFile" "$filePath/$tempFile" >> "$dockerPath/$logFileName"
         fi
@@ -270,86 +270,86 @@ ArrWaitForTaskCompletion () {
 
 arrLanguage () {
   if [ "$arrItemLanguage" == "English" ]; then
-    arrItemLang="en,$videoLanguages"
+    arrItemLang="en,"
   elif [ "$arrItemLanguage" == "French" ]; then
-    arrItemLang="fr,$videoLanguages"
+    arrItemLang="fr,"
   elif [ "$arrItemLanguage" == "Japanese" ]; then
-    arrItemLang="ja,$videoLanguages"
+    arrItemLang="ja,"
   elif [ "$arrItemLanguage" == "German" ]; then
-    arrItemLang="de,$videoLanguages"
+    arrItemLang="de,"
   elif [ "$arrItemLanguage" == "Spanish" ]; then
-    arrItemLang="es,$videoLanguages"
+    arrItemLang="es,"
   elif [ "$arrItemLanguage" == "Chinese" ]; then
-    arrItemLang="zh,$videoLanguages"
+    arrItemLang="zh,"
   elif [ "$arrItemLanguage" == "Telugu" ]; then
-    arrItemLang="te,$videoLanguages"
+    arrItemLang="te,"
   elif [ "$arrItemLanguage" == "Turkish" ]; then
-    arrItemLang="tr,$videoLanguages"
+    arrItemLang="tr,"
   elif [ "$arrItemLanguage" == "Arabic" ]; then
-    arrItemLang="ar,$videoLanguages"
+    arrItemLang="ar,"
   elif [ "$arrItemLanguage" == "Bengali" ]; then
-    arrItemLang="bn,$videoLanguages"
+    arrItemLang="bn,"
   elif [ "$arrItemLanguage" == "Catalan" ]; then
-    arrItemLang="ca,$videoLanguages"
+    arrItemLang="ca,"
   elif [ "$arrItemLanguage" == "Croatian" ]; then
-    arrItemLang="hr,$videoLanguages"
+    arrItemLang="hr,"
   elif [ "$arrItemLanguage" == "Czech" ]; then
-    arrItemLang="cs,$videoLanguages"
+    arrItemLang="cs,"
   elif [ "$arrItemLanguage" == "Danish" ]; then
-    arrItemLang="da,$videoLanguages"
+    arrItemLang="da,"
   elif [ "$arrItemLanguage" == "Dutch" ]; then
-    arrItemLang="nl,$videoLanguages"
+    arrItemLang="nl,"
   elif [ "$arrItemLanguage" == "Hindi" ]; then
-    arrItemLang="hi,$videoLanguages"
+    arrItemLang="hi,"
   elif [ "$arrItemLanguage" == "Hungarian" ]; then
-    arrItemLang="hu,$videoLanguages"
+    arrItemLang="hu,"
   elif [ "$arrItemLanguage" == "Icelandic" ]; then
-    arrItemLang="is,$videoLanguages"
+    arrItemLang="is,"
   elif [ "$arrItemLanguage" == "Indonesian" ]; then
-    arrItemLang="id,$videoLanguages"
+    arrItemLang="id,"
   elif [ "$arrItemLanguage" == "Italian" ]; then
-    arrItemLang="it,$videoLanguages"
+    arrItemLang="it,"
   elif [ "$arrItemLanguage" == "Kannada" ]; then
-    arrItemLang="kn,$videoLanguages"
+    arrItemLang="kn,"
   elif [ "$arrItemLanguage" == "Korean" ]; then
-    arrItemLang="ko,$videoLanguages"
+    arrItemLang="ko,"
   elif [ "$arrItemLanguage" == "Latvian" ]; then
-    arrItemLang="lv,$videoLanguages"
+    arrItemLang="lv,"
   elif [ "$arrItemLanguage" == "Malayalam" ]; then
-    arrItemLang="ml,$videoLanguages"
+    arrItemLang="ml,"
   elif [ "$arrItemLanguage" == "Marathi" ]; then
-    arrItemLang="mr,$videoLanguages"
+    arrItemLang="mr,"
   elif [ "$arrItemLanguage" == "Norwegian" ]; then
-    arrItemLang="no,$videoLanguages"
+    arrItemLang="no,"
   elif [ "$arrItemLanguage" == "Persian" ]; then
-    arrItemLang="fa,$videoLanguages"
+    arrItemLang="fa,"
   elif [ "$arrItemLanguage" == "Polish" ]; then
-    arrItemLang="pl,$videoLanguages"
+    arrItemLang="pl,"
   elif [ "$arrItemLanguage" == "Portuguese" ]; then
-    arrItemLang="pt,$videoLanguages"
+    arrItemLang="pt,"
   elif [ "$arrItemLanguage" == "Romanian" ]; then
-    arrItemLang="ro,$videoLanguages"
+    arrItemLang="ro,"
   elif [ "$arrItemLanguage" == "Russian" ]; then
-    arrItemLang="ru,$videoLanguages"
+    arrItemLang="ru,"
   elif [ "$arrItemLanguage" == "Serbian" ]; then
-    arrItemLang="sr,$videoLanguages"
+    arrItemLang="sr,"
   elif [ "$arrItemLanguage" == "Slovenian" ]; then
-    arrItemLang="sl,$videoLanguages"
+    arrItemLang="sl,"
   elif [ "$arrItemLanguage" == "Tagalog" ]; then
-    arrItemLang="tl,$videoLanguages"
+    arrItemLang="tl,"
   elif [ "$arrItemLanguage" == "Tamil" ]; then
-    arrItemLang="ta,$videoLanguages"
+    arrItemLang="ta,"
   elif [ "$arrItemLanguage" == "Thai" ]; then
-    arrItemLang="th,$videoLanguages"
+    arrItemLang="th,"
   elif [ "$arrItemLanguage" == "Ukrainian" ]; then
-    arrItemLang="uk,$videoLanguages"
+    arrItemLang="uk,"
   elif [ "$arrItemLanguage" == "Vietnamese" ]; then
-    arrItemLang="vi,$videoLanguages"
+    arrItemLang="vi,"
   elif [ "$arrItemLanguage" == "Swedish" ]; then
-    arrItemLang="sv,$videoLanguages"
+    arrItemLang="sv,"
   else
-    log "ERROR :: Unconfigured Language ($arrItemLanguage), using default ($videoLanguages)"
-    arrItemLang="$videoLanguages"
+    log "ERROR :: Unconfigured Language ($arrItemLanguage), using default ($videoLanguages) only..."
+    arrItemLang=""
   fi
 }
 
