@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="3.8"
+scriptVersion="3.9"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -52,7 +52,6 @@ logfileSetup () {
 log () {
   m_time=`date "+%F %T"`
   echo $m_time" :: "$1
-  echo $m_time" :: "$1 >> "$dockerPath/$logFileName"
 }
 
 VideoFileCheck () {
@@ -432,6 +431,8 @@ ArrDownloadInfo () {
 MAIN () {
   SECONDS=0
   logfileSetup
+  touch "$dockerPath/$logFileName"
+  exec &> >(tee -a "$dockerPath/$logFileName")
   filePath="$1"
   downloadId="$SAB_NZO_ID"
   skipRemux="false"
