@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="3.4"
+scriptVersion="3.5"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -393,7 +393,7 @@ ArrDownloadInfo () {
           log "TVDB ID = $onlineSourceId"
           arrLanguage
           if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
-            audioLang="$videoLanguages"
+            audioLang=""
           else
             audioLang="$arrItemLang"
           fi
@@ -415,7 +415,7 @@ ArrDownloadInfo () {
           onlineData="-tmdb $onlineSourceId"
           arrLanguage
           if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
-            audioLang="$videoLanguages"
+            audioLang=""
           else
             audioLang="$arrItemLang"
           fi
