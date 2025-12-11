@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="4.1"
+scriptVersion="4.2"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -253,7 +253,6 @@ ArrWaitForTaskCompletion () {
   until false
   do
     taskCount=$(curl -s "$arrUrl/api/v3/command?apikey=${arrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | wc -l)
-    arrDownloadTaskCount=$(curl -s "$arrUrl/api/v3/command?apikey=${arrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | grep "ProcessMonitoredDownloads" | wc -l)
     arrRefreshMonitoredDownloadTaskCount=$(curl -s "$arrUrl/api/v3/command?apikey=${arrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | grep "RefreshMonitoredDownloads" | wc -l)
     if [ $arrRefreshMonitoredDownloadTaskCount -ge 1 ]; then
       if [ "$alerted" == "no" ]; then
@@ -261,13 +260,11 @@ ArrWaitForTaskCompletion () {
         log "STATUS :: ARR APP BUSY :: Pausing/waiting for all active Arr app tasks to end..."
         log "STATUS :: ARR APP BUSY :: Waiting..."
       fi
-      sleep 5
     else
       break
     fi
   done
   log "STATUS :: Done"
-  sleep 2
 }
 
 arrLanguage () {
