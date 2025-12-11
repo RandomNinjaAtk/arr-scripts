@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="3.5"
+scriptVersion="3.6"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -172,6 +172,9 @@ VideoLanguageCheck () {
         log "$count of $fileCount :: Audio Track Count Missmatch (Total $videoAudioTracksCount vs Preferred $videoAudioTracksLanguageCount), forcing remux..."
         noremux="false"
       fi
+    else
+      log "$count of $fileCount :: Skipping ARR download information step because Audio Track count matches Preferred Track Count (Total $videoAudioTracksCount vs Preferred $videoAudioTracksLanguageCount)"
+      touch "/config/scripts/arr-info"
     fi
 
     if [ $videoSubtitleTracksCount -ne $videoSubtitleTracksLanguageCount ]; then
