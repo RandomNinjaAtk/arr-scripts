@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="3.6"
+scriptVersion="3.7"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -350,6 +350,8 @@ arrLanguage () {
     arrItemLang="vi,"
   elif [ "$arrItemLanguage" == "Swedish" ]; then
     arrItemLang="sv,"
+  elif [ "$arrItemLanguage" == "Finnish" ]; then
+    arrItemLang="fi,"
   else
     log "ERROR :: Unconfigured Language ($arrItemLanguage), using default ($videoLanguages) only..."
     arrItemLang=""
