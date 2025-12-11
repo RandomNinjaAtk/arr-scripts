@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="3.9"
+scriptVersion="4.0"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -386,6 +386,7 @@ ArrDownloadInfo () {
           tagging="-nt"
           onlineSourceId=""
           onlineData=""
+          audioLang=""
       else
           arrSeriesCount=$(echo "$arrSeriesId" | wc -l)
           arrEpisodeId="$(echo $arrQueueItemData | jq -r .episodeId)"
@@ -395,10 +396,10 @@ ArrDownloadInfo () {
           arrItemLanguage="$(echo "$arrSeriesData" | jq -r ".originalLanguage.name")"
           log "Sonarr Show ID = $arrSeriesId :: Lanuage :: $arrItemLanguage"
           log "TVDB ID = $onlineSourceId"
-          arrLanguage
           if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
             audioLang=""
           else
+            arrLanguage
             audioLang="$arrItemLang"
           fi
       fi
@@ -412,15 +413,16 @@ ArrDownloadInfo () {
           log "Could not get Movie data from Radarr, skip..."
           tagging="-nt"
           onlineData=""
+          audioLang=""
       else
           arrItemLanguage="$(echo "$arrItemData" | jq -r ".originalLanguage.name")"
           log "Radarr Movie ID = $arrItemId :: Language: $arrItemLanguage"
           log "TMDB ID = $onlineSourceId"
           onlineData="-tmdb $onlineSourceId"
-          arrLanguage
           if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
             audioLang=""
           else
+            arrLanguage
             audioLang="$arrItemLang"
           fi
       fi        
