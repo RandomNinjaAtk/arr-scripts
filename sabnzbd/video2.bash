@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="3.7"
+scriptVersion="3.8"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -218,9 +218,9 @@ MkvMerge () {
         if [ "$1" = "true" ]; then
           log "$count of $fileCount :: Dropping unwanted subtitles and converting to MKV ($tempFile ==> $newFile)"
           log "$count of $fileCount :: Keeping only \"${audioLang}${videoLanguages},zxx\" audio and \"$videoLanguages\" subtitle languages, droping all other audio/subtitle tracks..."
-          mkvmerge -o "$filePath/$newFile" --audio-tracks ${audioLang}${videoLanguages},zxx --subtitle-tracks $videoLanguages "$filePath/$tempFile" >> "$dockerPath/$logFileName"
+          mkvmerge -o "$filePath/$newFile" --audio-tracks ${audioLang}${videoLanguages},zxx --subtitle-tracks $videoLanguages "$filePath/$tempFile"
         else
-          mkvmerge -o "$filePath/$newFile" "$filePath/$tempFile" >> "$dockerPath/$logFileName"
+          mkvmerge -o "$filePath/$newFile" "$filePath/$tempFile"
         fi
         if [ -f "$filePath/$newFile" ]; then
             log "$count of $fileCount :: Conversion Complete"
