@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="4.2"
+scriptVersion="4.3"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -470,7 +470,12 @@ MAIN () {
   fi
 
   duration=$SECONDS
-  log "Post Processing Completed in $(($duration / 60 )) minutes and $(($duration % 60 )) seconds!"
+  if [ $duration -gt 60 ]; then
+    echo "COMPETE :: Post Processed in $(($duration / 60 )) minutes and $(($duration % 60 )) seconds!"
+  else
+    echo "COMPETE :: Post Processed in $(($duration % 60 )) seconds!"
+  fi
+  
 }
 
 MAIN "$1"
