@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="4.5"
+scriptVersion="4.6"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -473,7 +473,7 @@ MAIN () {
   if [ $duration -ge 60 ]; then
     echo "Completed in $(($duration / 60 )) minutes and $(($duration % 60 )) seconds!"
   else
-    echo "Completed in $(($duration % 60 )) seconds!"
+    echo "Completed in $duration seconds!"
   fi
   
 }
