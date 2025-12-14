@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="4.3"
+scriptVersion="4.4"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -61,7 +61,7 @@ VideoFileCheck () {
     log "Video Files Found, continuing..."
 		sleep 0.1
 	else
-		log "ERROR: No video files found for processing"
+		echo "SCRIPT ERROR :: No video files found for processing"
 		exit 1
 	fi
 }
@@ -471,9 +471,9 @@ MAIN () {
 
   duration=$SECONDS
   if [ $duration -gt 60 ]; then
-    echo "COMPETE :: Post Processed in $(($duration / 60 )) minutes and $(($duration % 60 )) seconds!"
+    echo "Completed in $(($duration / 60 )) minutes and $(($duration % 60 )) seconds!"
   else
-    echo "COMPETE :: Post Processed in $(($duration % 60 )) seconds!"
+    echo "Completed in $(($duration % 60 )) seconds!"
   fi
   
 }
