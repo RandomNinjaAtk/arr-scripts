@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="4.6"
+scriptVersion="4.8"
 scriptName="Processor"
 dockerPath="/config/logs"
 
@@ -192,6 +192,26 @@ VideoLanguageCheck () {
     fi
 
 	done
+}
+
+MkvPropEdit () {
+  log "Step - MkvPropEdit" 
+  count=0
+  tempFile=""
+	fileCount=$(find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | wc -l)
+	log "Processing ${fileCount} video files with mkvmerge..."
+	find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" -print0 | while IFS= read -r -d '' file; do
+		count=$(($count+1))
+		baseFileName="${file%.*}"
+		fileName="$(basename "$file")"
+    fileNameNoExt="${fileName%.*}"
+		extension="${fileName##*.}"
+    tempFile="temp.$extension"
+    newFile="$fileNameNoExt.mkv"
+		log "$count of $fileCount :: Processing $fileName"
+    log "$count of $fileCount :: Removing Title"
+    mkvpropedit "$file" --delete title
+  done
 }
 
 MkvMerge () {
@@ -466,6 +486,7 @@ MAIN () {
       if [ -f "/config/scripts/arr-info" ]; then
         rm "/config/scripts/arr-info"
       fi
+      MkvPropEdit
       Cleaner
   fi
 
