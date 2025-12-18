@@ -1,6 +1,6 @@
 #!/bin/bash
-scriptVersion="4.9"
-scriptName="Video Processor"
+scriptVersion="5.0"
+scriptName="Video-Processor"
 dockerPath="/config/logs"
 
 ##### VIDEO SCRIPT
