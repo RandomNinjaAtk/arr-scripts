@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="6.1"
+scriptVersion="6.2"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 
@@ -61,6 +61,7 @@ VideoFileCheck () {
     log "Video Files Found, continuing..."
     sleep 0.1
   else
+    Cleaner
     echo "SCRIPT ERROR :: No video files found for processing"
     arrRefreshMonitoredDownloads
     arrRefreshMonitoredDownloads
@@ -400,9 +401,13 @@ fi
 }
 
 Cleaner () { 
-  if find "$filePath" -type f -not -iname "*.mkv" | read; then
+  if find "$filePath" -mindepth 1 -type f -not -iname "*.mkv" | read; then
     log "Cleaner :: Removing all Non MKV Files"
-    find "$filePath" -type f -not -iname "*.mkv" -delete
+    find "$filePath" -mindepth 1 -type f -not -iname "*.mkv" -delete
+  fi
+  if find "$filePath" -mindepth 1 -type d -empty | read; then
+    log "Cleaner :: Removing Empty Folders"
+    find "$filePath" -mindepth 1 -type d -empty -delete
   fi
 }
 
