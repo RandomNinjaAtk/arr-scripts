@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="5.8"
+scriptVersion="5.9"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 
@@ -498,8 +498,6 @@ MAIN () {
         MkvMerge "true"
         VideoFileCheck
         skipStatistics="true"
-      else
-        log "Files do not need further remuxing, no further processing necessary..."
       fi
       if [ -f "/config/scripts/arr-info" ]; then
         rm "/config/scripts/arr-info"
