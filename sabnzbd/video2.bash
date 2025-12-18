@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="5.5"
+scriptVersion="5.6"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 
@@ -62,6 +62,8 @@ VideoFileCheck () {
 		sleep 0.1
 	else
 		echo "SCRIPT ERROR :: No video files found for processing"
+    ArrImportNotification
+    ArrImportNotification
 		exit 1
 	fi
 }
