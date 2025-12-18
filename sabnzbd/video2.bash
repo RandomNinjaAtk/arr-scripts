@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="5.7"
+scriptVersion="5.8"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 
@@ -62,8 +62,8 @@ VideoFileCheck () {
     sleep 0.1
   else
     echo "SCRIPT ERROR :: No video files found for processing"
-    ArrImportNotification
-    ArrImportNotification
+    arrRefreshMonitoredDownloads
+    arrRefreshMonitoredDownloads
     exit 1
   fi
 }
@@ -274,7 +274,7 @@ MkvMerge () {
 }
 
 ArrWaitForTaskCompletion () {
-  refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
+  arrRefreshMonitoredDownloads
   log "Checking ARR App Status"
   alerted=no
   until false
@@ -294,7 +294,7 @@ ArrWaitForTaskCompletion () {
   log "STATUS :: Done"
 }
 
-ArrImportNotification () {
+arrRefreshMonitoredDownloads () {
   refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
 }
 
@@ -518,8 +518,8 @@ MAIN () {
   fi
 
   # Actually perform the Arr App Download Queue refresh here as the very last step....
-  ArrImportNotification
-  ArrImportNotification  
+  arrRefreshMonitoredDownloads
+  arrRefreshMonitoredDownloads  
 }
 
 MAIN "$1"
