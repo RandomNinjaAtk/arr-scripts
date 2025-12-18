@@ -381,6 +381,8 @@ arrLanguage () {
     arrItemLang="fi,"
   elif [ "$arrItemLanguage" == "Greek" ]; then
     arrItemLang="el,"
+  elif [ "$arrItemLanguage" == "Hebrew" ]; then
+    arrItemLang="he,"
   else
     log "ERROR :: Unconfigured Language ($arrItemLanguage), using default ($videoLanguages) only..."
     arrItemLang=""
