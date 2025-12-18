@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="5.3"
+scriptVersion="5.5"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 
@@ -209,8 +209,13 @@ MkvPropEdit () {
     tempFile="temp.$extension"
     newFile="$fileNameNoExt.mkv"
 		log "$count of $fileCount :: Processing $fileName"
-    log "$count of $fileCount :: Removing Title"
-    mkvpropedit "$file" --delete title
+    if [ "$1" = "false" ]; then
+      log "$count of $fileCount :: Removing Title and adding/updating track statistics"
+      mkvpropedit "$file" --delete title --add-track-statistics-tags
+    else
+      log "$count of $fileCount :: Removing Title"
+      mkvpropedit "$file" --delete title 
+    fi
   done
 }
 
@@ -463,6 +468,7 @@ MAIN () {
   filePath="$1"
   downloadId="$SAB_NZO_ID"
   skipRemux="false"
+  skipStatistics="false"
   log "Script: $scriptName :: Version ($scriptVersion)"
   installDependencies
   arrApiKeySelect
@@ -474,6 +480,7 @@ MAIN () {
       if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mp4\|avi\)" | read; then
         MkvMerge "false"
         VideoFileCheck
+        skipStatistics="true"
       fi
       VideoLanguageCheck
       VideoFileCheck
@@ -488,13 +495,14 @@ MAIN () {
         fi
         MkvMerge "true"
         VideoFileCheck
+        skipStatistics="true"
       else
         log "Files do not need further remuxing, no further processing necessary..."
       fi
       if [ -f "/config/scripts/arr-info" ]; then
         rm "/config/scripts/arr-info"
       fi
-      MkvPropEdit
+      MkvPropEdit "$skipStatistics"
       Cleaner
   fi
 
