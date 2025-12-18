@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="5.9"
+scriptVersion="6.1"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 
@@ -186,7 +186,6 @@ VideoLanguageCheck () {
     fi
 
     if [ "$noremux" == "true" ] || [ "$noremuxOverride" == "true" ] ; then
-      log "$count of $fileCount :: Creating skip file"
       touch "/config/scripts/skip"
     elif [ -f "$filePath/$tempFile" ]; then
       log "$count of $fileCount :: Removing Source Temp File"
@@ -478,33 +477,32 @@ MAIN () {
   if [ -f "/config/scripts/arr-info" ]; then
     rm "/config/scripts/arr-info"
   fi
-  if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | read; then
-      if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mp4\|avi\)" | read; then
-        MkvMerge "false"
-        VideoFileCheck
-        skipStatistics="true"
-      fi
-      VideoLanguageCheck
-      VideoFileCheck
-      if [ -f "/config/scripts/skip" ]; then
-        log "Skip file found"
-        skipRemux="true"
-        rm "/config/scripts/skip"
-      fi
-      if [ "$skipRemux" == "false" ]; then
-        if [ ! -f "/config/scripts/arr-info" ]; then
-          ArrDownloadInfo
-        fi
-        MkvMerge "true"
-        VideoFileCheck
-        skipStatistics="true"
-      fi
-      if [ -f "/config/scripts/arr-info" ]; then
-        rm "/config/scripts/arr-info"
-      fi
-      MkvPropEdit "$skipStatistics"
-      Cleaner
+  VideoFileCheck
+  if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mp4\|avi\)" | read; then
+    MkvMerge "false"
+    VideoFileCheck
+    skipStatistics="true"
   fi
+  VideoLanguageCheck
+  VideoFileCheck
+  if [ -f "/config/scripts/skip" ]; then
+    skipRemux="true"
+    rm "/config/scripts/skip"
+  fi
+  if [ "$skipRemux" == "false" ]; then
+    if [ ! -f "/config/scripts/arr-info" ]; then
+      ArrDownloadInfo
+    fi
+    MkvMerge "true"
+    VideoFileCheck
+    skipStatistics="true"
+  fi
+  if [ -f "/config/scripts/arr-info" ]; then
+    rm "/config/scripts/arr-info"
+  fi
+  MkvPropEdit "$skipStatistics"
+  Cleaner
+
 
   log "Refreshing $arrApp download queue to notify and import completed downloads"
 
