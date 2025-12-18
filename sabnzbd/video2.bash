@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="5.2"
+scriptVersion="5.3"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 
@@ -287,6 +287,10 @@ ArrWaitForTaskCompletion () {
   log "STATUS :: Done"
 }
 
+ArrImportNotification () {
+  refreshQueue=$(curl -s "$arrUrl/api/v3/command" -X POST -H 'Content-Type: application/json' -H "X-Api-Key: $arrApiKey" --data-raw '{"name":"RefreshMonitoredDownloads"}')
+}
+
 arrLanguage () {
   if [ "$arrItemLanguage" == "English" ]; then
     arrItemLang="en,"
@@ -378,13 +382,15 @@ arrLanguage () {
 
 arrApiKeySelect () {
   if echo "$filePath" | grep "sonarr" | read; then
+    arrApp="Sonarr"
     arrUrl="$sonarrUrl" # Set category in SABnzbd to: sonarr
     arrApiKey="$sonarrApiKey" # Set category in SABnzbd to: sonarr
   fi
   if echo "$filePath" | grep "radarr" | read; then
-      arrUrl="$radarrUrl" # Set category in SABnzbd to: radarr
-      arrApiKey="$radarrApiKey" # Set category in SABnzbd to: radarr
-  fi
+    arrApp="Radarr"
+    arrUrl="$radarrUrl" # Set category in SABnzbd to: radarr
+    arrApiKey="$radarrApiKey" # Set category in SABnzbd to: radarr
+fi
 }
 
 Cleaner () { 
@@ -492,13 +498,18 @@ MAIN () {
       Cleaner
   fi
 
+  log "Refreshing $arrApp download queue to notify and import completed downloads"
+
   duration=$SECONDS
   if [ $duration -ge 60 ]; then
     echo "Completed in $(($duration / 60 )) minutes and $(($duration % 60 )) seconds!"
   else
     echo "Completed in $duration seconds!"
   fi
-  
+
+  # Actually perform the Arr App Download Queue refresh here as the very last step....
+  ArrImportNotification
+  ArrImportNotification  
 }
 
 MAIN "$1"
