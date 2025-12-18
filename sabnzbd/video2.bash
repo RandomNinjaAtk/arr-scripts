@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="5.0"
+scriptVersion="5.1"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 
@@ -455,7 +455,7 @@ MAIN () {
   filePath="$1"
   downloadId="$SAB_NZO_ID"
   skipRemux="false"
-  log "Script: $scriptName :: Script Version :: $scriptVersion"
+  log "Script: $scriptName :: Version ($scriptVersion)"
   installDependencies
   arrApiKeySelect
   # log "$filePath :: $downloadId :: Processing"
