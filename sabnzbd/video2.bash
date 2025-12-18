@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="5.6"
+scriptVersion="5.7"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 
@@ -56,16 +56,16 @@ log () {
 
 VideoFileCheck () {
   log "Step - Video Check"
-	# check for video files
-	if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | read; then
+  # check for video files
+  if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | read; then
     log "Video Files Found, continuing..."
-		sleep 0.1
-	else
-		echo "SCRIPT ERROR :: No video files found for processing"
+    sleep 0.1
+  else
+    echo "SCRIPT ERROR :: No video files found for processing"
     ArrImportNotification
     ArrImportNotification
-		exit 1
-	fi
+    exit 1
+  fi
 }
 
 VideoLanguageCheck () {
@@ -75,55 +75,55 @@ VideoLanguageCheck () {
   fi
   noremux="true"
   noremuxOverride="false"
-	count=0
-	fileCount=$(find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | wc -l)
-	log "Processing ${fileCount} video files..."
-	find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" -print0 | while IFS= read -r -d '' file; do
-		count=$(($count+1))
-		baseFileName="${file%.*}"
-		fileName="$(basename "$file")"
-		extension="${fileName##*.}"
-		log "$count of $fileCount :: Processing $fileName"
-		videoData=$(mkvmerge -J "$file")
+  count=0
+  fileCount=$(find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | wc -l)
+  log "Processing ${fileCount} video files..."
+  find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" -print0 | while IFS= read -r -d '' file; do
+    count=$(($count+1))
+    baseFileName="${file%.*}"
+    fileName="$(basename "$file")"
+    extension="${fileName##*.}"
+    log "$count of $fileCount :: Processing $fileName"
+    videoData=$(mkvmerge -J "$file")
     videoAudioTracksCount=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="audio") | .id' | wc -l)
     videoUnknownAudioTracksNull=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="audio") | .properties.language')
-		videoUnknownAudioTracksCount=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="audio") | select(.properties.language=="und") | .id' | wc -l)
+    videoUnknownAudioTracksCount=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="audio") | select(.properties.language=="und") | .id' | wc -l)
     videoSubtitleTracksCount=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="subtitles") | .id' | wc -l)
-		log "$count of $fileCount :: $videoAudioTracksCount Audio Tracks Found!"
-		log "$count of $fileCount :: $videoSubtitleTracksCount Subtitle Tracks Found!"
-		videoAudioLanguages=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="audio") | .properties.language')
-		videoSubtitleLanguages=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="subtitles") | .properties.language')
+    log "$count of $fileCount :: $videoAudioTracksCount Audio Tracks Found!"
+    log "$count of $fileCount :: $videoSubtitleTracksCount Subtitle Tracks Found!"
+    videoAudioLanguages=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="audio") | .properties.language')
+    videoSubtitleLanguages=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="subtitles") | .properties.language')
 
     # Language Check
-		log "$count of $fileCount :: Checking for preferred languages \"$videoLanguages\""
-		preferredLanguage=false
-		IFS=',' read -r -a filters <<< "$videoLanguages"
-		for filter in "${filters[@]}"
-		do
+    log "$count of $fileCount :: Checking for preferred languages \"$videoLanguages\""
+    preferredLanguage=false
+    IFS=',' read -r -a filters <<< "$videoLanguages"
+    for filter in "${filters[@]}"
+    do
       videoAudioTracksLanguageCount=$(echo "${videoData}" | jq -r --arg lang "$filter"  '.tracks[] | select(.type=="audio") | select(.properties.language==$lang) | .id' | wc -l)
       videoSubtitleTracksLanguageCount=$(echo "${videoData}" | jq -r --arg lang "$filter"  '.tracks[] | select(.type=="subtitles") | select(.properties.language==$lang) | .id' | wc -l)
-			log "$count of $fileCount :: $videoAudioTracksLanguageCount \"$filter\" Audio Tracks Found!"
-			log "$count of $fileCount :: $videoSubtitleTracksLanguageCount \"$filter\" Subtitle Tracks Found!"			
-			if [ "$preferredLanguage" == "false" ]; then
-				if echo "$videoAudioLanguages" | grep -i "$filter" | read; then
-					preferredLanguage=true
-				elif echo "$videoSubtitleLanguages" | grep -i "$filter" | read; then
-					preferredLanguage=true
-				fi
-			fi
-		done
+      log "$count of $fileCount :: $videoAudioTracksLanguageCount \"$filter\" Audio Tracks Found!"
+      log "$count of $fileCount :: $videoSubtitleTracksLanguageCount \"$filter\" Subtitle Tracks Found!"			
+      if [ "$preferredLanguage" == "false" ]; then
+        if echo "$videoAudioLanguages" | grep -i "$filter" | read; then
+          preferredLanguage=true
+        elif echo "$videoSubtitleLanguages" | grep -i "$filter" | read; then
+          preferredLanguage=true
+        fi
+      fi
+    done
 
-		if [ "$requireSubs" == "true" ]; then
-			if [ "${requireLanguageMatch}" = "true" ]; then
-			  if [ $videoSubtitleTracksLanguageCount -eq 0 ]; then
-				  log "$count of $fileCount :: ERROR :: No subtitles found, requireSubs is enabled..."
-					rm "$file" && log "INFO: deleted: $fileName"
-			  fi
-			elif [ $videoSubtitleTracksCount -eq 0 ]; then
-			  log "$count of $fileCount :: ERROR :: No subtitles found, requireSubs is enabled..."
-			  rm "$file" && log "INFO: deleted: $fileName"
-			fi 
-		fi
+    if [ "$requireSubs" == "true" ]; then
+      if [ "${requireLanguageMatch}" = "true" ]; then
+        if [ $videoSubtitleTracksLanguageCount -eq 0 ]; then
+          log "$count of $fileCount :: ERROR :: No subtitles found, requireSubs is enabled..."
+          rm "$file" && log "INFO: deleted: $fileName"
+        fi
+      elif [ $videoSubtitleTracksCount -eq 0 ]; then
+        log "$count of $fileCount :: ERROR :: No subtitles found, requireSubs is enabled..."
+        rm "$file" && log "INFO: deleted: $fileName"
+      fi 
+    fi
 
     if [ ! -f "$file" ]; then
       continue
@@ -156,12 +156,12 @@ VideoLanguageCheck () {
       continue
     fi
 
-		if [ "$preferredLanguage" == "false" ]; then
-			if [ "$requireLanguageMatch" == "true" ]; then
-				log "$count of $fileCount :: ERROR :: No matching languages found in $(($videoAudioTracksCount + $videoSubtitleTracksCount)) Audio/Subtitle tracks"
-				rm "$file" && log "INFO: deleted: $fileName"
-			fi
-		fi
+    if [ "$preferredLanguage" == "false" ]; then
+      if [ "$requireLanguageMatch" == "true" ]; then
+        log "$count of $fileCount :: ERROR :: No matching languages found in $(($videoAudioTracksCount + $videoSubtitleTracksCount)) Audio/Subtitle tracks"
+        rm "$file" && log "INFO: deleted: $fileName"
+      fi
+    fi
 
     if [ ! -f "$file" ]; then
       continue
@@ -193,24 +193,24 @@ VideoLanguageCheck () {
       rm "$filePath/$tempFile"
     fi
 
-	done
+  done
 }
 
 MkvPropEdit () {
   log "Step - MkvPropEdit" 
   count=0
   tempFile=""
-	fileCount=$(find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | wc -l)
-	log "Processing ${fileCount} video files with mkvmerge..."
-	find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" -print0 | while IFS= read -r -d '' file; do
-		count=$(($count+1))
-		baseFileName="${file%.*}"
-		fileName="$(basename "$file")"
+  fileCount=$(find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | wc -l)
+  log "Processing ${fileCount} video files with mkvmerge..."
+  find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" -print0 | while IFS= read -r -d '' file; do
+    count=$(($count+1))
+    baseFileName="${file%.*}"
+    fileName="$(basename "$file")"
     fileNameNoExt="${fileName%.*}"
-		extension="${fileName##*.}"
+    extension="${fileName##*.}"
     tempFile="temp.$extension"
     newFile="$fileNameNoExt.mkv"
-		log "$count of $fileCount :: Processing $fileName"
+    log "$count of $fileCount :: Processing $fileName"
     if [ "$1" = "false" ]; then
       log "$count of $fileCount :: Removing Title and adding/updating track statistics"
       mkvpropedit "$file" --delete title --add-track-statistics-tags
@@ -225,17 +225,17 @@ MkvMerge () {
   log "Step - MKV Merge"
   count=0
   tempFile=""
-	fileCount=$(find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | wc -l)
-	log "Processing ${fileCount} video files with mkvmerge..."
-	find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" -print0 | while IFS= read -r -d '' file; do
-		count=$(($count+1))
-		baseFileName="${file%.*}"
-		fileName="$(basename "$file")"
+  fileCount=$(find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | wc -l)
+  log "Processing ${fileCount} video files with mkvmerge..."
+  find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" -print0 | while IFS= read -r -d '' file; do
+    count=$(($count+1))
+    baseFileName="${file%.*}"
+    fileName="$(basename "$file")"
     fileNameNoExt="${fileName%.*}"
-		extension="${fileName##*.}"
+    extension="${fileName##*.}"
     tempFile="temp.$extension"
     newFile="$fileNameNoExt.mkv"
-		log "$count of $fileCount :: Processing $fileName"
+    log "$count of $fileCount :: Processing $fileName"
       if [ -f "$file" ]; then
         log "$count of $fileCount :: Renaming $fileName to $tempFile"
         mv "$file" "$filePath/$tempFile"
@@ -265,7 +265,7 @@ MkvMerge () {
       newFilevideoAudioTracksCount=$(echo "${newFileVideoData}" | jq -r '.tracks[] | select(.type=="audio") | .id' | wc -l)
       if [ $newFilevideoAudioTracksCount -eq 0 ]; then
         log "$count of $fileCount :: ERROR :: No audio tracks found afer remuxing, performing cleanup..."
-				rm "$filePath/$newFile" && log "INFO: deleted: $newFile"
+        rm "$filePath/$newFile" && log "INFO: deleted: $newFile"
       else
         log "$count of $fileCount :: $newFilevideoAudioTracksCount Audio Tracks found!"
       fi
