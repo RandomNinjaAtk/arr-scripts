@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="6.2"
+scriptVersion="6.3"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 
@@ -12,6 +12,8 @@ requireSubs="false" # true = enabled, subtitles must be included or the download
 
 sonarrUrl="http://:8989" # Set category in SABnzbd to: sonarr
 sonarrApiKey="" # Set category in SABnzbd to: sonarr
+sonarranimeUrl="http://:8990" # Set category in SABnzbd to: sonarr-anime
+sonarranimeApiKey="" # Set category in SABnzbd to: sonarr-anime
 radarrUrl="http://:7880" # Set category in SABnzbd to: radarr
 radarrApiKey=""  # Set category in SABnzbd to: radarr
 
@@ -275,13 +277,13 @@ MkvMerge () {
 
 ArrWaitForTaskCompletion () {
   arrRefreshMonitoredDownloads
-  log "Checking ARR App Status"
+  log "Checking $arrApp App Status"
   alerted=no
   until false
   do
     taskCount=$(curl -s "$arrUrl/api/v3/command?apikey=${arrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | wc -l)
     arrRefreshMonitoredDownloadTaskCount=$(curl -s "$arrUrl/api/v3/command?apikey=${arrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | grep "RefreshMonitoredDownloads" | wc -l)
-    if [ $arrRefreshMonitoredDownloadTaskCount -ge 1 ]; then
+    if [ "$taskCount" -ge 3 ] || [ "$arrRefreshMonitoredDownloadTaskCount" -ge 1 ]; then
       if [ "$alerted" == "no" ]; then
         alerted="yes"
         log "STATUS :: ARR APP BUSY :: Pausing/waiting for all active Arr app tasks to end..."
@@ -395,6 +397,11 @@ arrApiKeySelect () {
     arrUrl="$sonarrUrl" # Set category in SABnzbd to: sonarr
     arrApiKey="$sonarrApiKey" # Set category in SABnzbd to: sonarr
   fi
+  if echo "$filePath" | grep "sonarr-anime" | read; then
+    arrApp="Sonarr Anime"
+    arrUrl="$sonarranimeUrl" # Set category in SABnzbd to: sonarr-anime
+    arrApiKey="$sonarranimeApiKey" # Set category in SABnzbd to: sonarr-anime
+  fi
   if echo "$filePath" | grep "radarr" | read; then
     arrApp="Radarr"
     arrUrl="$radarrUrl" # Set category in SABnzbd to: radarr
@@ -415,12 +422,12 @@ Cleaner () {
 
 ArrDownloadInfo () {
   ArrWaitForTaskCompletion
-  log "Step - Getting Arr Download Information"
+  log "Step - Getting $arrApp Download Information"
   if echo "$filePath" | grep "sonarr" | read; then
       arrQueueItemData=$(curl -s "$arrUrl/api/v3/queue?page=1&pageSize=75&sortDirection=ascending&sortKey=timeleft&includeUnknownSeriesItems=false&apikey=$arrApiKey" | jq -r --arg id "$downloadId" '.records[] | select(.downloadId==$id)')
       arrSeriesId="$(echo $arrQueueItemData | jq -r .seriesId | sort -u)"				
       if [ -z "$arrSeriesId" ]; then
-          log "Could not get Series ID from Sonarr, skip..."
+          log "Could not get Series ID from $arrApp, skip..."
           tagging="-nt"
           onlineSourceId=""
           onlineData=""
@@ -448,7 +455,7 @@ ArrDownloadInfo () {
       arrItemData=$(curl -s "$arrUrl/api/v3/movie/$arrItemId?apikey=$arrApiKey")
       onlineSourceId="$(echo "$arrItemData" | jq -r ".tmdbId")"
       if [ -z "$onlineSourceId" ]; then
-          log "Could not get Movie data from Radarr, skip..."
+          log "Could not get Movie data from $arrApp, skip..."
           tagging="-nt"
           onlineData=""
           audioLang=""
