@@ -497,8 +497,8 @@ VerifyApiAccess () {
       if [ "$alerted" == "no" ]; then
         alerted="yes"
         log "STATUS :: $arrApp is not ready, sleeping until valid response..."
-        sleep 1
       fi
+      sleep 1
     fi
   done
   log "STATUS :: Done"
