@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="6.3"
+scriptVersion="6.4"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 
@@ -134,6 +134,7 @@ VideoLanguageCheck () {
 
     if [ "$failVideosWithUnknownAudioTracks" == "true" ]; then
       if [ "$videoUnknownAudioTracksNull" == "null" ] || [ $videoUnknownAudioTracksCount -ne 0 ]; then
+        VerifyApiAccess
         ArrDownloadInfo
         if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
           if [ $videoAudioTracksCount -eq 1 ]; then
@@ -277,8 +278,8 @@ MkvMerge () {
 
 ArrWaitForTaskCompletion () {
   arrRefreshMonitoredDownloads
-  log "Checking $arrApp App Status"
-  alerted=no
+  log "Step - Checking $arrApp App Status"
+  alerted="no"
   until false
   do
     taskCount=$(curl -s "$arrUrl/api/v3/command?apikey=${arrApiKey}" | jq -r '.[] | select(.status=="started") | .name' | wc -l)
@@ -475,6 +476,34 @@ ArrDownloadInfo () {
   touch "/config/scripts/arr-info"
 }
 
+VerifyApiAccess () {
+  log "Step - Verifying $arrApp API is accessible"
+  alerted="no"
+  until false
+  do
+    arrApiTest=""
+    arrApiVersion=""
+    if [ -z "$arrApiTest" ]; then
+      arrApiVersion="v3"
+      arrApiTest="$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)"
+    fi
+    if [ -z "$arrApiTest" ]; then
+      arrApiVersion="v1"
+      arrApiTest="$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)"
+    fi
+    if [ ! -z "$arrApiTest" ]; then
+      break
+    else
+      if [ "$alerted" == "no" ]; then
+        alerted="yes"
+        log "STATUS :: $arrApp is not ready, sleeping until valid response..."
+        sleep 1
+      fi
+    fi
+  done
+  log "STATUS :: Done"
+}
+
 MAIN () {
   SECONDS=0
   logfileSetup
@@ -505,6 +534,7 @@ MAIN () {
   fi
   if [ "$skipRemux" == "false" ]; then
     if [ ! -f "/config/scripts/arr-info" ]; then
+      VerifyApiAccess
       ArrDownloadInfo
     fi
     MkvMerge "true"
