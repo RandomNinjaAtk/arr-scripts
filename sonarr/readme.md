@@ -2,7 +2,7 @@
 
 ## Requirements
 
-Container: <https://docs.linuxserver.io/images/docker-sonarr>  
+Container: <https://docs.linuxserver.io/images/docker-sonarr>
 Version Tag: develop (v4 is required for some of the features)
 
 ## Installation/setup
@@ -27,7 +27,7 @@ Updating is a bit more cumbersome. To update, do the following:
 2. Restart the container, wait for it to fully load the application.
 3. Restart the container again, for the new scripts to activate.
 
-## Uninstallation/Removal  
+## Uninstallation/Removal
 
 1. Remove the 2 added volumes and delete the contents<br>
    `/custom-services.d` and `/custom-cont-init.d`
