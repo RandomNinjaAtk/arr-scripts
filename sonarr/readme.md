@@ -2,7 +2,7 @@
 
 ## Requirements
 
-Container: <https://docs.linuxserver.io/images/docker-sonarr>  
+Container: <https://docs.linuxserver.io/images/docker-sonarr>
 Version Tag: develop (v4 is required for some of the features)
 
 ## Installation/setup
@@ -12,10 +12,12 @@ Version Tag: develop (v4 is required for some of the features)
   Docker Run Example:
   `-v /path/to/preferred/local/folder-01:/custom-services.d`
   `-v /path/to/preferred/local/folder-02:/custom-cont-init.d`
-1. Download the [script_init.bash](https://github.com/RandomNinjaAtk/arr-scripts/blob/main/sonarr/scripts_init.bash) ([Download Link](https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/scripts_init.bash)) and place it into the following folder: `/custom-cont-init.d`
-1. Start your container and wait for the application to load
-1. Optional: Customize the configuration by modifying the following file `/config/extended.conf`
-1. Restart the container
+2. Download the [script_init.bash](https://github.com/RandomNinjaAtk/arr-scripts/blob/main/sonarr/scripts_init.bash) ([Download Link](https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/scripts_init.bash)) and place it into the following folder: `/custom-cont-init.d`
+3. After downloading, make the script executable. Example:
+  chmod +x /path/to/preferred/local/folder-02/scripts_init.bash
+4. Start your container and wait for the application to load
+5. Optional: Customize the configuration by modifying the following file `/config/extended.conf`
+6. Restart the container
 
 ## Updating
 
@@ -25,7 +27,7 @@ Updating is a bit more cumbersome. To update, do the following:
 2. Restart the container, wait for it to fully load the application.
 3. Restart the container again, for the new scripts to activate.
 
-## Uninstallation/Removal  
+## Uninstallation/Removal
 
 1. Remove the 2 added volumes and delete the contents<br>
    `/custom-services.d` and `/custom-cont-init.d`
