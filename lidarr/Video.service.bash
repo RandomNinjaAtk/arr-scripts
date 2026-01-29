@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="4.1"
+scriptVersion="4.0"
 scriptName="Video"
 
 ### Import Settings

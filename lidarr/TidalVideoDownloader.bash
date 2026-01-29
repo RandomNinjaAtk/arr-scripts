@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.1"
+scriptVersion="2.2"
 scriptName="TidalVideoDownloader"
 
 #### Import Settings
