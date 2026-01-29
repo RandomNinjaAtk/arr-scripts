@@ -52,7 +52,7 @@ uv pip install --system --upgrade --no-cache-dir --break-system-packages \
   pylast \
   mutagen \
   r128gain \
-  tidal-dl \
+  tidal-dl-ng \
   deemix \
   langdetect \
   apprise  && \
@@ -107,7 +107,7 @@ if [ ! -f /config/extended/deemix_config.json ]; then
 fi
 
 if [ ! -f /config/extended/tidal-dl.json ]; then
-  echo "Download Tidal config..."
+  echo "Download Tidal (tidal-dl-ng) config..."
   curl -sfL "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/lidarr/tidal-dl.json" -o /config/extended/tidal-dl.json
   echo "Done"
 fi
