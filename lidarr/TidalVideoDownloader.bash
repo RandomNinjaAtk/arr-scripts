@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.1"
+scriptVersion="2.2"
 scriptName="TidalVideoDownloader"
 
 #### Import Settings
@@ -67,8 +67,11 @@ TidalClientSetup () {
 	
 	if [ ! -d "$videoDownloadPath/incomplete" ]; then
 		mkdir -p "$videoDownloadPath"/incomplete
-		chmod 777 "$videoDownloadPath"/incomplete
-	else
+	fi
+	
+	# Ensure proper permissions on download directories
+	chmod -R 777 "$videoDownloadPath"
+	if [ -d "$videoDownloadPath/incomplete" ]; then
 		rm -rf "$videoDownloadPath"/incomplete/*
 	fi
 	
@@ -240,9 +243,16 @@ VideoProcess () {
 		tidalArtistIds="$(echo "$tidalArtistUrl" | grep -o '[[:digit:]]*' | sort -u | head -n1)"
 		lidarrArtistTrackData=$(wget --timeout=0 -q -O - "$arrUrl/api/v1/track?artistId=$lidarrArtistId&apikey=${arrApiKey}" | jq -r .[].title)
 		log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: Getting Tidal Video Data..."
-		tidalVideosData=$(curl -s "https://api.tidal.com/v1/artists/${tidalArtistIds}/videos?countryCode=${tidalCountryCode}&offset=0&limit=100" -H "x-tidal-token: CzET4vdadNUFQ5JU" | jq -r ".items | sort_by(.explicit) | reverse | .[]")
-		tidalVideoIds=$(echo $tidalVideosData | jq -r .id)
+		tidalVideosData=$(curl -s "https://api.tidal.com/v1/artists/${tidalArtistIds}/videos?countryCode=${tidalCountryCode}&offset=0&limit=100" -H "x-tidal-token: CzET4vdadNUFQ5JU" | jq -r ".items // [] | sort_by(.explicit) | reverse | .[]")
+		tidalVideoIds=$(echo $tidalVideosData | jq -r .id 2>/dev/null)
 		tidalVideoIdsCount=$(echo "$tidalVideoIds" | wc -l)
+		
+		# Skip if no videos found
+		if [ "$tidalVideoIdsCount" -eq 0 ] || [ -z "$tidalVideoIds" ]; then
+			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: No videos found, skipping..."
+			continue
+		fi
+		
 		tidalVideoProcessNumber=0
 		
 		for id in $(echo "$tidalVideoIds"); do
@@ -335,13 +345,25 @@ VideoProcess () {
 
 			if [ ! -d "$videoDownloadPath/incomplete" ]; then
 				mkdir -p "$videoDownloadPath/incomplete"
+				chmod 777 "$videoDownloadPath/incomplete"
 			fi
 
 			downloadFailed=false
 			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Downloading..."
 			tidal-dl -r P1080 -o "$videoDownloadPath/incomplete" -l "$videoUrl" 2>&1 | tee -a "/config/logs/$logFileName"
-			find "$videoDownloadPath/incomplete" -type f -exec mv "{}" "$videoDownloadPath/incomplete"/ \;
+			
+			# Move files and clean up subdirectories first
+			find "$videoDownloadPath/incomplete" -type f -exec mv "{}" "$videoDownloadPath/incomplete"/ \; 2>/dev/null
 			find "$videoDownloadPath/incomplete" -mindepth 1 -type d -exec rm -rf "{}" \; &>/dev/null
+			
+			# Then verify download succeeded before processing
+			videoFileCount=$(find "$videoDownloadPath/incomplete" -type f -regex ".*/.*\.\(mkv\|mp4\)" 2>/dev/null | wc -l)
+			if [ "$videoFileCount" -eq 0 ]; then
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: ERROR :: Download failed - no video files found in incomplete directory"
+				downloadFailed=true
+				continue
+			fi
+			
 			find "$videoDownloadPath/incomplete" -type f -regex ".*/.*\.\(mkv\|mp4\)"  -print0 | while IFS= read -r -d '' video; do
 				file="${video}"
 				filenoext="${file%.*}"
@@ -402,6 +424,12 @@ VideoProcess () {
 
 			if [ "$downloadFailed" == "true" ]; then
 				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Skipping due to failed download..."
+				continue
+			fi
+
+			# Verify final video file exists before processing
+			if [ ! -f "$videoDownloadPath/$videoFileName" ]; then
+				log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: ERROR :: Final video file not found, skipping..."
 				continue
 			fi
 
