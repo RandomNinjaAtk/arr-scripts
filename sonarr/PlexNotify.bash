@@ -66,17 +66,17 @@ if curl -s "$plexUrl/?X-Plex-Token=$plexToken" | xq &>/dev/null; then
 		log "Plex Connection Established, version: $plexVersion"
 	fi
 else
-	# Error out if error in curl | xq . command output
+	# Error out if error in curl | xq command output
 	plexConnectionError
 fi
 
 plexLibraries="$(curl -s "$plexUrl/library/sections?X-Plex-Token=$plexToken")"
-plexLibraryData=$(echo "$plexLibraries" | xq ".MediaContainer.Directory")
+plexLibraryData=$(echo "$plexLibraries" | xq -j | jq ".MediaContainer.Directory")
 if echo "$plexLibraryData" | grep "^\[" | read; then
-	plexLibraryData=$(echo "$plexLibraries" | xq ".MediaContainer.Directory[]")
-	plexKeys=($(echo "$plexLibraries" | xq ".MediaContainer.Directory[]" | jq -r '."@key"'))
+	plexLibraryData=$(echo "$plexLibraries" | xq -j | jq ".MediaContainer.Directory[]")
+	plexKeys=($(echo "$plexLibraries" | xq -j | jq ".MediaContainer.Directory[]" | jq -r '."@key"'))
 else
-	plexKeys=($(echo "$plexLibraries" | xq ".MediaContainer.Directory" | jq -r '."@key"'))
+	plexKeys=($(echo "$plexLibraries" | xq -j | jq ".MediaContainer.Directory" | jq -r '."@key"'))
 fi
 
 if echo "$plexLibraryData" | grep "path" | grep "$arrRootFolderPath" | read; then
