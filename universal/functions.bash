@@ -21,15 +21,15 @@ logfileSetup () {
 getArrAppInfo () {
   # Get Arr App information
   if [ -z "$arrUrl" ] || [ -z "$arrApiKey" ]; then
-    arrUrlBase="$(cat /config/config.xml | xq | jq -r .Config.UrlBase)"
+    arrUrlBase="$(cat /config/config.xml | xq -x //Config/UrlBase)"
     if [ "$arrUrlBase" == "null" ]; then
       arrUrlBase=""
     else
       arrUrlBase="/$(echo "$arrUrlBase" | sed "s/\///")"
     fi
-    arrName="$(cat /config/config.xml | xq | jq -r .Config.InstanceName)"
-    arrApiKey="$(cat /config/config.xml | xq | jq -r .Config.ApiKey)"
-    arrPort="$(cat /config/config.xml | xq | jq -r .Config.Port)"
+    arrName="$(cat /config/config.xml | xq -x //Config/InstanceName)"
+    arrApiKey="$(cat /config/config.xml | xq -x //Config/ApiKey)"
+    arrPort="$(cat /config/config.xml | xq -x //Config/Port)"
     arrUrl="http://127.0.0.1:${arrPort}${arrUrlBase}"
   fi
 }

@@ -34,7 +34,7 @@ plexConnectionError () {
 
 # Validate connection
 if curl -s "$plexUrl/?X-Plex-Token=$plexToken" | xq . &>/dev/null; then
-	plexVersion=$(curl -s "$plexUrl/?X-Plex-Token=$plexToken" | xq . | jq -r '.MediaContainer."@version"')
+	plexVersion=$(curl -s "$plexUrl/?X-Plex-Token=$plexToken" | xq -x //MediaContainer/@version)
 	if [ "$plexVersion" == "null" ]; then
 		# Error out if version is null, indicates bad token
 		plexConnectionError
