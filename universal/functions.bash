@@ -19,41 +19,41 @@ logfileSetup () {
 }
 
 getArrAppInfo () {
-  # Get Arr App information
   if [ -z "$arrUrl" ] || [ -z "$arrApiKey" ]; then
-    arrUrlBase="$(cat /config/config.xml | xq | jq -r .Config.UrlBase)"
-    if [ "$arrUrlBase" == "null" ]; then
+    arrUrlBase="$(xq -x //Config/UrlBase < /config/config.xml)"
+    arrName="$(xq -x //Config/InstanceName < /config/config.xml)"
+    arrApiKey="$(xq -x //Config/ApiKey < /config/config.xml)"
+    arrPort="$(xq -x //Config/Port < /config/config.xml)"
+    if [ "$arrUrlBase" == "null" ] || [ -z "$arrUrlBase" ] || [ "$arrUrlBase" == "/" ]; then
       arrUrlBase=""
     else
-      arrUrlBase="/$(echo "$arrUrlBase" | sed "s/\///")"
+      arrUrlBase=$(echo "$arrUrlBase" | sed -e 's/^\/*//' -e 's/\/*$//')
+      arrUrlBase="/$arrUrlBase"
     fi
-    arrName="$(cat /config/config.xml | xq | jq -r .Config.InstanceName)"
-    arrApiKey="$(cat /config/config.xml | xq | jq -r .Config.ApiKey)"
-    arrPort="$(cat /config/config.xml | xq | jq -r .Config.Port)"
     arrUrl="http://127.0.0.1:${arrPort}${arrUrlBase}"
   fi
+  arrUrl="${arrUrl%/}"
 }
 
 verifyApiAccess () {
+  if ! command -v curl >/dev/null 2>&1 || ! command -v jq >/dev/null 2>&1; then
+    log "Fatal: 'curl' or 'jq' is not installed."
+    return 1
+  fi
   until false
   do
     arrApiTest=""
-    arrApiVersion=""
-    if [ -z "$arrApiTest" ]; then
-      arrApiVersion="v3"
-      arrApiTest="$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)"
-    fi
-    if [ -z "$arrApiTest" ]; then
-      arrApiVersion="v1"
-      arrApiTest="$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)"
-    fi
-    if [ ! -z "$arrApiTest" ]; then
-      break
-    else
-      log "$arrName is not ready, sleeping until valid response..."
-      sleep 1
-    fi
+    for arrApiVersion in "v3" "v1"; do
+      echo "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey"
+      arrApiTest="$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r '.instanceName // empty' 2>/dev/null)"
+      if [ -n "$arrApiTest" ]; then
+        break 2
+      fi
+    done
+    log "$arrName is not ready, sleeping until valid response..."
+    sleep 1
   done
+  log "$arrName ($arrApiTest) is ready!"
 }
 
 ConfValidationCheck () {

@@ -34,14 +34,14 @@ fi
 
 
 if [ -z "$arrUrl" ] || [ -z "$arrApiKey" ]; then
-  arrUrlBase="$(cat /config/config.xml | xq | jq -r .Config.UrlBase)"
+  arrUrlBase="$(cat /config/config.xml | xq -x //Config/UrlBase)"
   if [ "$arrUrlBase" == "null" ]; then
     arrUrlBase=""
   else
     arrUrlBase="/$(echo "$arrUrlBase" | sed "s/\///g")"
   fi
-  arrApiKey="$(cat /config/config.xml | xq | jq -r .Config.ApiKey)"
-  arrPort="$(cat /config/config.xml | xq | jq -r .Config.Port)"
+  arrApiKey="$(cat /config/config.xml | xq -x //Config/ApiKey)"
+  arrPort="$(cat /config/config.xml | xq -x //Config/Port)"
   arrUrl="http://127.0.0.1:${arrPort}${arrUrlBase}"
 fi
 

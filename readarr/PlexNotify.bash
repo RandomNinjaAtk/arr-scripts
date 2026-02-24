@@ -33,8 +33,8 @@ plexConnectionError () {
 }
 
 # Validate connection
-if curl -s "$plexUrl/?X-Plex-Token=$plexToken" | xq . &>/dev/null; then
-	plexVersion=$(curl -s "$plexUrl/?X-Plex-Token=$plexToken" | xq . | jq -r '.MediaContainer."@version"')
+if curl -s "$plexUrl/?X-Plex-Token=$plexToken" | xq &>/dev/null; then
+	plexVersion=$(curl -s "$plexUrl/?X-Plex-Token=$plexToken" | xq -x //MediaContainer//@version)
 	if [ "$plexVersion" == "null" ]; then
 		# Error out if version is null, indicates bad token
 		plexConnectionError
@@ -42,17 +42,17 @@ if curl -s "$plexUrl/?X-Plex-Token=$plexToken" | xq . &>/dev/null; then
 		log "Plex Connection Established, version: $plexVersion"
 	fi
 else
-	# Error out if error in curl | xq . command output
+	# Error out if error in curl | xq command output
 	plexConnectionError
 fi
 
 plexLibraries="$(curl -s "$plexUrl/library/sections?X-Plex-Token=$plexToken")"
-if echo "$plexLibraries" | xq ".MediaContainer.Directory | select(.\"@type\"==\"artist\")" &>/dev/null; then
-	plexKeys=($(echo "$plexLibraries" | xq ".MediaContainer.Directory | select(.\"@type\"==\"artist\")" | jq -r '."@key"'))
-	plexLibraryData=$(echo "$plexLibraries" | xq ".MediaContainer.Directory | select(.\"@type\"==\"artist\")")
-elif echo "$plexLibraries" | xq ".MediaContainer.Directory[] | select(.\"@type\"==\"artist\")" &>/dev/null; then 
-	plexKeys=($(echo "$plexLibraries" | xq ".MediaContainer.Directory[] | select(.\"@type\"==\"artist\")" | jq -r '."@key"'))
-	plexLibraryData=$(echo "$plexLibraries" | xq ".MediaContainer.Directory[] | select(.\"@type\"==\"artist\")")
+if echo "$plexLibraries" | xq -j | jq ".MediaContainer.Directory | select(.\"@type\"==\"artist\")" &>/dev/null; then
+	plexKeys=($(echo "$plexLibraries" | xq -j | jq ".MediaContainer.Directory | select(.\"@type\"==\"artist\")" | jq -r '."@key"'))
+	plexLibraryData=$(echo "$plexLibraries" | xq -j | jq ".MediaContainer.Directory | select(.\"@type\"==\"artist\")")
+elif echo "$plexLibraries" | xq -j | jq ".MediaContainer.Directory[] | select(.\"@type\"==\"artist\")" &>/dev/null; then 
+	plexKeys=($(echo "$plexLibraries" | xq -j | jq ".MediaContainer.Directory[] | select(.\"@type\"==\"artist\")" | jq -r '."@key"'))
+	plexLibraryData=$(echo "$plexLibraries" | xq -j | jq ".MediaContainer.Directory[] | select(.\"@type\"==\"artist\")")
 else
 	log "ERROR: No Plex Music Type libraries found"
 	log "ERROR: Exiting..."
