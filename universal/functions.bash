@@ -18,7 +18,6 @@ logfileSetup () {
   fi
 }
 
-
 getArrAppInfo () {
   if [ -z "$arrUrl" ] || [ -z "$arrApiKey" ]; then
     arrUrlBase="$(xq -x //Config/UrlBase < /config/config.xml)"
