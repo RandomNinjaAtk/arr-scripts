@@ -55,7 +55,7 @@ uv pip install --system --upgrade --no-cache-dir --break-system-packages \
   deemix \
   langdetect \
   apprise  && \
-uv pip install --system --upgrade --no-cache-dir --break-system-packages "git+https://github.com/FunWarry/tidal-dl-ng-For-DJ.git@master" && \
+uv pip install --system --upgrade --no-cache-dir --break-system-packages "git+https://github.com/maya-doshi/tidaler@47ae9f0e11051b40a0d6d54afccd2531fd5aa7cd" && \
 echo "************ setup SMA ************"
 if [ -d "${SMA_PATH}"  ]; then
   rm -rf "${SMA_PATH}"
