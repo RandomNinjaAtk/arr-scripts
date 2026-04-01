@@ -46,7 +46,7 @@ else
 fi
 ProcessWithBeets () {
 	log "$1 :: Start Processing..."
-	if find "$1" -type f -iname "*.flac"  | read; then
+	if find "$1" -type f -iname "*.flac" | grep -q .; then
  		sleep 0.01
    	else
     	log "$1 :: ERROR :: Only supports flac files, exiting..." 
