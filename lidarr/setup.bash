@@ -106,9 +106,9 @@ if [ ! -f /config/extended/deemix_config.json ]; then
   echo "Done"
 fi
 
-if [ ! -f /config/extended/tidal-dl.json ]; then
-  echo "Download Tidal (tidal-dl-ng) config..."
-  curl -sfL "https://raw.githubusercontent.com/samhaswon/arr-scripts/main/lidarr/tidal-dl.json" -o /config/extended/tidal-dl.json
+if [ ! -f /config/extended/tidaler.json ]; then
+  echo "Download Tidal (tidaler) config..."
+  curl -sfL "https://raw.githubusercontent.com/samhaswon/arr-scripts/main/lidarr/tidaler.json" -o /config/extended/tidaler.json
   echo "Done"
 fi
 
