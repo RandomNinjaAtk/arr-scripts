@@ -327,7 +327,7 @@ TidalClientSetup () {
 	XDG_CONFIG_HOME=/config/extended tidaler cfg quality_audio "$tidalQuality" 2>&1 | tee -a "/config/logs/$logFileName"
 	XDG_CONFIG_HOME=/config/extended tidaler cfg path_binary_ffmpeg "/usr/bin/ffmpeg" 2>&1 | tee -a "/config/logs/$logFileName"
 
-	if ! ls "${tidalerConfigDir}"/*auth*.json "${tidalerConfigDir}"/*token*.json 1>/dev/null 2>&1; then
+	if ! ls "${tidalerConfigDir}"/*settings*.json "${tidalerConfigDir}"/*token*.json 1>/dev/null 2>&1; then
 		TidalerStatusCheck
 		log "TIDAL :: ERROR :: Loading client for required authentication, please authenticate, then exit the client..."
 		NotifyWebhook "FatalError" "TIDAL requires authentication, please authenticate now (check logs)"
