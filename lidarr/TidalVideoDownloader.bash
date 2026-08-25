@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="2.1"
+scriptVersion="2.2"
 scriptName="TidalVideoDownloader"
 
 #### Import Settings
@@ -24,6 +24,9 @@ verifyConfig () {
 		downloadPath="/config/extended/downloads"
 	fi
 	videoDownloadPath="$downloadPath/tidal/videos"
+	tidalerConfigDir="/config/extended/tidaler"
+	tidalerConfigFile="${tidalerConfigDir}/config.json"
+	tidalerConfigTemplate="/config/extended/tidaler.json"
  	if [ -z "$videoScriptInterval" ]; then
   		videoScriptInterval="15m"
     	fi
@@ -45,24 +48,35 @@ verifyConfig () {
 }
 
 TidalClientSetup () {
-	log "TIDAL :: Verifying tidal-dl configuration"
-	if [ ! -f /config/xdg/.tidal-dl.json ]; then
-		log "TIDAL :: No default config found, importing default config \"tidal.json\""
-		if [ -f /config/extended/tidal-dl.json ]; then
-			cp /config/extended/tidal-dl.json /config/xdg/.tidal-dl.json
-			chmod 777 -R /config/xdg/
+	log "TIDAL :: Verifying tidaler configuration"
+	if [ ! -d /config/extended ]; then
+		mkdir -p /config/extended
+	fi
+	if [ ! -d "$tidalerConfigDir" ]; then
+		mkdir -p "$tidalerConfigDir"
+	fi
+	if [ ! -f "$tidalerConfigFile" ]; then
+		log "TIDAL :: No default config found, importing default config \"tidaler.json\""
+		if [ -f "$tidalerConfigTemplate" ]; then
+			cp "$tidalerConfigTemplate" "$tidalerConfigFile"
+			chmod 777 -R "$tidalerConfigDir"
 		fi
 	fi
-	
-	tidal-dl -o "$videoDownloadPath"/incomplete 2>&1 | tee -a "/config/logs/$logFileName"
-	tidalQuality=HiFi
 
-	if [ ! -f /config/xdg/.tidal-dl.token.json ]; then
-		#log "TIDAL :: ERROR :: Downgrade tidal-dl for workaround..."
-		#pip3 install tidal-dl==2022.3.4.2 --no-cache-dir &>/dev/null
+	tidalQuality=LOSSLESS
+	XDG_CONFIG_HOME=/config/extended tidaler cfg download_base_path "$videoDownloadPath/incomplete" 2>&1 | tee -a "/config/logs/$logFileName"
+	XDG_CONFIG_HOME=/config/extended tidaler cfg quality_audio "$tidalQuality" 2>&1 | tee -a "/config/logs/$logFileName"
+	XDG_CONFIG_HOME=/config/extended tidaler cfg quality_video "1080" 2>&1 | tee -a "/config/logs/$logFileName"
+	XDG_CONFIG_HOME=/config/extended tidaler cfg path_binary_ffmpeg "/usr/bin/ffmpeg" 2>&1 | tee -a "/config/logs/$logFileName"
+
+	if ! ls "${tidalerConfigDir}"/*auth*.json "${tidalerConfigDir}"/*token*.json 1>/dev/null 2>&1; then
 		log "TIDAL :: ERROR :: Loading client for required authentication, please authenticate, then exit the client..."
 		NotifyWebhook "FatalError" "TIDAL requires authentication, please authenticate now (check logs)"
-		tidal-dl 2>&1 | tee -a "/config/logs/$logFileName"
+		if command -v script >/dev/null 2>&1; then
+			script -q -c "PYTHONUNBUFFERED=1 XDG_CONFIG_HOME=/config/extended tidaler login" /dev/null
+		else
+			PYTHONUNBUFFERED=1 XDG_CONFIG_HOME=/config/extended tidaler login
+		fi
 	fi
 	
 	if [ ! -d "$videoDownloadPath/incomplete" ]; then
@@ -72,18 +86,18 @@ TidalClientSetup () {
 		rm -rf "$videoDownloadPath"/incomplete/*
 	fi
 	
-	#log "TIDAL :: Upgrade tidal-dl to newer version..."
-	#pip3 install tidal-dl==2022.07.06.1 --no-cache-dir &>/dev/null
+	#log "TIDAL :: Upgrade tidaler to newer version..."
+	#pip3 install tidaler --no-cache-dir &>/dev/null
 	
 }
 
-TidaldlStatusCheck () {
+TidalerStatusCheck () {
 	until false
 	do
         running=no
-        if ps aux | grep "tidal-dl" | grep -v "grep" | read; then 
+        if ps aux | grep "tidaler" | grep -v "grep" | read; then 
             running=yes
-            log "STATUS :: TIDAL-DL :: BUSY :: Pausing/waiting for all active tidal-dl tasks to end..."
+            log "STATUS :: TIDALER :: BUSY :: Pausing/waiting for all active tidaler tasks to end..."
             sleep 2
             continue
         fi
@@ -92,12 +106,12 @@ TidaldlStatusCheck () {
 }
 
 TidalClientTest () { 
-	log "TIDAL :: tidal-dl client setup verification..."
+	log "TIDAL :: tidaler client setup verification..."
 	i=0
 	while [ $i -lt 3 ]; do
 		i=$(( $i + 1 ))
-  		TidaldlStatusCheck
-		tidal-dl -q Normal -o "$videoDownloadPath"/incomplete -l "$tidalClientTestDownloadId" 2>&1 | tee -a "/config/logs/$logFileName" 
+  		TidalerStatusCheck
+		XDG_CONFIG_HOME=/config/extended tidaler dl "https://tidal.com/browse/album/$tidalClientTestDownloadId" 2>&1 | tee -a "/config/logs/$logFileName"
 		downloadCount=$(find "$videoDownloadPath"/incomplete -type f -regex ".*/.*\.\(flac\|opus\|m4a\|mp3\)" | wc -l)
 		if [ $downloadCount -le 0 ]; then
 			continue
@@ -105,11 +119,9 @@ TidalClientTest () {
 			break
 		fi
 	done
- 	tidalClientTest="unknown"
+	tidalClientTest="unknown"
 	if [ $downloadCount -le 0 ]; then
-		if [ -f /config/xdg/.tidal-dl.token.json ]; then
-			rm /config/xdg/.tidal-dl.token.json
-		fi
+		rm -f "${tidalerConfigDir}"/*auth*.json "${tidalerConfigDir}"/*token*.json
 		log "TIDAL :: ERROR :: Download failed"
 		log "TIDAL :: ERROR :: You will need to re-authenticate on next script run..."
 		log "TIDAL :: ERROR :: Exiting..."
@@ -339,7 +351,10 @@ VideoProcess () {
 
 			downloadFailed=false
 			log "$processCount/$lidarrArtistCount :: $lidarrArtistName :: $tidalVideoProcessNumber/$tidalVideoIdsCount :: $videoTitle ($id) :: Downloading..."
-			tidal-dl -r P1080 -o "$videoDownloadPath/incomplete" -l "$videoUrl" 2>&1 | tee -a "/config/logs/$logFileName"
+			XDG_CONFIG_HOME=/config/extended tidaler cfg download_base_path "$videoDownloadPath/incomplete" 2>&1 | tee -a "/config/logs/$logFileName"
+			XDG_CONFIG_HOME=/config/extended tidaler cfg quality_video "1080" 2>&1 | tee -a "/config/logs/$logFileName"
+			XDG_CONFIG_HOME=/config/extended tidaler cfg path_binary_ffmpeg "/usr/bin/ffmpeg" 2>&1 | tee -a "/config/logs/$logFileName"
+			XDG_CONFIG_HOME=/config/extended tidaler dl "$videoUrl" 2>&1 | tee -a "/config/logs/$logFileName"
 			find "$videoDownloadPath/incomplete" -type f -exec mv "{}" "$videoDownloadPath/incomplete"/ \;
 			find "$videoDownloadPath/incomplete" -mindepth 1 -type d -exec rm -rf "{}" \; &>/dev/null
 			find "$videoDownloadPath/incomplete" -type f -regex ".*/.*\.\(mkv\|mp4\)"  -print0 | while IFS= read -r -d '' video; do
