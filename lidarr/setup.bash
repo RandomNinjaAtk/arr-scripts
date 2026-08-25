@@ -54,8 +54,8 @@ uv pip install --system --upgrade --no-cache-dir --break-system-packages \
   r128gain \
   deemix \
   langdetect \
-  apprise  && \
-uv pip install --system --upgrade --no-cache-dir --break-system-packages "git+https://github.com/maya-doshi/tidaler@ca82ffa526ca0fa91484e4dd858d53a498a7f719" && \
+  apprise \
+  tidaler && \
 echo "************ setup SMA ************"
 if [ -d "${SMA_PATH}"  ]; then
   rm -rf "${SMA_PATH}"
