@@ -1,5 +1,5 @@
 #!/bin/bash
-scriptVersion="6.4"
+scriptVersion="6.6"
 scriptName="Video-Processor"
 dockerPath="/config/logs"
 
@@ -10,11 +10,11 @@ requireLanguageMatch="true" # true = enabled, disables/enables checking video au
 failVideosWithUnknownAudioTracks="true" # true = enabled, causes script to error out/fail download because unknown audio language tracks were found
 requireSubs="false" # true = enabled, subtitles must be included or the download will be marked as failed
 
-sonarrUrl="http://:8989" # Set category in SABnzbd to: sonarr
+sonarrUrl="http://sonarr:8989" # Set category in SABnzbd to: sonarr
 sonarrApiKey="" # Set category in SABnzbd to: sonarr
 sonarranimeUrl="http://:8990" # Set category in SABnzbd to: sonarr-anime
 sonarranimeApiKey="" # Set category in SABnzbd to: sonarr-anime
-radarrUrl="http://:7880" # Set category in SABnzbd to: radarr
+radarrUrl="http://radarr:7878" # Set category in SABnzbd to: radarr
 radarrApiKey=""  # Set category in SABnzbd to: radarr
 
 set -e
@@ -47,7 +47,7 @@ logfileSetup () {
   
   if [ ! -f "$dockerPath/$logFileName" ]; then
     echo "" > "$dockerPath/$logFileName"
-    chmod 666 "$dockerPath/$logFileName"
+    chmod 777 "$dockerPath/$logFileName"
   fi
 }
 
@@ -57,14 +57,14 @@ log () {
 }
 
 VideoFileCheck () {
-  log "Step - Video Check"
+  log "FILE CHECK :: Checking for valid video files..."
   # check for video files
   if find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | read; then
-    log "Video Files Found, continuing..."
+    log "FILE CHECK :: Video Files Found!"
     sleep 0.1
   else
     Cleaner
-    echo "SCRIPT ERROR :: No video files found for processing"
+    echo "FILE CHECK :: ERROR :: No video files found for processing"
     arrRefreshMonitoredDownloads
     arrRefreshMonitoredDownloads
     exit 1
@@ -86,27 +86,27 @@ VideoLanguageCheck () {
     baseFileName="${file%.*}"
     fileName="$(basename "$file")"
     extension="${fileName##*.}"
-    log "$count of $fileCount :: Processing $fileName"
+    log "LANGUAGE CHECK :: $count of $fileCount :: Processing $fileName"
     videoData=$(mkvmerge -J "$file")
     videoAudioTracksCount=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="audio") | .id' | wc -l)
     videoUnknownAudioTracksNull=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="audio") | .properties.language')
     videoUnknownAudioTracksCount=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="audio") | select(.properties.language=="und") | .id' | wc -l)
     videoSubtitleTracksCount=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="subtitles") | .id' | wc -l)
-    log "$count of $fileCount :: $videoAudioTracksCount Audio Tracks Found!"
-    log "$count of $fileCount :: $videoSubtitleTracksCount Subtitle Tracks Found!"
+    log "LANGUAGE CHECK :: $count of $fileCount :: $videoAudioTracksCount Audio Tracks Found!"
+    log "LANGUAGE CHECK :: $count of $fileCount :: $videoSubtitleTracksCount Subtitle Tracks Found!"
     videoAudioLanguages=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="audio") | .properties.language')
     videoSubtitleLanguages=$(echo "${videoData}" | jq -r '.tracks[] | select(.type=="subtitles") | .properties.language')
 
     # Language Check
-    log "$count of $fileCount :: Checking for preferred languages \"$videoLanguages\""
+    log "LANGUAGE CHECK :: $count of $fileCount :: Checking for preferred languages \"$videoLanguages\""
     preferredLanguage=false
     IFS=',' read -r -a filters <<< "$videoLanguages"
     for filter in "${filters[@]}"
     do
       videoAudioTracksLanguageCount=$(echo "${videoData}" | jq -r --arg lang "$filter"  '.tracks[] | select(.type=="audio") | select(.properties.language==$lang) | .id' | wc -l)
       videoSubtitleTracksLanguageCount=$(echo "${videoData}" | jq -r --arg lang "$filter"  '.tracks[] | select(.type=="subtitles") | select(.properties.language==$lang) | .id' | wc -l)
-      log "$count of $fileCount :: $videoAudioTracksLanguageCount \"$filter\" Audio Tracks Found!"
-      log "$count of $fileCount :: $videoSubtitleTracksLanguageCount \"$filter\" Subtitle Tracks Found!"			
+      log "LANGUAGE CHECK :: $count of $fileCount :: $videoAudioTracksLanguageCount \"$filter\" Audio Tracks Found!"
+      log "LANGUAGE CHECK :: $count of $fileCount :: $videoSubtitleTracksLanguageCount \"$filter\" Subtitle Tracks Found!"			
       if [ "$preferredLanguage" == "false" ]; then
         if echo "$videoAudioLanguages" | grep -i "$filter" | read; then
           preferredLanguage=true
@@ -119,11 +119,11 @@ VideoLanguageCheck () {
     if [ "$requireSubs" == "true" ]; then
       if [ "${requireLanguageMatch}" = "true" ]; then
         if [ $videoSubtitleTracksLanguageCount -eq 0 ]; then
-          log "$count of $fileCount :: ERROR :: No subtitles found, requireSubs is enabled..."
+          log "LANGUAGE CHECK :: $count of $fileCount :: ERROR :: No subtitles found, requireSubs is enabled..."
           rm "$file" && log "INFO: deleted: $fileName"
         fi
       elif [ $videoSubtitleTracksCount -eq 0 ]; then
-        log "$count of $fileCount :: ERROR :: No subtitles found, requireSubs is enabled..."
+        log "LANGUAGE CHECK :: $count of $fileCount :: ERROR :: No subtitles found, requireSubs is enabled..."
         rm "$file" && log "INFO: deleted: $fileName"
       fi 
     fi
@@ -139,17 +139,17 @@ VideoLanguageCheck () {
         if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
           if [ $videoAudioTracksCount -eq 1 ]; then
             preferredLanguage=true
-            log "$count of $fileCount :: Only 1 Audio Track Detected, it is unknown but the download matches the defaultLanguage, so we're gonna assume it's just improperly tagged and skip failing the file..."
+            log "LANGUAGE CHECK :: $count of $fileCount :: Only 1 Audio Track Detected, it is unknown but the download matches the defaultLanguage, so we're gonna assume it's just improperly tagged and skip failing the file..."
             if [ $videoSubtitleTracksCount -eq $videoSubtitleTracksLanguageCount ]; then
               noremuxOverride="true"
             else
-              log "$count of $fileCount :: ERROR :: Subtitle track count missmatch, cannot remux due to unknown audio, failing download and performing cleanup..."
+              log "LANGUAGE CHECK :: $count of $fileCount :: ERROR :: Subtitle track count missmatch, cannot remux due to unknown audio, failing download and performing cleanup..."
               rm "$file" && log "INFO: deleted: $fileName"
             fi
           fi
         else
           if [ "$videoUnknownAudioTracksNull" == "null" ] || [ $videoUnknownAudioTracksCount -ne 0 ]; then
-            log "$count of $fileCount :: ERROR :: $videoAudioTracksCount Unknown (null) Audio Language Tracks found, failing download and performing cleanup..."
+            log "LANGUAGE CHECK :: $count of $fileCount :: ERROR :: $videoAudioTracksCount Unknown (null) Audio Language Tracks found, failing download and performing cleanup..."
             rm "$file" && log "INFO: deleted: $fileName"
           fi
         fi
@@ -162,7 +162,7 @@ VideoLanguageCheck () {
 
     if [ "$preferredLanguage" == "false" ]; then
       if [ "$requireLanguageMatch" == "true" ]; then
-        log "$count of $fileCount :: ERROR :: No matching languages found in $(($videoAudioTracksCount + $videoSubtitleTracksCount)) Audio/Subtitle tracks"
+        log "LANGUAGE CHECK :: $count of $fileCount :: ERROR :: No matching languages found in $(($videoAudioTracksCount + $videoSubtitleTracksCount)) Audio/Subtitle tracks"
         rm "$file" && log "INFO: deleted: $fileName"
       fi
     fi
@@ -174,17 +174,17 @@ VideoLanguageCheck () {
     # Skip further processing when Number of Audio and Subtitle tracks match the preferred language 
     if [ $videoAudioTracksCount -ne $videoAudioTracksLanguageCount ]; then
       if [ "$noremuxOverride" == "false" ] ; then
-        log "$count of $fileCount :: Audio Track Count Missmatch (Total $videoAudioTracksCount vs Preferred $videoAudioTracksLanguageCount), forcing remux..."
+        log "LANGUAGE CHECK :: $count of $fileCount :: Audio Track Count Missmatch (Total $videoAudioTracksCount vs Preferred $videoAudioTracksLanguageCount), forcing remux..."
         noremux="false"
       fi
     else
-      log "$count of $fileCount :: Skipping ARR download information step because Audio Track count matches Preferred Track Count (Total $videoAudioTracksCount vs Preferred $videoAudioTracksLanguageCount)"
+      log "LANGUAGE CHECK :: $count of $fileCount :: Skipping ARR download information step because Audio Track count matches Preferred Track Count (Total $videoAudioTracksCount vs Preferred $videoAudioTracksLanguageCount)"
       touch "/config/scripts/arr-info"
     fi
 
     if [ $videoSubtitleTracksCount -ne $videoSubtitleTracksLanguageCount ]; then
       if [ "$noremuxOverride" == "false" ] ; then
-        log "$count of $fileCount :: Subtitle Track Count Missmatch (Total $videoSubtitleTracksCount vs Preferred $videoSubtitleTracksLanguageCount), forcing remux..."
+        log "LANGUAGE CHECK :: $count of $fileCount :: Subtitle Track Count Missmatch (Total $videoSubtitleTracksCount vs Preferred $videoSubtitleTracksLanguageCount), forcing remux..."
         noremux="false"
       fi
     fi
@@ -192,7 +192,7 @@ VideoLanguageCheck () {
     if [ "$noremux" == "true" ] || [ "$noremuxOverride" == "true" ] ; then
       touch "/config/scripts/skip"
     elif [ -f "$filePath/$tempFile" ]; then
-      log "$count of $fileCount :: Removing Source Temp File"
+      log "LANGUAGE CHECK :: $count of $fileCount :: Removing Source Temp File"
       rm "$filePath/$tempFile"
     fi
 
@@ -213,19 +213,19 @@ MkvPropEdit () {
     extension="${fileName##*.}"
     tempFile="temp.$extension"
     newFile="$fileNameNoExt.mkv"
-    log "$count of $fileCount :: Processing $fileName"
+    log "MKV EDIT :: $count of $fileCount :: Processing $fileName"
     if [ "$1" = "false" ]; then
-      log "$count of $fileCount :: Removing Title and adding/updating track statistics"
+      log "MKV EDIT :: $count of $fileCount :: Removing Title and adding/updating track statistics"
       mkvpropedit "$file" --delete title --add-track-statistics-tags
     else
-      log "$count of $fileCount :: Removing Title"
+      log "MKV EDIT :: $count of $fileCount :: Removing Title"
       mkvpropedit "$file" --delete title 
     fi
   done
 }
 
 MkvMerge () {
-  log "Step - MKV Merge"
+  log "Step - REMUX"
   count=0
   tempFile=""
   fileCount=$(find "$filePath" -type f -regex ".*/.*\.\(m4v\|wmv\|mkv\|mp4\|avi\)" | wc -l)
@@ -238,41 +238,41 @@ MkvMerge () {
     extension="${fileName##*.}"
     tempFile="temp.$extension"
     newFile="$fileNameNoExt.mkv"
-    log "$count of $fileCount :: Processing $fileName"
+    log "REMUX :: $count of $fileCount :: Processing $fileName"
       if [ -f "$file" ]; then
-        log "$count of $fileCount :: Renaming $fileName to $tempFile"
+        log "REMUX :: $count of $fileCount :: Renaming $fileName to $tempFile"
         mv "$file" "$filePath/$tempFile"
       fi
       if [ -f "$filePath/$tempFile" ]; then
         if [ "$1" = "true" ]; then
-          log "$count of $fileCount :: Dropping unwanted subtitles and converting to MKV ($tempFile ==> $newFile)"
-          log "$count of $fileCount :: Keeping only \"${audioLang}${videoLanguages},zxx\" audio and \"$videoLanguages\" subtitle languages, droping all other audio/subtitle tracks..."
+          log "REMUX :: $count of $fileCount :: Dropping unwanted subtitles and converting to MKV ($tempFile ==> $newFile)"
+          log "REMUX :: $count of $fileCount :: Keeping only \"${audioLang}${videoLanguages},zxx\" audio and \"$videoLanguages\" subtitle languages, droping all other audio/subtitle tracks..."
           mkvmerge -o "$filePath/$newFile" --audio-tracks ${audioLang}${videoLanguages},zxx --subtitle-tracks $videoLanguages "$filePath/$tempFile"
         else
           mkvmerge -o "$filePath/$newFile" "$filePath/$tempFile"
         fi
         if [ -f "$filePath/$newFile" ]; then
-            log "$count of $fileCount :: Conversion Complete"
+            log "REMUX :: $count of $fileCount :: Conversion Complete"
         else
-            log "$count of $fileCount :: ERROR :: File conversion failed..."
+            log "REMUX :: $count of $fileCount :: ERROR :: File conversion failed..."
         fi
       fi
       if [ -f "$filePath/$newFile" ]; then
         if [ -f "$filePath/$tempFile" ]; then
-            log "$count of $fileCount :: Removing Source Temp File"
+            log "REMUX :: $count of $fileCount :: Removing Source Temp File"
             rm "$filePath/$tempFile"
         fi
       fi
-      log "$count of $fileCount :: Validating remuxed file by checking for audio tracks" 
+      log "REMUX :: $count of $fileCount :: Validating remuxed file by checking for audio tracks" 
       newFileVideoData=$(mkvmerge -J "$filePath/$newFile")
       newFilevideoAudioTracksCount=$(echo "${newFileVideoData}" | jq -r '.tracks[] | select(.type=="audio") | .id' | wc -l)
       if [ $newFilevideoAudioTracksCount -eq 0 ]; then
-        log "$count of $fileCount :: ERROR :: No audio tracks found afer remuxing, performing cleanup..."
+        log "REMUX :: $count of $fileCount :: ERROR :: No audio tracks found afer remuxing, performing cleanup..."
         rm "$filePath/$newFile" && log "INFO: deleted: $newFile"
       else
-        log "$count of $fileCount :: $newFilevideoAudioTracksCount Audio Tracks found!"
+        log "REMUX :: $count of $fileCount :: $newFilevideoAudioTracksCount Audio Tracks found!"
       fi
-      log "$count of $fileCount :: Remux process complete!"
+      log "REMUX :: $count of $fileCount :: Remux process complete!"
     done
 }
 
@@ -440,7 +440,7 @@ ArrDownloadInfo () {
           arrSeriesData=$(curl -s "$arrUrl/api/v3/series/$arrSeriesId?apikey=$arrApiKey")
           onlineSourceId="$(echo "$arrSeriesData" | jq -r ".tvdbId")"
           arrItemLanguage="$(echo "$arrSeriesData" | jq -r ".originalLanguage.name")"
-          log "Sonarr Show ID = $arrSeriesId :: Lanuage :: $arrItemLanguage"
+          log "Sonarr Show ID = $arrSeriesId :: Language :: $arrItemLanguage"
           log "TVDB ID = $onlineSourceId"
           if [ "$arrItemLanguage" = "$defaultLanguage" ]; then
             audioLang=""
@@ -477,7 +477,7 @@ ArrDownloadInfo () {
 }
 
 VerifyApiAccess () {
-  log "Step - Verifying $arrApp API is accessible"
+  log "API ACCESS :: Verifying $arrApp API is accessible"
   alerted="no"
   until false
   do
@@ -487,21 +487,16 @@ VerifyApiAccess () {
       arrApiVersion="v3"
       arrApiTest="$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)"
     fi
-    if [ -z "$arrApiTest" ]; then
-      arrApiVersion="v1"
-      arrApiTest="$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)"
-    fi
     if [ ! -z "$arrApiTest" ]; then
       break
     else
       if [ "$alerted" == "no" ]; then
         alerted="yes"
-        log "STATUS :: $arrApp is not ready, sleeping until valid response..."
+        log "API ACCESS :: $arrApp is not ready, sleeping until valid response..."
       fi
-      sleep 1
     fi
   done
-  log "STATUS :: Done"
+  log "API ACCESS :: Complete!"
 }
 
 MAIN () {
@@ -514,8 +509,10 @@ MAIN () {
   skipRemux="false"
   skipStatistics="false"
   log "Script: $scriptName :: Version ($scriptVersion)"
+  #log "$filePath :: $downloadId :: Processing"
   installDependencies
   arrApiKeySelect
+
   # log "$filePath :: $downloadId :: Processing"
   if [ -f "/config/scripts/arr-info" ]; then
     rm "/config/scripts/arr-info"
@@ -547,6 +544,8 @@ MAIN () {
   MkvPropEdit "$skipStatistics"
   Cleaner
 
+  log "Set file permissions :: $filePath"
+  chmod 777 -R "$filePath"
 
   log "Refreshing $arrApp download queue to notify and import completed downloads"
 
