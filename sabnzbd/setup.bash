@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="3.2"
+scriptVersion="3.3"
 
 if [ -f /config/setup_version.txt ]; then
   source /config/setup_version.txt
@@ -18,10 +18,12 @@ InstallRequirements () {
   echo "************ install and update packages ************"
 	apk add  -U --update --no-cache \
 		flac \
-		opus-tools \
 		jq \
-		git \
-		ffmpeg
+        xq \
+        git \
+        opus-tools \
+        mkvtoolnix \
+        ffmpeg
 	apk add mp3val --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing
 	echo "************ install python packages ************"
 	pip install --no-cache-dir --break-system-packages -U \
