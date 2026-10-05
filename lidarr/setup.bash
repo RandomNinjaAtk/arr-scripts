@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.4.5"
+scriptVersion="1.4.6"
 SMA_PATH="/usr/local/sma"
 
 if [ -f /config/setup_version.txt ]; then
@@ -25,12 +25,15 @@ apk add -U --upgrade --no-cache \
   xq \
   git \
   gcc \
+  g++ \
   ffmpeg \
   imagemagick \
   opus-tools \
   opustags \
   python3-dev \
   libc-dev \
+  llvm-dev \
+  libffi-dev \
   uv \
   parallel \
   npm && \
@@ -38,11 +41,11 @@ echo "*** install freyr client ***" && \
 apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/testing atomicparsley && \
 npm install -g miraclx/freyr-js &&\
 echo "*** install python packages ***" && \
+# Install beets without optional dependencies first to avoid llvmlite issue
 uv pip install --system --upgrade --no-cache-dir --break-system-packages \
   jellyfish \
   beautifulsoup4 \
   yt-dlp \
-  beets \
   yq \
   pyxDamerauLevenshtein \
   pyacoustid \
@@ -55,7 +58,18 @@ uv pip install --system --upgrade --no-cache-dir --break-system-packages \
   tidal-dl \
   deemix \
   langdetect \
-  apprise  && \
+  apprise && \
+# Install beets without the problematic replaygain plugin dependencies
+uv pip install --system --upgrade --no-cache-dir --break-system-packages \
+  --no-deps beets && \
+# Install remaining beets dependencies manually (excluding numba/llvmlite)
+uv pip install --system --upgrade --no-cache-dir --break-system-packages \
+  confuse \
+  mediafile \
+  munkres \
+  musicbrainzngs \
+  pyyaml \
+  unidecode && \
 echo "************ setup SMA ************"
 if [ -d "${SMA_PATH}"  ]; then
   rm -rf "${SMA_PATH}"
@@ -70,6 +84,9 @@ echo "************ install pip dependencies ************" && \
 uv pip install --system --break-system-packages -r ${SMA_PATH}/setup/requirements.txt
 
 mkdir -p /custom-services.d/python /config/extended
+
+# Silence GNU Parallel citation notice
+mkdir -p ~/.parallel && touch ~/.parallel/will-cite
 
 parallel ::: \
   'echo "Download QueueCleaner service..." && curl -sfL https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/services/QueueCleaner -o /custom-services.d/QueueCleaner && echo "Done"' \
