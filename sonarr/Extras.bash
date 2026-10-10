@@ -146,11 +146,16 @@ DownloadExtras () {
 	      mkdir -p "$tempFolder" 
 	    fi
 
+        ytdlpMaxFileSize=""
+        if [ "${extrasMaxFileSize::-1}" -gt 0 ]; then
+            ytdlpMaxFileSize+="--max-filesize $extrasMaxFileSize"
+        fi
+
             log "$itemTitle :: $i of $tmdbVideosListDataIdsCount :: $tmdbExtraType :: $tmdbExtraTitle ($tmdbExtraKey) :: Downloading (yt-dlp :: $videoFormat)..."
             if [ ! -z "$cookiesFile" ]; then
-                yt-dlp -f "$videoFormat" --no-video-multistreams --cookies "$cookiesFile" -o "$tempFolder/$finalFileName" --write-sub --sub-lang $videoLanguages --embed-subs --merge-output-format mkv --no-mtime --geo-bypass $ytdlpExtraOpts "https://www.youtube.com/watch?v=$tmdbExtraKey"  2>&1 | tee -a /config/logs/$scriptName.txt
+                yt-dlp -f "$videoFormat" --no-video-multistreams --cookies "$cookiesFile" -o "$tempFolder/$finalFileName" --write-sub --sub-lang $videoLanguages --embed-subs --merge-output-format mkv --no-mtime --geo-bypass $ytdlpExtraOpts $ytdlpMaxFileSize "https://www.youtube.com/watch?v=$tmdbExtraKey"  2>&1 | tee -a /config/logs/$scriptName.txt
             else
-                yt-dlp -f "$videoFormat" --no-video-multistreams -o "$tempFolder/$finalFileName" --write-sub --sub-lang $videoLanguages --embed-subs --merge-output-format mkv --no-mtime --geo-bypass $ytdlpExtraOpts "https://www.youtube.com/watch?v=$tmdbExtraKey"  2>&1 | tee -a /config/logs/$scriptName.txt
+                yt-dlp -f "$videoFormat" --no-video-multistreams -o "$tempFolder/$finalFileName" --write-sub --sub-lang $videoLanguages --embed-subs --merge-output-format mkv --no-mtime --geo-bypass $ytdlpExtraOpts $ytdlpMaxFileSize "https://www.youtube.com/watch?v=$tmdbExtraKey"  2>&1 | tee -a /config/logs/$scriptName.txt
             fi
             if [ -f "$tempFolder/$finalFileName.mkv" ]; then
                 log "$itemTitle :: $i of $tmdbVideosListDataIdsCount :: $tmdbExtraType :: $tmdbExtraTitle ($tmdbExtraKey) :: Compete"
