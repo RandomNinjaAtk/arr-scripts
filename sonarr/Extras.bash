@@ -95,7 +95,7 @@ DownloadExtras () {
             i=$(( i + 1))
             tmdbExtraData="$(echo "$tmdbVideosListData" | jq -r "select(.id==\"$id\")")"
             tmdbExtraTitle="$(echo "$tmdbExtraData" | jq -r .name)"
-            tmdbExtraTitleClean="$(echo "$tmdbExtraTitle" | sed -e "s/[^[:alpha:][:digit:]$^&_+=()'%;{},.@#]/ /g" -e "s/  */ /g" | sed 's/^[.]*//' | sed  's/[.]*$//g' | sed  's/^ *//g' | sed 's/ *$//g')"
+            tmdbExtraTitleClean="$(echo "$tmdbExtraTitle" | tr '\n\r\t' '   ' | sed -e "s/[^[:alpha:][:digit:]$^&_+=()'%;{},.@#]/ /g" -e "s/  */ /g" | sed 's/^[.]*//' | sed  's/[.]*$//g' | sed  's/^ *//g' | sed 's/ *$//g')"
             tmdbExtraKey="$(echo "$tmdbExtraData" | jq -r .key)"
             tmdbExtraType="$(echo "$tmdbExtraData" | jq -r .type)"
             tmdbExtraOfficial="$(echo "$tmdbExtraData" | jq -r .official)"
