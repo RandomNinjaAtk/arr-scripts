@@ -21,15 +21,15 @@ logfileSetup () {
 getArrAppInfo () {
   # Get Arr App information
   if [ -z "$arrUrl" ] || [ -z "$arrApiKey" ]; then
-    arrUrlBase="$(cat /config/config.xml | xq | jq -r .Config.UrlBase)"
-    if [ "$arrUrlBase" == "null" ]; then
+    arrUrlBase="$(sed -n 's:.*<UrlBase>\(.*\)</UrlBase>.*:\1:p' /config/config.xml | head -n1)"
+    if [ -z "$arrUrlBase" ]; then
       arrUrlBase=""
     else
-      arrUrlBase="/$(echo "$arrUrlBase" | sed "s/\///")"
+      arrUrlBase="/$(echo "$arrUrlBase" | sed 's:^/*::; s:/*$::')"
     fi
-    arrName="$(cat /config/config.xml | xq | jq -r .Config.InstanceName)"
-    arrApiKey="$(cat /config/config.xml | xq | jq -r .Config.ApiKey)"
-    arrPort="$(cat /config/config.xml | xq | jq -r .Config.Port)"
+    arrName="$(sed -n 's:.*<InstanceName>\(.*\)</InstanceName>.*:\1:p' /config/config.xml | head -n1)"
+    arrApiKey="$(sed -n 's:.*<ApiKey>\(.*\)</ApiKey>.*:\1:p' /config/config.xml | head -n1)"
+    arrPort="$(sed -n 's:.*<Port>\(.*\)</Port>.*:\1:p' /config/config.xml | head -n1)"
     arrUrl="http://127.0.0.1:${arrPort}${arrUrlBase}"
   fi
 }
@@ -39,14 +39,15 @@ verifyApiAccess () {
   do
     arrApiTest=""
     arrApiVersion=""
+
+    arrApiVersion="v1"
+    arrApiTest="$(curl -fsS "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" 2>/dev/null | jq -er '.instanceName // .appName // empty' 2>/dev/null || true)"
+
     if [ -z "$arrApiTest" ]; then
       arrApiVersion="v3"
-      arrApiTest="$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)"
+      arrApiTest="$(curl -fsS "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" 2>/dev/null | jq -er '.instanceName // .appName // empty' 2>/dev/null || true)"
     fi
-    if [ -z "$arrApiTest" ]; then
-      arrApiVersion="v1"
-      arrApiTest="$(curl -s "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" | jq -r .instanceName)"
-    fi
+
     if [ ! -z "$arrApiTest" ]; then
       break
     else
