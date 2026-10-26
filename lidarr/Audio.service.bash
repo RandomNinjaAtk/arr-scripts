@@ -390,9 +390,8 @@ TidalClientTest () {
 	done
 	tidalClientTest="unknown"
 	if [ $downloadCount -le 0 ]; then
-		rm -f "${tidalerConfigDir}"/*auth*.json "${tidalerConfigDir}"/*token*.json
 		log "TIDAL :: ERROR :: Download failed"
-		log "TIDAL :: ERROR :: You will need to re-authenticate on next script run..."
+		log "TIDAL :: ERROR :: Authentication files were retained; check the Tidaler logs and account status..."
 		log "TIDAL :: ERROR :: Exiting..."
 		rm -rf "$audioPath"/incomplete/*
 		NotifyWebhook "Error" "TIDAL not authenticated but configured"

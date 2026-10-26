@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.4.6"
+scriptVersion="1.4.7"
 SMA_PATH="/usr/local/sma"
 
 if [ -f /config/setup_version.txt ]; then
@@ -68,6 +68,13 @@ chgrp users ${SMA_PATH}/config/sma.log && \
 chmod g+w ${SMA_PATH}/config/sma.log && \
 echo "************ install pip dependencies ************" && \
 uv pip install --system --break-system-packages -r ${SMA_PATH}/setup/requirements.txt
+
+# SMA's requirements can replace files in the shared `ffmpeg` Python module.
+# Tidaler needs the `FFmpeg` class from python-ffmpeg, so restore that package
+# after all other Python dependencies have been installed.
+uv pip install --system --upgrade --reinstall-package python-ffmpeg --no-cache-dir --break-system-packages \
+  "python-ffmpeg>=2.0.12,<3.0.0" \
+  "requests>=2.32.4"
 
 mkdir -p /custom-services.d/python /config/extended
 
